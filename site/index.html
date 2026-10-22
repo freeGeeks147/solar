@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gujarat Electricity Bill Calculator 2026-27 – UGVCL, MGVCL, DGVCL, PGVCL, Torrent</title>
+<meta name="description" content="Free Gujarat electricity bill calculator with GERC 2026-27 slab rates for UGVCL, MGVCL, DGVCL, PGVCL and Torrent Power, plus rooftop solar payback and EV charging cost calculators.">
+<link rel="canonical" href="https://example.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gujarat Electricity Bill Calculator 2026-27 – UGVCL, MGVCL, DGVCL, PGVCL, Torrent">
+<meta property="og:description" content="Free Gujarat electricity bill calculator with GERC 2026-27 slab rates for UGVCL, MGVCL, DGVCL, PGVCL and Torrent Power, plus rooftop solar payback and EV charging cost calculators.">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:site_name" content="Bijli Calc">
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23d97706'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Gujarat Electricity Bill Calculator 2026-27 – UGVCL, MGVCL, DGVCL, PGVCL, Torrent","url":"https://example.com/","description":"Free Gujarat electricity bill calculator with GERC 2026-27 slab rates for UGVCL, MGVCL, DGVCL, PGVCL and Torrent Power, plus rooftop solar payback and EV charging cost calculators.","dateModified":"2026-10-22"},{"@type":"WebApplication","name":"Gujarat Electricity Bill Calculator 2026-27","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"url":"https://example.com/"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the electricity unit rate in Gujarat in 2026-27?","acceptedAnswer":{"@type":"Answer","text":"For homes on the state DISCOMs (UGVCL, MGVCL, DGVCL, PGVCL) the urban residential rate is ₹3.05/unit for the first 50 units, ₹3.50 for 51–100, ₹4.15 for 101–250 and ₹5.20 above 250 units a month, plus FPPPA and 15% duty. Torrent Power has its own rates for Ahmedabad, Gandhinagar and Surat."}},{"@type":"Question","name":"Which DISCOM supplies my area?","acceptedAnswer":{"@type":"Answer","text":"Ahmedabad and Gandhinagar cities and Surat city are supplied by Torrent Power. North Gujarat is UGVCL, central Gujarat is MGVCL, south Gujarat is DGVCL, and Saurashtra and Kutch are PGVCL. The company name is printed at the top of your bill."}},{"@type":"Question","name":"Did Gujarat electricity rates change in 2026-27?","acceptedAnswer":{"@type":"Answer","text":"GERC kept base energy and fixed charges unchanged for 2026-27. It raised the prepaid smart meter rebate to 3% and widened the 60 paise/unit smart meter discount window to 11:00-17:00."}}]}]}</script>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+<a class="logo" href="./">Bijli <span>Calc</span></a>
+<nav class="nav" aria-label="Main"><a href="index.html" aria-current="page">Bill calculator</a><a href="solar-rooftop-calculator-gujarat.html">Rooftop solar</a><a href="ev-charging-cost-calculator-gujarat.html">EV charging</a><a href="pm-surya-ghar-subsidy-gujarat.html">Subsidy</a><a href="net-metering-gujarat.html">Net metering</a></nav>
+</div></header>
+<main><div class="wrap">
+
+<h1>Gujarat Electricity Bill Calculator 2026-27</h1>
+<p class="lede">Itemised bill estimates for every Gujarat DISCOM, using the slab rates, fixed charges, FPPPA and duty from the latest GERC tariff orders.</p>
+<section class="calc">
+<form class="card" data-calc="bill" data-output="bill-out" autocomplete="off">
+<h2>Enter your details</h2>
+<div class="fields">
+<div class="field full"><label for="discom">Electricity company (DISCOM)</label><select id="discom" name="discom"><option value="ugvcl" selected>UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl">PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad">Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
+<div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="3"></div>
+<div class="field"><label for="meter">Meter type</label><select id="meter" name="meter">
+<option value="postpaid">Regular (postpaid)</option>
+<option value="postpaid-smart">Smart meter, postpaid</option>
+<option value="prepaid-smart">Smart meter, prepaid</option>
+</select></div>
+<div class="field" data-show="smart"><label for="solarHoursPct">% of use 11:00-17:00</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Gets 60 paise/unit ToU discount</span></div>
+<div class="field full"><span class="hint" style="font-weight:600">Calculate from</span><div class="seg" role="radiogroup">
+<label><input type="radio" name="inputMode" value="units" checked> Units used</label>
+<label><input type="radio" name="inputMode" value="amount"> Bill amount</label>
+</div></div>
+<div class="field" data-show="units"><label for="units">Units (kWh)</label><input id="units" name="units" type="number" min="0" step="1" value="400"></div>
+<div class="field hidden" data-show="amount"><label for="amount">Bill amount (₹)</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500"></div>
+<div class="field"><label for="months">Billing period</label><select id="months" name="months"><option value="1">1 month</option><option value="2" selected>2 months</option></select></div>
+<details class="adv"><summary>More options</summary><div class="fields"><div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div>
+<div class="field"><label for="fppa">FPPPA (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01"><span class="hint">Check your latest bill; changes quarterly</span></div></div></details>
+</div>
+</form>
+<div class="card" id="bill-out" aria-live="polite"></div>
+</section>
+
+<h2>Bill calculator by DISCOM</h2>
+<ul class="grid-links"><li><a href="ugvcl-bill-calculator.html"><strong>UGVCL bill calculator</strong><small>North Gujarat</small></a></li><li><a href="mgvcl-bill-calculator.html"><strong>MGVCL bill calculator</strong><small>Central Gujarat</small></a></li><li><a href="dgvcl-bill-calculator.html"><strong>DGVCL bill calculator</strong><small>South Gujarat</small></a></li><li><a href="pgvcl-bill-calculator.html"><strong>PGVCL bill calculator</strong><small>Saurashtra and Kutch</small></a></li><li><a href="torrent-power-ahmedabad-bill-calculator.html"><strong>Torrent Power Ahmedabad bill calculator</strong><small>Ahmedabad and Gandhinagar cities</small></a></li><li><a href="torrent-power-surat-bill-calculator.html"><strong>Torrent Power Surat bill calculator</strong><small>Surat city</small></a></li></ul>
+<h2>Solar and EV</h2>
+<ul class="grid-links">
+<li><a href="solar-rooftop-calculator-gujarat.html"><strong>Rooftop solar payback</strong><small>Subsidy, savings and payback on your DISCOM's slabs</small></a></li>
+<li><a href="ev-charging-cost-calculator-gujarat.html"><strong>EV charging cost</strong><small>₹/km at home, in solar hours or on public chargers</small></a></li>
+<li><a href="pm-surya-ghar-subsidy-gujarat.html"><strong>PM Surya Ghar subsidy</strong><small>Up to ₹78,000 for 3 kW</small></a></li>
+<li><a href="net-metering-gujarat.html"><strong>Net metering in Gujarat</strong><small>How export units are credited</small></a></li>
+</ul>
+<section class="faq prose"><h2>Frequently asked questions</h2><details><summary>What is the electricity unit rate in Gujarat in 2026-27?</summary><p>For homes on the state DISCOMs (UGVCL, MGVCL, DGVCL, PGVCL) the urban residential rate is ₹3.05/unit for the first 50 units, ₹3.50 for 51–100, ₹4.15 for 101–250 and ₹5.20 above 250 units a month, plus FPPPA and 15% duty. Torrent Power has its own rates for Ahmedabad, Gandhinagar and Surat.</p></details><details><summary>Which DISCOM supplies my area?</summary><p>Ahmedabad and Gandhinagar cities and Surat city are supplied by Torrent Power. North Gujarat is UGVCL, central Gujarat is MGVCL, south Gujarat is DGVCL, and Saurashtra and Kutch are PGVCL. The company name is printed at the top of your bill.</p></details><details><summary>Did Gujarat electricity rates change in 2026-27?</summary><p>GERC kept base energy and fixed charges unchanged for 2026-27. It raised the prepaid smart meter rebate to 3% and widened the 60 paise/unit smart meter discount window to 11:00-17:00.</p></details></section>
+</div></main>
+<footer class="site-footer"><div class="wrap">
+<div class="links">
+<a href="ugvcl-bill-calculator.html">UGVCL bill calculator</a>
+<a href="mgvcl-bill-calculator.html">MGVCL bill calculator</a>
+<a href="dgvcl-bill-calculator.html">DGVCL bill calculator</a>
+<a href="pgvcl-bill-calculator.html">PGVCL bill calculator</a>
+<a href="torrent-power-ahmedabad-bill-calculator.html">Torrent Power Ahmedabad bill calculator</a>
+<a href="torrent-power-surat-bill-calculator.html">Torrent Power Surat bill calculator</a>
+<a href="smart-meter-tou-tariff-gujarat.html">Smart meter ToU discount</a>
+<a href="about.html">About &amp; sources</a>
+<a href="privacy-policy.html">Privacy policy</a>
+</div>
+<p>Tariffs: GERC 2026-27 orders, effective 1 April 2026. Last reviewed 22 October 2026. Results are estimates, not your official bill. Not affiliated with any DISCOM or government body.</p>
+</div></footer>
+<script src="assets/calc.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

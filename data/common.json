@@ -1,0 +1,42 @@
+{
+  "lastReviewed": "2026-10-22",
+  "pmSuryaGhar": {
+    "name": "PM Surya Ghar: Muft Bijli Yojana",
+    "url": "https://pmsuryaghar.gov.in/",
+    "perKwFirst2": 30000,
+    "perKwThird": 18000,
+    "cap": 78000,
+    "residentialOnly": true,
+    "note": "Central Financial Assistance for residential rooftop solar: Rs 30,000/kW for the first 2 kW, Rs 18,000 for the 3rd kW, capped at Rs 78,000 for 3 kW and above."
+  },
+  "solarDefaults": {
+    "costPerKw": 55000,
+    "degradationPctPerYear": 0.5,
+    "tariffEscalationPctPerYear": 2,
+    "lifeYears": 25,
+    "sqftPerKw": 100,
+    "co2KgPerKwh": 0.71,
+    "loanRatePct": 7,
+    "loanTenureYears": 10
+  },
+  "fuel": {
+    "petrolPerLitre": 94.5,
+    "dieselPerLitre": 90.2,
+    "cngPerKg": 79,
+    "note": "Approximate Gujarat retail prices; edit in the calculator."
+  },
+  "evPresets": [
+    { "id": "2w-scooter", "label": "Electric scooter (Ola S1, Ather, TVS iQube, Chetak)", "kwhPerKm": 0.035, "iceType": "petrol", "iceKmPerUnit": 45 },
+    { "id": "3w-auto", "label": "Electric auto-rickshaw", "kwhPerKm": 0.08, "iceType": "cng", "iceKmPerUnit": 30 },
+    { "id": "car-small", "label": "Small EV car (Tata Tiago EV, MG Comet)", "kwhPerKm": 0.12, "iceType": "petrol", "iceKmPerUnit": 18 },
+    { "id": "car-compact-suv", "label": "Compact SUV EV (Tata Nexon EV, Punch EV)", "kwhPerKm": 0.14, "iceType": "petrol", "iceKmPerUnit": 15 },
+    { "id": "car-suv", "label": "Mid-size SUV EV (MG ZS EV, Mahindra XEV, Hyundai Creta EV)", "kwhPerKm": 0.16, "iceType": "diesel", "iceKmPerUnit": 15 },
+    { "id": "custom", "label": "Custom (enter kWh/km)", "kwhPerKm": 0.13, "iceType": "petrol", "iceKmPerUnit": 15 }
+  ],
+  "evDefaults": {
+    "publicChargerPerKwh": 20,
+    "chargingLossPct": 10,
+    "batteryDegradationPctPerYear": 2,
+    "years": 6
+  }
+}

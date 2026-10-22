@@ -1,0 +1,12 @@
+{
+  "name": "bijli-calc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static electricity bill, rooftop solar and EV charging cost calculators for Gujarat DISCOMs",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node --test",
+    "serve": "python3 -m http.server 8000 -d site"
+  },
+  "license": "Apache-2.0"
+}
