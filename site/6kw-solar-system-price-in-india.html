@@ -32,7 +32,12 @@
 <div class="fields">
 <div class="field"><label for="kw">Solar size</label><select id="kw" name="kw"><option value="1">1 kW</option><option value="2">2 kW</option><option value="3">3 kW</option><option value="4">4 kW</option><option value="5">5 kW</option><option value="6" selected>6 kW</option><option value="8">8 kW</option><option value="10">10 kW</option></select></div>
 <div class="field"><label for="city">Your city</label><select id="city" name="city"><option value="0" selected>Delhi</option><option value="1">Jaipur (Rajasthan)</option><option value="2">Jodhpur (Rajasthan)</option><option value="3">Ahmedabad (Gujarat)</option><option value="4">Surat (Gujarat)</option><option value="5">Rajkot (Gujarat)</option><option value="6">Mumbai (Maharashtra)</option><option value="7">Pune (Maharashtra)</option><option value="8">Nagpur (Maharashtra)</option><option value="9">Bengaluru (Karnataka)</option><option value="10">Chennai (Tamil Nadu)</option><option value="11">Hyderabad (Telangana)</option><option value="12">Lucknow (Uttar Pradesh)</option><option value="13">Kanpur (Uttar Pradesh)</option><option value="14">Bhopal (Madhya Pradesh)</option><option value="15">Indore (Madhya Pradesh)</option><option value="16">Patna (Bihar)</option><option value="17">Kolkata (West Bengal)</option><option value="18">Chandigarh (Punjab / Haryana)</option><option value="19">Kochi (Kerala)</option><option value="20">Bhubaneswar (Odisha)</option><option value="21">Guwahati (Assam)</option></select></div>
-<div class="field full"><label for="bill">Your monthly electricity bill (₹)</label><input id="bill" name="bill" type="number" min="0" step="100" value="5100" inputmode="numeric"></div>
+<div class="field full"><span class="hint" style="font-weight:600">I know my</span><div class="seg" role="radiogroup">
+<label><input type="radio" name="inputMode" value="bill" checked> Monthly bill (₹)</label>
+<label><input type="radio" name="inputMode" value="units"> Monthly units</label>
+</div></div>
+<div class="field full" data-show="bill"><label for="bill">Your monthly electricity bill (₹)</label><input id="bill" name="bill" type="number" min="0" step="100" value="5100" inputmode="numeric"></div>
+<div class="field full hidden" data-show="units"><label for="units">Units you use per month</label><input id="units" name="units" type="number" min="0" step="10" value="730" inputmode="numeric"><span class="hint">Printed on your bill. Bill for 2 months? Enter half.</span></div>
 <details class="adv"><summary>Change price or rate</summary><div class="fields">
 <div class="field"><label for="cost">Price quoted to you (₹)</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">Before subsidy. We fill in a typical price.</span></div>
 <div class="field"><label for="rate">Cost of 1 unit (₹)</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="7" inputmode="decimal"><span class="hint">Bill amount ÷ units on the bill</span></div>
@@ -58,6 +63,16 @@
 <li><strong>Stand height:</strong> a raised stand (so you can use the roof below) costs more.</li>
 <li><strong>Battery:</strong> a system with batteries costs much more, and does not get the subsidy.</li>
 </ul>
+<h2>How solar saves money: two examples</h2>
+<p>Each solar unit your home uses replaces a unit you would buy from the electricity company. Extra units go to the grid and earn only a little. Example at ₹7 a unit:</p>
+<div class="table-wrap"><table><thead><tr><th></th><th class="num">Use 700, solar makes 600</th><th class="num">Use 600, solar makes 700</th></tr></thead><tbody>
+<tr><td>Solar units used at home</td><td class="num">600</td><td class="num">600</td></tr>
+<tr><td>Units bought from the company</td><td class="num">100</td><td class="num">0</td></tr>
+<tr><td>Extra units sold to the grid</td><td class="num">0</td><td class="num">100 × ₹3</td></tr>
+<tr><td>Bill before → after</td><td class="num">₹4,900 → ₹700</td><td class="num">₹4,200 → ₹0</td></tr>
+<tr class="total"><td>Saving per month</td><td class="num">₹4,200</td><td class="num">₹4,450</td></tr>
+</tbody></table></div>
+<p>The second system makes 100 more units but saves only ₹250 more. <strong>Choose a size that makes about as much as you use.</strong></p>
 <h2>Which size is right for you?</h2>
 <p>Look at your monthly electricity bill and find the closest row.</p>
 <div class="table-wrap"><table><thead><tr><th>Solar size</th><th class="num">Good for a monthly bill of</th><th class="num">You pay (after subsidy)</th><th class="num">Units a day</th></tr></thead><tbody><tr><td><a href="1kw-solar-system-price-in-india.html">1 kW</a></td><td class="num">₹800</td><td class="num">₹30,000 to ₹50,000</td><td class="num">4</td></tr><tr><td><a href="2kw-solar-system-price-in-india.html">2 kW</a></td><td class="num">₹1,700</td><td class="num">₹60,000 to ₹90,000</td><td class="num">8</td></tr><tr><td><a href="3kw-solar-system-price-in-india.html">3 kW</a></td><td class="num">₹2,500</td><td class="num">₹87,000 to ₹1.32 lakh</td><td class="num">12</td></tr><tr><td><a href="4kw-solar-system-price-in-india.html">4 kW</a></td><td class="num">₹3,400</td><td class="num">₹1.37 lakh to ₹1.92 lakh</td><td class="num">16</td></tr><tr><td><a href="5kw-solar-system-price-in-india.html">5 kW</a></td><td class="num">₹4,200</td><td class="num">₹1.82 lakh to ₹2.52 lakh</td><td class="num">20</td></tr><tr class="current"><td><strong>6 kW</strong></td><td class="num">₹5,100</td><td class="num">₹2.32 lakh to ₹3.12 lakh</td><td class="num">24</td></tr><tr><td><a href="8kw-solar-system-price-in-india.html">8 kW</a></td><td class="num">₹6,800</td><td class="num">₹3.22 lakh to ₹4.22 lakh</td><td class="num">32</td></tr><tr><td><a href="10kw-solar-system-price-in-india.html">10 kW</a></td><td class="num">₹8,500</td><td class="num">₹4.02 lakh to ₹5.22 lakh</td><td class="num">40</td></tr></tbody></table></div>

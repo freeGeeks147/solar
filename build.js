@@ -423,7 +423,12 @@ function sizeForm(kw, mode) {
 <div class="fields">
 <div class="field"><label for="kw">Solar size</label><select id="kw" name="kw">${sizeOpts}</select></div>
 <div class="field"><label for="city">Your city</label><select id="city" name="city">${cityOpts}</select></div>
-<div class="field full"><label for="bill">Your monthly electricity bill (₹)</label><input id="bill" name="bill" type="number" min="0" step="100" value="${f.suitsBill}" inputmode="numeric"></div>
+<div class="field full"><span class="hint" style="font-weight:600">I know my</span><div class="seg" role="radiogroup">
+<label><input type="radio" name="inputMode" value="bill" checked> Monthly bill (₹)</label>
+<label><input type="radio" name="inputMode" value="units"> Monthly units</label>
+</div></div>
+<div class="field full" data-show="bill"><label for="bill">Your monthly electricity bill (₹)</label><input id="bill" name="bill" type="number" min="0" step="100" value="${f.suitsBill}" inputmode="numeric"></div>
+<div class="field full hidden" data-show="units"><label for="units">Units you use per month</label><input id="units" name="units" type="number" min="0" step="10" value="${f.suitsUnits}" inputmode="numeric"><span class="hint">Printed on your bill. Bill for 2 months? Enter half.</span></div>
 <details class="adv"><summary>Change price or rate</summary><div class="fields">
 <div class="field"><label for="cost">Price quoted to you (₹)</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">Before subsidy. We fill in a typical price.</span></div>
 <div class="field"><label for="rate">Cost of 1 unit (₹)</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="${india.defaultRate}" inputmode="decimal"><span class="hint">Bill amount ÷ units on the bill</span></div>
@@ -496,6 +501,16 @@ ${adSlot('after-calc')}
 <li><strong>Stand height:</strong> a raised stand (so you can use the roof below) costs more.</li>
 <li><strong>Battery:</strong> a system with batteries costs much more, and does not get the subsidy.</li>
 </ul>
+<h2>How solar saves money: two examples</h2>
+<p>Each solar unit your home uses replaces a unit you would buy from the electricity company. Extra units go to the grid and earn only a little. Example at ₹${india.defaultRate} a unit:</p>
+<div class="table-wrap"><table><thead><tr><th></th><th class="num">Use 700, solar makes 600</th><th class="num">Use 600, solar makes 700</th></tr></thead><tbody>
+<tr><td>Solar units used at home</td><td class="num">600</td><td class="num">600</td></tr>
+<tr><td>Units bought from the company</td><td class="num">100</td><td class="num">0</td></tr>
+<tr><td>Extra units sold to the grid</td><td class="num">0</td><td class="num">100 × ₹${india.defaultExportRate.toFixed(0)}</td></tr>
+<tr><td>Bill before → after</td><td class="num">${inr(700 * india.defaultRate)} → ${inr(100 * india.defaultRate)}</td><td class="num">${inr(600 * india.defaultRate)} → ₹0</td></tr>
+<tr class="total"><td>Saving per month</td><td class="num">${inr(600 * india.defaultRate)}</td><td class="num">${inr(600 * india.defaultRate + 100 * india.defaultExportRate)}</td></tr>
+</tbody></table></div>
+<p>The second system makes 100 more units but saves only ${inr(100 * india.defaultExportRate)} more. <strong>Choose a size that makes about as much as you use.</strong></p>
 <h2>Which size is right for you?</h2>
 <p>Look at your monthly electricity bill and find the closest row.</p>
 ${compareTable(kw)}

@@ -300,6 +300,31 @@
 
   // ---------- System size (any state, flat ₹/unit) ----------
 
+  // Step-by-step explanation of the saving, using yearly averages per month.
+  function workings(r, units, rate, exportRate) {
+    var gen = r.generationPerMonth;
+    var surplus = r.months.reduce(function (a, m) { return a + m.surplus; }, 0) / 12;
+    var used = gen - surplus;
+    var buy = Math.max(0, units - used);
+    var steps = [];
+    if (units > 0) steps.push('Your home uses <strong>' + num(units) + ' units</strong> a month (' + rs(units * rate) + ' at ' + rs2(rate) + ' a unit).');
+    steps.push('Solar makes about <strong>' + num(gen) + ' units</strong> a month.');
+    if (units <= 0) {
+      steps.push('Every solar unit is counted at ' + rs2(rate) + '. Saving: ' + num(gen) + ' × ' + rs2(rate) + ' = <strong>' + rs(gen * rate) + '</strong>.');
+    } else if (surplus < 1) {
+      steps.push('Your home uses all ' + num(used) + ' solar units, so you buy only <strong>' + num(buy) + ' units</strong> from the electricity company.');
+      steps.push('Saving: ' + num(used) + ' units × ' + rs2(rate) + ' = <strong>' + rs(used * rate) + ' a month</strong>.');
+      steps.push('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong>.');
+    } else {
+      if (buy >= 1) steps.push('Solar makes more than you use in sunny months and less in the rainy months, so some months have extra units. On average over the year:');
+      steps.push('Your home uses ' + num(used) + ' of them' + (buy >= 1 ? ' and buys ' + num(buy) + ' units from the company' : ', so you buy almost nothing') + '. The other <strong>' + num(surplus) + ' units</strong> go to the grid, and the company pays about ' + rs2(Number(exportRate)) + ' each.');
+      steps.push('Saving: ' + num(used) + ' × ' + rs2(rate) + ' + ' + num(surplus) + ' × ' + rs2(Number(exportRate)) + ' = <strong>' + rs(used * rate + surplus * exportRate) + ' a month</strong>.');
+      steps.push('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong> plus small fixed charges.');
+    }
+    return '<div class="workings"><h3>How we worked it out</h3><ol>' + steps.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>' +
+      '<p class="note">Units your home uses save the full ' + rs2(rate) + '. Extra units sold to the grid earn only about ' + rs2(Number(exportRate)) + ', so a system that makes about as much as you use pays back fastest. Figures are monthly averages over the year.</p></div>';
+  }
+
   function renderSize(form, out) {
     var f = readForm(form);
     var kw = Number(f.kw) || 3;
@@ -308,8 +333,11 @@
     var costEl = form.elements.cost;
     if (costEl && !costEl.dataset.touched) costEl.value = Math.round(band.mid / 1000) * 1000;
     var rate = Number(f.rate) || india.defaultRate;
-    var bill = Number(f.bill) || 0;
-    var units = Math.round(bill / rate);
+    var byUnits = f.inputMode === 'units';
+    form.querySelector('[data-show="bill"]').classList.toggle('hidden', byUnits);
+    form.querySelector('[data-show="units"]').classList.toggle('hidden', !byUnits);
+    var units = byUnits ? Number(f.units) || 0 : Math.round((Number(f.bill) || 0) / rate);
+    var bill = units * rate;
     var r = C.solarSimple(india, common, {
       kw: kw, yieldKwhPerKwYear: city.yield, units: units,
       rate: rate, exportRate: f.exportRate, cost: Number(f.cost) || band.mid
@@ -332,7 +360,7 @@
       ? '<p class="note">Live in Gujarat? Our <a href="solar-rooftop-calculator-gujarat.html?units=' + (units || 300) + '&kw=' + kw + '">Gujarat calculator</a> uses your electricity company\'s exact rates.</p>' : '';
 
     out.innerHTML = answer +
-      '<div class="kpis three">' + tiles + '</div>' + fit +
+      '<div class="kpis three">' + tiles + '</div>' + fit + workings(r, units, rate, f.exportRate || india.defaultExportRate) +
       more('See the full cost breakdown',
         '<div class="table-wrap"><table><tbody>' +
           '<tr><td>System price (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
