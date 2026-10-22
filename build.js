@@ -77,6 +77,8 @@ ${written.map((w) => `  <url><loc>${loc(w)}</loc><lastmod>${lastReviewed}</lastm
 </urlset>
 `;
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), sitemap);
+// Custom domain for GitHub Pages / Cloudflare Pages
+fs.writeFileSync(path.join(OUT, 'CNAME'), new URL(base).host + '\n');
 fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${base}/sitemap.xml\n`);
 
 const pubId = cfg.adsenseClient.replace(/^ca-/, '');

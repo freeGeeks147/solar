@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bijlibajao.com/sitemap.xml
+Sitemap: https://bijlibachaao.com/sitemap.xml

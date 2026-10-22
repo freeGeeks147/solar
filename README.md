@@ -1,4 +1,4 @@
-# Bijli Bajao (bijlibajao.com): rooftop solar price, generation and savings
+# Bijli Bachaao (bijlibachaao.com): rooftop solar price, generation and savings
 
 A static site with no backend, no database and no build dependencies. It contains:
 
