@@ -112,6 +112,27 @@
     return isEstimate(form, name) ? ' <span class="est" title="Default estimate. Enter the figure from your bill.">est.</span>' : '';
   }
 
+  // ---------- Plain-language helpers ----------
+
+  // 3.67 -> "3 years 8 months"
+  function yearsText(y) {
+    if (y === null || y === undefined) return 'more than 25 years';
+    var whole = Math.floor(y), months = Math.round((y - whole) * 12);
+    if (months === 12) { whole += 1; months = 0; }
+    var parts = [];
+    if (whole) parts.push(whole + (whole === 1 ? ' year' : ' years'));
+    if (months) parts.push(months + (months === 1 ? ' month' : ' months'));
+    return parts.join(' ') || 'less than a month';
+  }
+
+  function tile(label, value, hero) {
+    return '<div class="kpi' + (hero ? ' hero' : '') + '"><div class="k">' + label + '</div><div class="v">' + value + '</div></div>';
+  }
+
+  function more(summary, inner) {
+    return '<details class="more"><summary>' + summary + '</summary>' + inner + '</details>';
+  }
+
   // ---------- Bill calculator ----------
 
   function renderBill(form, out) {
@@ -125,48 +146,46 @@
 
     var b = C.calcBill(data, o);
     var marginal = C.marginalRate(data, o);
-    var periodLabel = o.months === 2 ? '2-month bill' : 'Monthly bill';
-    var rows = b.slabRows.map(function (r) {
-      return '<tr><td>' + (r.to === null ? 'Above ' + num(r.from) : num(r.from + 1) + '–' + num(r.to)) + ' units</td><td class="num">' + num(r.units, 1) + ' × ' + rs2(r.rate) + '</td><td class="num">' + rs2(r.amount) + '</td></tr>';
+    var period = o.months === 2 ? 'for 2 months' : 'for the month';
+    var rows = b.slabRows.map(function (r, i) {
+      var label = i === 0 ? 'First ' + num(r.units) + ' units' : (r.to === null ? num(r.units) + ' units above ' + num(r.from) : 'Next ' + num(r.units) + ' units');
+      return '<tr><td>' + label + ' at ' + rs2(r.rate) + '</td><td class="num">' + rs(r.amount) + '</td></tr>';
     }).join('');
 
-    var smartCompare = '';
+    var smartLine = '';
     if (o.meter === 'postpaid') {
       var smart = C.calcBill(data, Object.assign({}, o, { meter: 'prepaid-smart', solarHoursPct: 30 }));
-      smartCompare = '<p class="note">With a prepaid smart meter (3% rebate on energy charges) and 30% of your use between ' +
-        esc(data.common.tou.window) + ' (60 paise/unit ToU discount), this bill would be about <strong>' + rs(smart.total) +
-        '</strong>, saving ' + rs(b.total - smart.total) + '.</p>';
+      smartLine = '<p class="note"><strong>Tip:</strong> with a prepaid smart meter, and running some appliances between 11 am and 5 pm, this bill would be about ' + rs(smart.total) + ' (you save ' + rs(b.total - smart.total) + ').</p>';
     }
+    var estimate = isEstimate(form, 'fppa') || isEstimate(form, 'dutyPct');
 
     out.innerHTML =
-      '<div class="kpis">' +
-        '<div class="kpi hero"><div class="k">' + periodLabel + '</div><div class="v">' + rs(b.total) + '</div></div>' +
-        '<div class="kpi"><div class="k">Units</div><div class="v">' + num(b.units) + '</div></div>' +
-        '<div class="kpi"><div class="k">Effective rate</div><div class="v">' + rs2(b.effectiveRate) + '/unit</div></div>' +
-        '<div class="kpi"><div class="k">Next unit costs</div><div class="v">' + rs2(marginal) + '</div></div>' +
-        '<div class="kpi"><div class="k">Energy charge</div><div class="v">' + rs(b.energy) + '</div></div>' +
-        '<div class="kpi"><div class="k">FPPPA + duty</div><div class="v">' + rs(b.fppa + b.duty) + '</div></div>' +
+      '<p class="answer">' + (byBill ? 'A bill of ' + rs(b.total) + ' means you used about <strong>' + num(b.units) + ' units</strong>. ' : 'Your bill: <strong>' + rs(b.total) + '</strong> ' + period + '. ') +
+        'That is about <strong>' + rs2(b.effectiveRate) + ' per unit</strong> once all charges are added.</p>' +
+      '<div class="kpis three">' +
+        tile(o.months === 2 ? 'Bill (2 months)' : 'Bill (1 month)', rs(b.total), true) +
+        tile('Average cost per unit', rs2(b.effectiveRate)) +
+        tile('Each extra unit costs', rs2(marginal)) +
       '</div>' +
-      '<div class="table-wrap"><table><thead><tr><th>Bill item</th><th class="num">Calculation</th><th class="num">Amount</th></tr></thead><tbody>' +
-        '<tr><td>Fixed charge</td><td class="num">' + esc(f.loadKw) + ' kW load</td><td class="num">' + rs2(b.fixed) + '</td></tr>' +
+      '<h3>What you pay for</h3>' +
+      '<div class="table-wrap"><table><tbody>' +
         rows +
-        '<tr><td>FPPPA (fuel surcharge)' + estTag(form, 'fppa') + '</td><td class="num">' + num(b.units, 1) + ' × ' + rs2(b.fppaRate) + '</td><td class="num">' + rs2(b.fppa) + '</td></tr>' +
-        (b.prepaidRebate ? '<tr class="minus"><td>Prepaid rebate (3% of energy)</td><td></td><td class="num">−' + rs2(b.prepaidRebate) + '</td></tr>' : '') +
-        (b.touDiscount ? '<tr class="minus"><td>ToU discount ' + esc(data.common.tou.window) + '</td><td class="num">' + num(b.solarHoursUnits, 1) + ' × ₹0.60</td><td class="num">−' + rs2(b.touDiscount) + '</td></tr>' : '') +
-        '<tr><td>Electricity duty' + estTag(form, 'dutyPct') + '</td><td class="num">' + b.dutyPct + '%</td><td class="num">' + rs2(b.duty) + '</td></tr>' +
-        '<tr class="total"><td>Total</td><td></td><td class="num">' + rs2(b.total) + '</td></tr>' +
+        '<tr><td>Fixed charge</td><td class="num">' + rs(b.fixed) + '</td></tr>' +
+        '<tr><td>Fuel surcharge (FPPPA)' + estTag(form, 'fppa') + '</td><td class="num">' + rs(b.fppa) + '</td></tr>' +
+        (b.prepaidRebate ? '<tr class="minus"><td>Prepaid meter discount</td><td class="num">−' + rs(b.prepaidRebate) + '</td></tr>' : '') +
+        (b.touDiscount ? '<tr class="minus"><td>Daytime (11 am–5 pm) discount</td><td class="num">−' + rs(b.touDiscount) + '</td></tr>' : '') +
+        '<tr><td>Government tax (electricity duty ' + b.dutyPct + '%)' + estTag(form, 'dutyPct') + '</td><td class="num">' + rs(b.duty) + '</td></tr>' +
+        '<tr class="total"><td>Total</td><td class="num">' + rs(b.total) + '</td></tr>' +
       '</tbody></table></div>' +
-      smartCompare +
-      '<p class="note">Based on the GERC ' + esc(data.tariffYear) + ' tariff.' +
-        (isEstimate(form, 'fppa') || isEstimate(form, 'dutyPct') ? ' Items marked <span class="est">est.</span> use our default estimate; enter the figures printed on your bill under “From your bill” for an exact match.' : ' Using the FPPPA and duty you entered.') +
-        ' Meter rent, rounding and arrears are not included.</p>' +
+      (estimate ? '<p class="note"><span class="est">est.</span> = our estimate. For an exact match, copy these two numbers from your bill into the box on the left.</p>' : '') +
+      smartLine +
       '<a class="cta" href="' + link('solar-rooftop-calculator-gujarat.html', {
         discom: o.discom, category: o.category, units: Math.round(b.units / o.months), loadKw: f.loadKw,
         fppa: isEstimate(form, 'fppa') ? '' : f.fppa, dutyPct: isEstimate(form, 'dutyPct') ? '' : f.dutyPct
-      }) + '">See how much rooftop solar saves on this bill →</a>';
+      }) + '">How much would solar save on this bill? →</a>';
   }
 
-  // ---------- Solar ROI ----------
+  // ---------- Solar ROI (Gujarat, exact tariff) ----------
 
   function renderSolar(form, out) {
     var f = readForm(form);
@@ -185,48 +204,48 @@
 
     var r = C.solarRoi(data, common, o);
     var monthRows = r.months.map(function (m) {
-      return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.billAfter) + '</td><td class="num">' + num(m.surplus) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
+      return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.billAfter) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
     }).join('');
 
     var loanHtml = '';
     if (r.loan) {
-      loanHtml = '<h3>Loan</h3><div class="kpis">' +
-        '<div class="kpi"><div class="k">Down payment</div><div class="v">' + rs(r.loan.downPayment) + '</div></div>' +
-        '<div class="kpi"><div class="k">EMI (' + r.loan.years + ' yr @ ' + r.loan.ratePct + '%)</div><div class="v">' + rs(r.loan.emi) + '</div></div>' +
-        '<div class="kpi"><div class="k">Saving − EMI / month</div><div class="v">' + rs(r.loan.netMonthlyYear1) + '</div></div>' +
-        '</div><p class="note">Total interest paid: ' + rs(r.loan.totalInterest) + '. Banks offer collateral-free loans under PM Surya Ghar; the rate here is an assumption.</p>';
+      var covers = r.loan.netMonthlyYear1 >= 0;
+      loanHtml = '<h3>With a loan</h3><p>You pay <strong>' + rs(r.loan.downPayment) + '</strong> upfront and an EMI of <strong>' + rs(r.loan.emi) + ' a month</strong> for ' + r.loan.years + ' years. ' +
+        (covers ? 'Your bill saving is bigger than the EMI, so you are <strong>' + rs(r.loan.netMonthlyYear1) + ' a month ahead</strong> from day one.' : 'The EMI is ' + rs(-r.loan.netMonthlyYear1) + ' a month more than your bill saving until the loan ends.') + '</p>';
     }
 
     var cumul = r.years.map(function (y) { return y.cumulative; });
     out.innerHTML =
+      '<p class="answer">A <strong>' + num(r.kw, 1) + ' kW</strong> system costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. ' +
+        'Your bill drops from ' + rs(r.billBefore) + ' to about <strong>' + rs(r.avgBillAfter) + ' a month</strong>, and the system pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.</p>' +
       '<div class="kpis">' +
-        '<div class="kpi hero"><div class="k">Payback</div><div class="v">' + (r.paybackYears === null ? '> ' + r.years.length + ' yr' : num(r.paybackYears, 1) + ' yr') + '</div></div>' +
-        '<div class="kpi"><div class="k">System size</div><div class="v">' + num(r.kw, 1) + ' kW</div></div>' +
-        '<div class="kpi"><div class="k">Monthly saving (yr 1)</div><div class="v">' + rs(r.savingMonthlyYear1) + '</div></div>' +
-        '<div class="kpi"><div class="k">Cost after subsidy</div><div class="v">' + rs(r.netCost) + '</div></div>' +
-        '<div class="kpi"><div class="k">' + r.years.length + '-yr net saving</div><div class="v">' + rs(r.lifetimeNet) + '</div></div>' +
-        '<div class="kpi"><div class="k">IRR</div><div class="v">' + (r.irr === null ? '—' : num(r.irr * 100, 1) + '%') + '</div></div>' +
+        tile('You pay (after subsidy)', rs(r.netCost), true) +
+        tile('You save every month', rs(r.savingMonthlyYear1)) +
+        tile('Money back in', yearsText(r.paybackYears)) +
+        tile('System size', num(r.kw, 1) + ' kW') +
+        tile('Bill now', rs(r.billBefore)) +
+        tile('Bill with solar', rs(r.avgBillAfter)) +
       '</div>' +
-      '<div class="table-wrap"><table><tbody>' +
-        '<tr><td>System cost (' + num(r.kw, 1) + ' kW × ' + rs(o.costPerKw) + ')</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
-        '<tr class="minus"><td>PM Surya Ghar subsidy</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
-        '<tr class="total"><td>Your cost</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
-        '<tr><td>Bill now (per month)</td><td class="num">' + rs(r.billBefore) + '</td></tr>' +
-        '<tr><td>Average bill after solar</td><td class="num">' + rs(r.avgBillAfter) + '</td></tr>' +
-        '<tr><td>Generation (year 1)</td><td class="num">' + num(r.generationYear1) + ' kWh (' + num(r.generationMonthlyAvg) + '/month)</td></tr>' +
-        '<tr><td>Surplus exported (year 1)</td><td class="num">' + num(r.exportUnitsYear1) + ' kWh → ' + rs(r.exportIncomeYear1) + '</td></tr>' +
-        '<tr><td>Roof area needed</td><td class="num">~' + num(r.roofSqftNeeded) + ' sq ft</td></tr>' +
-        '<tr><td>CO₂ avoided over ' + r.years.length + ' years</td><td class="num">' + num(r.co2Tonnes, 1) + ' tonnes</td></tr>' +
-      '</tbody></table></div>' +
       loanHtml +
-      '<h3>Cumulative cash position by year</h3>' +
-      svgBars(cumul, r.years.map(function (y) { return 'Y' + y.year; }), { fmt: rs, title: 'Cumulative savings minus cost by year' }) +
-      '<h3>Year 1 month by month</h3>' +
-      '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Solar kWh</th><th class="num">Bill after</th><th class="num">Export kWh</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
-      '<p class="note">Savings are computed slab by slab on your DISCOM tariff, net-metered per month, with tariffs rising ' + (o.escalationPct != null ? o.escalationPct : common.solarDefaults.tariffEscalationPctPerYear) + '%/yr and panels degrading ' + (o.degradationPct != null ? o.degradationPct : common.solarDefaults.degradationPctPerYear) + '%/yr. Inverter replacement and maintenance are not included.</p>' +
+      more('See the full cost breakdown',
+        '<div class="table-wrap"><table><tbody>' +
+          '<tr><td>System price (' + num(r.kw, 1) + ' kW)</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
+          '<tr class="minus"><td>Government subsidy (PM Surya Ghar)</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
+          '<tr class="total"><td>You pay</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+          '<tr><td>Electricity made in a year</td><td class="num">' + num(r.generationYear1) + ' units</td></tr>' +
+          '<tr><td>Extra units sold to the grid</td><td class="num">' + num(r.exportUnitsYear1) + ' units = ' + rs(r.exportIncomeYear1) + '</td></tr>' +
+          '<tr><td>Total saving over 25 years (after cost)</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
+          '<tr><td>Roof space needed</td><td class="num">about ' + num(r.roofSqftNeeded) + ' sq ft</td></tr>' +
+        '</tbody></table></div>') +
+      more('See your saving grow year by year',
+        svgBars(cumul, r.years.map(function (y) { return 'Y' + y.year; }), { fmt: rs, title: 'Money saved minus cost, by year' }) +
+        '<p class="note">Orange bars: still paying back. Green bars: pure profit.</p>') +
+      more('See month by month',
+        '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units made</th><th class="num">Bill with solar</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>') +
+      '<p class="note">Worked out on your company\'s actual tariff, before and after solar. Assumes electricity prices rise ' + (o.escalationPct != null ? o.escalationPct : common.solarDefaults.tariffEscalationPctPerYear) + '% a year. Does not include an inverter replacement (around year 10–12).</p>' +
       '<a class="cta" href="' + link('ev-charging-cost-calculator-gujarat.html', {
         discom: o.discom, units: o.units, loadKw: f.loadKw, solarSurplusKwh: Math.round(r.generationMonthlyAvg * 0.3)
-      }) + '">Add an EV: what does charging cost? →</a>';
+      }) + '">Thinking of an electric vehicle? See the charging cost →</a>';
   }
 
   // ---------- EV ----------
@@ -258,31 +277,25 @@
     o.years = Number(f.years) || common.evDefaults.years;
 
     var r = C.evCost(data, common, o);
-    var names = { homeNight: 'Home, night / normal hours', homeDay: 'Home, ' + data.common.tou.window + ' (solar hours)', public: 'Public fast charger' };
+    var names = { homeNight: 'At home (any time)', homeDay: 'At home, 11 am–5 pm', public: 'Public fast charger' };
     var rows = Object.keys(r.scenarios).map(function (k) {
       var s = r.scenarios[k];
-      return '<tr' + (k === r.best ? ' style="font-weight:700"' : '') + '><td>' + names[k] + (k === r.best ? ' ✓' : '') + '</td><td class="num">' + rs(s.total) + '</td><td class="num">' + rs2(s.perKm) + '</td></tr>';
+      return '<tr' + (k === r.best ? ' style="font-weight:700"' : '') + '><td>' + names[k] + (k === r.best ? ' (cheapest)' : '') + '</td><td class="num">' + rs(s.total) + '</td><td class="num">' + rs2(s.perKm) + '</td></tr>';
     }).join('');
-    var unit = f.iceType === 'cng' ? 'kg' : 'L';
+    var fuel = esc(f.iceType);
 
     out.innerHTML =
-      '<div class="kpis">' +
-        '<div class="kpi hero"><div class="k">Your charging cost / month</div><div class="v">' + rs(r.mix.total) + '</div></div>' +
-        '<div class="kpi"><div class="k">Cost per km</div><div class="v">' + rs2(r.mix.perKm) + '</div></div>' +
-        '<div class="kpi"><div class="k">Saving vs ' + esc(f.iceType) + ' / month</div><div class="v">' + rs(r.savingMonthly) + '</div></div>' +
-        '<div class="kpi"><div class="k">Energy needed</div><div class="v">' + num(r.gridKwh) + ' kWh</div></div>' +
-        '<div class="kpi"><div class="k">Solar covers</div><div class="v">' + num(r.mix.solarOffsetPct) + '%</div></div>' +
-        '<div class="kpi"><div class="k">Home rate (next unit)</div><div class="v">' + rs2(r.marginalRate) + '</div></div>' +
+      '<p class="answer">Charging costs you about <strong>' + rs(r.mix.total) + ' a month</strong> (' + rs2(r.mix.perKm) + ' per km). ' +
+        'A ' + fuel + ' vehicle would cost ' + rs(r.iceMonthly) + ', so you save <strong>' + rs(r.savingMonthly) + ' every month</strong>.</p>' +
+      '<div class="kpis three">' +
+        tile('Charging cost per month', rs(r.mix.total), true) +
+        tile('Cost per km', rs2(r.mix.perKm)) +
+        tile('You save vs ' + fuel, rs(r.savingMonthly) + '/mo') +
       '</div>' +
-      '<h3>Where you charge changes the cost</h3>' +
-      '<div class="table-wrap"><table><thead><tr><th>100% charged at</th><th class="num">₹ / month</th><th class="num">₹ / km</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<h3>' + r.years + '-year running cost</h3>' +
-      '<div class="table-wrap"><table><tbody>' +
-        '<tr><td>EV (your charging mix, with battery ageing)</td><td class="num">' + rs(r.evTotal) + '</td></tr>' +
-        '<tr><td>' + esc(f.iceType) + ' vehicle (' + esc(f.iceKmPerUnit) + ' km/' + unit + ' at ' + rs2(o.ice.pricePerUnit) + ')</td><td class="num">' + rs(r.iceTotal) + '</td></tr>' +
-        '<tr class="total"><td>EV saves</td><td class="num">' + rs(r.savingTotal) + '</td></tr>' +
-      '</tbody></table></div>' +
-      '<p class="note">Home cost is the extra amount added to your electricity bill, so it uses your DISCOM\'s higher slabs, FPPPA and duty. Solar-hours charging gets the 60 paise ToU discount only with a smart meter. Charging from surplus rooftop solar is valued at the ₹' + data.common.netMetering.surplusRatePerUnit + '/unit export income you give up. Fuel and energy only; excludes purchase price, insurance and maintenance.</p>';
+      '<h3>Where you charge makes a big difference</h3>' +
+      '<div class="table-wrap"><table><thead><tr><th>If you always charge</th><th class="num">Per month</th><th class="num">Per km</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p>Over ' + r.years + ' years: EV about <strong>' + rs(r.evTotal) + '</strong>, ' + fuel + ' about <strong>' + rs(r.iceTotal) + '</strong>. You save about <strong>' + rs(r.savingTotal) + '</strong> on fuel.</p>' +
+      '<p class="note">Home cost is what charging adds to your electricity bill. Covers fuel and electricity only, not the vehicle price, insurance or servicing.</p>';
   }
 
   // ---------- System size (any state, flat ₹/unit) ----------
@@ -294,40 +307,45 @@
     var band = C.sizePrice(india, kw);
     var costEl = form.elements.cost;
     if (costEl && !costEl.dataset.touched) costEl.value = Math.round(band.mid / 1000) * 1000;
+    var rate = Number(f.rate) || india.defaultRate;
+    var bill = Number(f.bill) || 0;
+    var units = Math.round(bill / rate);
     var r = C.solarSimple(india, common, {
-      kw: kw, yieldKwhPerKwYear: city.yield, units: Number(f.units) || 0,
-      rate: Number(f.rate) || india.defaultRate, exportRate: f.exportRate, cost: Number(f.cost) || band.mid
+      kw: kw, yieldKwhPerKwYear: city.yield, units: units,
+      rate: rate, exportRate: f.exportRate, cost: Number(f.cost) || band.mid
     });
-    var mode = form.dataset.mode || 'price';
     var monthRows = r.months.map(function (m) {
       return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.perDay, 1) + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
     }).join('');
-    var kpis = mode === 'generation'
-      ? '<div class="kpi hero"><div class="k">Units per day</div><div class="v">' + num(r.generationPerDay, 1) + '</div></div>' +
-        '<div class="kpi"><div class="k">Units per month</div><div class="v">' + num(r.generationPerMonth) + '</div></div>' +
-        '<div class="kpi"><div class="k">Units per year</div><div class="v">' + num(r.generationYear1) + '</div></div>' +
-        '<div class="kpi"><div class="k">Saving per month</div><div class="v">' + rs(r.savingMonthly) + '</div></div>' +
-        '<div class="kpi"><div class="k">Panels (' + india.panelWatt + ' W)</div><div class="v">' + r.panels + '</div></div>' +
-        '<div class="kpi"><div class="k">Roof needed</div><div class="v">~' + num(r.roofSqft) + ' sq ft</div></div>'
-      : '<div class="kpi hero"><div class="k">You pay after subsidy</div><div class="v">' + rs(r.netCost) + '</div></div>' +
-        '<div class="kpi"><div class="k">Subsidy</div><div class="v">' + rs(r.subsidy) + '</div></div>' +
-        '<div class="kpi"><div class="k">Payback</div><div class="v">' + (r.paybackYears === null ? '—' : num(r.paybackYears, 1) + ' yr') + '</div></div>' +
-        '<div class="kpi"><div class="k">Saving per month</div><div class="v">' + rs(r.savingMonthly) + '</div></div>' +
-        '<div class="kpi"><div class="k">Units per day</div><div class="v">' + num(r.generationPerDay, 1) + '</div></div>' +
-        '<div class="kpi"><div class="k">25-yr net saving</div><div class="v">' + rs(r.lifetimeNet) + '</div></div>';
+    var tooBig = units > 0 && r.generationPerMonth > units * 1.25;
+    var tooSmall = units > 0 && r.generationPerMonth < units * 0.6;
+    var fit = tooBig ? '<p class="note"><strong>Tip:</strong> ' + num(kw, 1) + ' kW makes more than your home uses. Extra units earn only about ₹' + (f.exportRate || india.defaultExportRate) + ' each, so a smaller system may pay back faster.</p>'
+      : tooSmall ? '<p class="note"><strong>Tip:</strong> ' + num(kw, 1) + ' kW covers only part of your bill. A bigger system would save more, if your roof has space.</p>' : '';
+
+    var answer = form.dataset.mode === 'generation'
+      ? '<p class="answer">A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(city.name) + ' makes about <strong>' + num(r.generationPerDay, 1) + ' units a day</strong>, or ' + num(r.generationPerMonth) + ' units a month. That is worth about <strong>' + rs(r.savingMonthly) + ' off your bill every month</strong>.</p>'
+      : '<p class="answer">A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(city.name) + ' costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. It saves about <strong>' + rs(r.savingMonthly) + ' a month</strong> and pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.</p>';
+    var tiles = form.dataset.mode === 'generation'
+      ? tile('Units per day', num(r.generationPerDay, 1), true) + tile('Units per month', num(r.generationPerMonth)) + tile('Saves per month', rs(r.savingMonthly))
+      : tile('You pay (after subsidy)', rs(r.netCost), true) + tile('You save every month', rs(r.savingMonthly)) + tile('Money back in', yearsText(r.paybackYears));
     var gujarat = city.state === 'Gujarat'
-      ? '<p class="note">In Gujarat? The <a href="solar-rooftop-calculator-gujarat.html?units=' + (Number(f.units) || 300) + '&kw=' + kw + '">Gujarat solar calculator</a> works out savings slab by slab on your DISCOM\'s exact tariff.</p>' : '';
-    out.innerHTML = '<div class="kpis">' + kpis + '</div>' +
-      '<div class="table-wrap"><table><tbody>' +
-        '<tr><td>System price (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
-        '<tr class="minus"><td>PM Surya Ghar subsidy</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
-        '<tr class="total"><td>Your cost</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
-        '<tr><td>Generation in ' + esc(city.name) + '</td><td class="num">' + num(city.yield) + ' units per kW per year</td></tr>' +
-        '<tr><td>CO₂ avoided over 25 years</td><td class="num">' + num(r.co2Tonnes, 1) + ' tonnes</td></tr>' +
-      '</tbody></table></div>' +
-      '<h3>Month by month in ' + esc(city.name) + '</h3>' +
-      '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units/day</th><th class="num">Units/month</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
-      '<p class="note">Savings value each solar unit you use at ₹' + esc(f.rate || india.defaultRate) + '/unit and surplus units at the export rate. Inverter replacement (about year 10–12) and cleaning are not included.</p>' + gujarat;
+      ? '<p class="note">Live in Gujarat? Our <a href="solar-rooftop-calculator-gujarat.html?units=' + (units || 300) + '&kw=' + kw + '">Gujarat calculator</a> uses your electricity company\'s exact rates.</p>' : '';
+
+    out.innerHTML = answer +
+      '<div class="kpis three">' + tiles + '</div>' + fit +
+      more('See the full cost breakdown',
+        '<div class="table-wrap"><table><tbody>' +
+          '<tr><td>System price (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
+          '<tr class="minus"><td>Government subsidy (PM Surya Ghar)</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
+          '<tr class="total"><td>You pay</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+          '<tr><td>Solar panels</td><td class="num">' + r.panels + ' panels</td></tr>' +
+          '<tr><td>Roof space needed</td><td class="num">about ' + num(r.roofSqft) + ' sq ft</td></tr>' +
+          '<tr><td>Total saving over 25 years (after cost)</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
+        '</tbody></table></div>') +
+      more('See month by month',
+        '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units a day</th><th class="num">Units in month</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
+        '<p class="note">Less in the rainy months, most in March to May.</p>') +
+      gujarat;
   }
 
   // ---------- Wiring ----------

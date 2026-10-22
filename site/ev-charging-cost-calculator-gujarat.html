@@ -30,25 +30,25 @@
 <h2>Vehicle and driving</h2>
 <div class="fields">
 <div class="field full"><label for="vehicle">Vehicle</label><select id="vehicle" name="vehicle"><option value="2w-scooter">Electric scooter (Ola S1, Ather, TVS iQube, Chetak)</option><option value="3w-auto">Electric auto-rickshaw</option><option value="car-small">Small EV car (Tata Tiago EV, MG Comet)</option><option value="car-compact-suv" selected>Compact SUV EV (Tata Nexon EV, Punch EV)</option><option value="car-suv">Mid-size SUV EV (MG ZS EV, Mahindra XEV, Hyundai Creta EV)</option><option value="custom">Custom (enter kWh/km)</option></select></div>
-<div class="field"><label for="kwhPerKm">Consumption (kWh/km)</label><input id="kwhPerKm" name="kwhPerKm" type="number" min="0.01" step="0.005" value="0.14"></div>
+<div class="field"><label for="kwhPerKm">Units per km</label><input id="kwhPerKm" name="kwhPerKm" type="number" min="0.01" step="0.005" value="0.14"></div>
 <div class="field"><label for="kmPerMonth">Km per month</label><input id="kmPerMonth" name="kmPerMonth" type="number" min="0" step="50" value="1000"></div>
-<div class="field"><label for="homeNight">% home, normal hours</label><input id="homeNight" name="homeNight" type="number" min="0" max="100" step="5" value="70"></div>
-<div class="field"><label for="homeDay">% home, 11:00-17:00</label><input id="homeDay" name="homeDay" type="number" min="0" max="100" step="5" value="20"></div>
-<div class="field"><label for="publicPct">% public charger</label><input id="publicPct" name="publicPct" type="number" min="0" max="100" step="5" value="10"></div>
-<div class="field"><label for="publicRate">Public charger (₹/kWh)</label><input id="publicRate" name="publicRate" type="number" min="0" step="0.5" value="20"></div>
+<div class="field"><label for="homeNight">% charged at home</label><input id="homeNight" name="homeNight" type="number" min="0" max="100" step="5" value="70"></div>
+<div class="field"><label for="homeDay">% charged at home, 11 am–5 pm</label><input id="homeDay" name="homeDay" type="number" min="0" max="100" step="5" value="20"></div>
+<div class="field"><label for="publicPct">% charged outside</label><input id="publicPct" name="publicPct" type="number" min="0" max="100" step="5" value="10"></div>
+<div class="field"><label for="publicRate">Outside charger price (₹/unit)</label><input id="publicRate" name="publicRate" type="number" min="0" step="0.5" value="20"></div>
 <h3 class="field full" style="margin:8px 0 0">Your home connection</h3>
-<div class="field"><label for="units">Home use without EV (kWh/month)</label><input id="units" name="units" type="number" min="0" step="10" value="250"></div>
-<div class="field full"><label for="discom">Electricity company (DISCOM)</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl">PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad" selected>Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
-<div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
-<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="5"></div>
+<div class="field"><label for="units">Home units per month (without the vehicle)</label><input id="units" name="units" type="number" min="0" step="10" value="250"></div>
+<div class="field full"><label for="discom">Your electricity company</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl">PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad" selected>Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
+<div class="field"><label for="category">Area</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="5"><span class="hint">Printed on your bill</span></div>
 <div class="field"><label for="meter">Meter type</label><select id="meter" name="meter">
-<option value="postpaid">Regular (postpaid)</option>
-<option value="postpaid-smart">Smart meter, postpaid</option>
-<option value="prepaid-smart">Smart meter, prepaid</option>
+<option value="postpaid">Regular meter</option>
+<option value="postpaid-smart">Smart meter (pay after use)</option>
+<option value="prepaid-smart">Smart meter (prepaid / recharge)</option>
 </select></div>
-<div class="field" data-show="smart"><label for="solarHoursPct">% of use 11:00-17:00</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Gets 60 paise/unit ToU discount</span></div>
-<div class="field"><label for="solarSurplusKwh">Spare rooftop solar in the day (kWh/month)</label><input id="solarSurplusKwh" name="solarSurplusKwh" type="number" min="0" step="10" value="0"><span class="hint">0 if you have no solar</span></div>
-<details class="adv"><summary>Petrol/diesel comparison and assumptions</summary><div class="fields">
+<div class="field" data-show="smart"><label for="solarHoursPct">% of electricity used 11 am–5 pm</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Smart meters get 60 paise off per unit in these hours</span></div>
+<div class="field"><label for="solarSurplusKwh">Spare solar units per month</label><input id="solarSurplusKwh" name="solarSurplusKwh" type="number" min="0" step="10" value="0"><span class="hint">0 if you have no solar</span></div>
+<details class="adv"><summary>Petrol / diesel comparison and more</summary><div class="fields">
 <div class="field"><label for="iceType">Compare with</label><select id="iceType" name="iceType"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="cng">CNG</option></select></div>
 <div class="field"><label for="icePrice">Fuel price (₹/L or ₹/kg)</label><input id="icePrice" name="icePrice" type="number" min="0" step="0.1" value="94.5"></div>
 <div class="field"><label for="iceKmPerUnit">Mileage (km/L or km/kg)</label><input id="iceKmPerUnit" name="iceKmPerUnit" type="number" min="1" step="1" value="15"></div>
@@ -56,8 +56,8 @@
 <div class="field"><label for="chargingLossPct">Charging loss (%)</label><input id="chargingLossPct" name="chargingLossPct" type="number" min="0" max="30" step="1" value="10"></div>
 <div class="field"><label for="batteryDegradationPct">Battery ageing (%/yr)</label><input id="batteryDegradationPct" name="batteryDegradationPct" type="number" min="0" max="10" step="0.5" value="2"></div>
 <div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div>
-<div class="field"><label for="fppa">FPPPA / FPPAS (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Estimate shown. Changes every quarter.</span></div>
-<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">Estimate shown for your category.</span></div>
+<div class="field"><label for="fppa">Fuel surcharge per unit (₹)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Shown as FPPPA or FPPAS on your bill</span></div>
+<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">A state tax, shown on your bill</span></div>
 </div></details>
 </div>
 </form>

@@ -120,7 +120,7 @@
       "fppaNote": "State DISCOM FPPPA cut from Rs 3.35 to Rs 2.30 per unit (as cited in GERC FY 2026-27 orders). Revised quarterly.",
       "categories": {
         "urban": {
-          "label": "RGP (Urban / non-rural)",
+          "label": "City or town",
           "fixed": { "type": "byLoad", "steps": [
             { "uptoKw": 2, "amount": 15 },
             { "uptoKw": 4, "amount": 25 },
@@ -135,7 +135,7 @@
           ]
         },
         "rural": {
-          "label": "RGP (Rural, Gram Panchayat area)",
+          "label": "Village (Gram Panchayat)",
           "fixed": { "type": "byLoad", "verify": true, "steps": [
             { "uptoKw": 2, "amount": 15 },
             { "uptoKw": 4, "amount": 25 },
@@ -170,7 +170,7 @@
       "fppaNote": "Placeholder: enter the FPPPA shown on your latest Torrent Power bill.",
       "categories": {
         "urban": {
-          "label": "RGP (Residential)",
+          "label": "Home",
           "fixed": { "type": "byPhase", "verify": true, "singlePhaseMaxKw": 6, "single": 25, "three": 65 },
           "slabs": [
             { "upto": 50, "rate": 3.20 },
@@ -186,7 +186,7 @@
       "fppaNote": "Placeholder: enter the FPPPA shown on your latest Torrent Power bill.",
       "categories": {
         "urban": {
-          "label": "RGP (Residential)",
+          "label": "Home",
           "verify": true,
           "fixed": { "type": "byPhase", "singlePhaseMaxKw": 6, "single": 25, "three": 65 },
           "slabs": [

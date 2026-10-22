@@ -30,29 +30,29 @@
 <h2>Your home</h2>
 <div class="fields">
 <div class="field"><label for="city">City</label><select id="city" name="city"><option value="0">Ahmedabad</option><option value="1">Gandhinagar</option><option value="2">Surat</option><option value="3">Vadodara</option><option value="4">Anand</option><option value="5">Rajkot</option><option value="6">Jamnagar</option><option value="7">Bhavnagar</option><option value="8">Junagadh</option><option value="9">Bhuj (Kutch)</option><option value="10">Mehsana</option><option value="11">Palanpur</option><option value="12">Bharuch</option><option value="13">Navsari</option><option value="14">Valsad / Vapi</option></select></div>
-<div class="field"><label for="units">Monthly units (kWh)</label><input id="units" name="units" type="number" min="0" step="10" value="400"><span class="hint">Two-month bill? Enter half.</span></div>
-<div class="field full"><label for="discom">Electricity company (DISCOM)</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl">PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad" selected>Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
-<div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
-<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="4"></div>
+<div class="field"><label for="units">Units used per month</label><input id="units" name="units" type="number" min="0" step="10" value="400"><span class="hint">From your bill. Bill for 2 months? Enter half.</span></div>
+<div class="field full"><label for="discom">Your electricity company</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl">PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad" selected>Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
+<div class="field"><label for="category">Area</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="4"><span class="hint">Printed on your bill</span></div>
 <div class="field"><label for="meter">Meter type</label><select id="meter" name="meter">
-<option value="postpaid">Regular (postpaid)</option>
-<option value="postpaid-smart">Smart meter, postpaid</option>
-<option value="prepaid-smart">Smart meter, prepaid</option>
+<option value="postpaid">Regular meter</option>
+<option value="postpaid-smart">Smart meter (pay after use)</option>
+<option value="prepaid-smart">Smart meter (prepaid / recharge)</option>
 </select></div>
-<div class="field" data-show="smart"><label for="solarHoursPct">% of use 11:00-17:00</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Gets 60 paise/unit ToU discount</span></div>
-<div class="field"><label for="roofSqft">Shadow-free roof (sq ft)</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="optional"></div>
-<div class="field"><label for="kw">System size (kW)</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="auto"></div>
-<div class="field"><label for="costPerKw">Installed cost (₹/kW)</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="55000"><span class="hint">Before subsidy; get 2–3 quotes</span></div>
+<div class="field" data-show="smart"><label for="solarHoursPct">% of electricity used 11 am–5 pm</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Smart meters get 60 paise off per unit in these hours</span></div>
+<div class="field"><label for="roofSqft">Open roof space (sq ft)</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="optional"></div>
+<div class="field"><label for="kw">Solar size (kW)</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="we suggest one"><span class="hint">Leave empty for our suggestion</span></div>
+<div class="field"><label for="costPerKw">Price per kW (₹)</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="55000"><span class="hint">Before subsidy. Typical: ₹55,000–65,000</span></div>
 <div class="field"><label><input type="checkbox" name="loanEnabled" style="width:auto"> Take a loan</label></div>
 <div class="fields full hidden" data-show="loan" style="grid-column:1/-1">
 <div class="field"><label for="loanSharePct">Loan % of cost</label><input id="loanSharePct" name="loanSharePct" type="number" min="0" max="100" step="5" value="90"></div>
 <div class="field"><label for="loanRate">Interest (% p.a.)</label><input id="loanRate" name="loanRate" type="number" min="0" step="0.1" value="7"></div>
 <div class="field"><label for="loanYears">Tenure (years)</label><input id="loanYears" name="loanYears" type="number" min="1" max="20" step="1" value="10"></div>
 </div>
-<details class="adv"><summary>Assumptions</summary><div class="fields">
+<details class="adv"><summary>Change assumptions</summary><div class="fields">
 <div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div>
-<div class="field"><label for="fppa">FPPPA / FPPAS (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Estimate shown. Changes every quarter.</span></div>
-<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">Estimate shown for your category.</span></div>
+<div class="field"><label for="fppa">Fuel surcharge per unit (₹)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Shown as FPPPA or FPPAS on your bill</span></div>
+<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">A state tax, shown on your bill</span></div>
 <div class="field"><label for="yield">Yield (kWh/kW/yr)</label><input id="yield" name="yield" type="number" min="800" max="2000" step="10" placeholder="from city"></div>
 <div class="field"><label for="surplusRate">Export rate (₹/unit)</label><input id="surplusRate" name="surplusRate" type="number" min="0" step="0.05" value="2.25"></div>
 <div class="field"><label for="escalationPct">Tariff rise (%/yr)</label><input id="escalationPct" name="escalationPct" type="number" min="0" step="0.5" value="2"></div>

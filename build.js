@@ -136,17 +136,17 @@ function discomOptions(selected) {
 
 function meterField() {
   return `<div class="field"><label for="meter">Meter type</label><select id="meter" name="meter">
-<option value="postpaid">Regular (postpaid)</option>
-<option value="postpaid-smart">Smart meter, postpaid</option>
-<option value="prepaid-smart">Smart meter, prepaid</option>
+<option value="postpaid">Regular meter</option>
+<option value="postpaid-smart">Smart meter (pay after use)</option>
+<option value="prepaid-smart">Smart meter (prepaid / recharge)</option>
 </select></div>
-<div class="field" data-show="smart"><label for="solarHoursPct">% of use ${esc(data.common.tou.window)}</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Gets 60 paise/unit ToU discount</span></div>`;
+<div class="field" data-show="smart"><label for="solarHoursPct">% of electricity used 11 am–5 pm</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Smart meters get 60 paise off per unit in these hours</span></div>`;
 }
 
 function commonBillFields(discomId, opts = {}) {
-  return `<div class="field full"><label for="discom">Electricity company (DISCOM)</label><select id="discom" name="discom">${discomOptions(discomId)}</select></div>
-<div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
-<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="${opts.loadKw || 3}"></div>
+  return `<div class="field full"><label for="discom">Your electricity company</label><select id="discom" name="discom">${discomOptions(discomId)}</select></div>
+<div class="field"><label for="category">Area</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="${opts.loadKw || 3}"><span class="hint">Printed on your bill</span></div>
 ${meterField()}`;
 }
 
@@ -157,25 +157,25 @@ ${chargeFields()}`;
 
 // The two figures we cannot pin down for every consumer. Prefilled with estimates; users overwrite them from their bill.
 function chargeFields() {
-  return `<div class="field"><label for="fppa">FPPPA / FPPAS (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Estimate shown. Changes every quarter.</span></div>
-<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">Estimate shown for your category.</span></div>`;
+  return `<div class="field"><label for="fppa">Fuel surcharge per unit (₹)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Shown as FPPPA or FPPAS on your bill</span></div>
+<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">A state tax, shown on your bill</span></div>`;
 }
 
 function billForm(discomId) {
   return `<section class="calc">
 <form class="card" data-calc="bill" data-output="bill-out" autocomplete="off">
-<h2>Enter your details</h2>
+<h2>Your details</h2>
 <div class="fields">
 ${commonBillFields(discomId)}
 <div class="field full"><span class="hint" style="font-weight:600">Calculate from</span><div class="seg" role="radiogroup">
 <label><input type="radio" name="inputMode" value="units" checked> Units used</label>
 <label><input type="radio" name="inputMode" value="amount"> Bill amount</label>
 </div></div>
-<div class="field" data-show="units"><label for="units">Units (kWh)</label><input id="units" name="units" type="number" min="0" step="1" value="${discomId.startsWith('torrent') ? 200 : 400}"></div>
+<div class="field" data-show="units"><label for="units">Units used (from your bill)</label><input id="units" name="units" type="number" min="0" step="1" value="${discomId.startsWith('torrent') ? 200 : 400}"></div>
 <div class="field hidden" data-show="amount"><label for="amount">Bill amount (₹)</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500"></div>
 <div class="field"><label for="months">Billing period</label><select id="months" name="months"><option value="1"${discomId.startsWith('torrent') ? ' selected' : ''}>1 month</option><option value="2"${discomId.startsWith('torrent') ? '' : ' selected'}>2 months</option></select></div>
 <fieldset class="from-bill full"><legend>From your bill (optional)</legend>
-<p class="hint">These two figures vary by quarter and connection. We fill in estimates. Copy them from your bill for an exact match.</p>
+<p class="hint">We have filled in typical values. For an exact answer, copy these two numbers from your bill.</p>
 <div class="fields">${chargeFields()}</div></fieldset>
 <details class="adv"><summary>More options</summary><div class="fields"><div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div></div></details>
 </div>
@@ -192,18 +192,18 @@ function solarForm() {
 <h2>Your home</h2>
 <div class="fields">
 <div class="field"><label for="city">City</label><select id="city" name="city">${cities}</select></div>
-<div class="field"><label for="units">Monthly units (kWh)</label><input id="units" name="units" type="number" min="0" step="10" value="400"><span class="hint">Two-month bill? Enter half.</span></div>
+<div class="field"><label for="units">Units used per month</label><input id="units" name="units" type="number" min="0" step="10" value="400"><span class="hint">From your bill. Bill for 2 months? Enter half.</span></div>
 ${commonBillFields(data.cities[0].discom, { loadKw: 4 })}
-<div class="field"><label for="roofSqft">Shadow-free roof (sq ft)</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="optional"></div>
-<div class="field"><label for="kw">System size (kW)</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="auto"></div>
-<div class="field"><label for="costPerKw">Installed cost (₹/kW)</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="${d.costPerKw}"><span class="hint">Before subsidy; get 2–3 quotes</span></div>
+<div class="field"><label for="roofSqft">Open roof space (sq ft)</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="optional"></div>
+<div class="field"><label for="kw">Solar size (kW)</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="we suggest one"><span class="hint">Leave empty for our suggestion</span></div>
+<div class="field"><label for="costPerKw">Price per kW (₹)</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="${d.costPerKw}"><span class="hint">Before subsidy. Typical: ₹55,000–65,000</span></div>
 <div class="field"><label><input type="checkbox" name="loanEnabled" style="width:auto"> Take a loan</label></div>
 <div class="fields full hidden" data-show="loan" style="grid-column:1/-1">
 <div class="field"><label for="loanSharePct">Loan % of cost</label><input id="loanSharePct" name="loanSharePct" type="number" min="0" max="100" step="5" value="90"></div>
 <div class="field"><label for="loanRate">Interest (% p.a.)</label><input id="loanRate" name="loanRate" type="number" min="0" step="0.1" value="${d.loanRatePct}"></div>
 <div class="field"><label for="loanYears">Tenure (years)</label><input id="loanYears" name="loanYears" type="number" min="1" max="20" step="1" value="${d.loanTenureYears}"></div>
 </div>
-<details class="adv"><summary>Assumptions</summary><div class="fields">
+<details class="adv"><summary>Change assumptions</summary><div class="fields">
 ${advancedBillFields()}
 <div class="field"><label for="yield">Yield (kWh/kW/yr)</label><input id="yield" name="yield" type="number" min="800" max="2000" step="10" placeholder="from city"></div>
 <div class="field"><label for="surplusRate">Export rate (₹/unit)</label><input id="surplusRate" name="surplusRate" type="number" min="0" step="0.05" value="${data.common.netMetering.surplusRatePerUnit}"></div>
@@ -224,17 +224,17 @@ function evForm() {
 <h2>Vehicle and driving</h2>
 <div class="fields">
 <div class="field full"><label for="vehicle">Vehicle</label><select id="vehicle" name="vehicle">${presets}</select></div>
-<div class="field"><label for="kwhPerKm">Consumption (kWh/km)</label><input id="kwhPerKm" name="kwhPerKm" type="number" min="0.01" step="0.005" value="0.14"></div>
+<div class="field"><label for="kwhPerKm">Units per km</label><input id="kwhPerKm" name="kwhPerKm" type="number" min="0.01" step="0.005" value="0.14"></div>
 <div class="field"><label for="kmPerMonth">Km per month</label><input id="kmPerMonth" name="kmPerMonth" type="number" min="0" step="50" value="1000"></div>
-<div class="field"><label for="homeNight">% home, normal hours</label><input id="homeNight" name="homeNight" type="number" min="0" max="100" step="5" value="70"></div>
-<div class="field"><label for="homeDay">% home, ${esc(data.common.tou.window)}</label><input id="homeDay" name="homeDay" type="number" min="0" max="100" step="5" value="20"></div>
-<div class="field"><label for="publicPct">% public charger</label><input id="publicPct" name="publicPct" type="number" min="0" max="100" step="5" value="10"></div>
-<div class="field"><label for="publicRate">Public charger (₹/kWh)</label><input id="publicRate" name="publicRate" type="number" min="0" step="0.5" value="${ev.publicChargerPerKwh}"></div>
+<div class="field"><label for="homeNight">% charged at home</label><input id="homeNight" name="homeNight" type="number" min="0" max="100" step="5" value="70"></div>
+<div class="field"><label for="homeDay">% charged at home, 11 am–5 pm</label><input id="homeDay" name="homeDay" type="number" min="0" max="100" step="5" value="20"></div>
+<div class="field"><label for="publicPct">% charged outside</label><input id="publicPct" name="publicPct" type="number" min="0" max="100" step="5" value="10"></div>
+<div class="field"><label for="publicRate">Outside charger price (₹/unit)</label><input id="publicRate" name="publicRate" type="number" min="0" step="0.5" value="${ev.publicChargerPerKwh}"></div>
 <h3 class="field full" style="margin:8px 0 0">Your home connection</h3>
-<div class="field"><label for="units">Home use without EV (kWh/month)</label><input id="units" name="units" type="number" min="0" step="10" value="250"></div>
+<div class="field"><label for="units">Home units per month (without the vehicle)</label><input id="units" name="units" type="number" min="0" step="10" value="250"></div>
 ${commonBillFields('torrent-ahmedabad', { loadKw: 5 })}
-<div class="field"><label for="solarSurplusKwh">Spare rooftop solar in the day (kWh/month)</label><input id="solarSurplusKwh" name="solarSurplusKwh" type="number" min="0" step="10" value="0"><span class="hint">0 if you have no solar</span></div>
-<details class="adv"><summary>Petrol/diesel comparison and assumptions</summary><div class="fields">
+<div class="field"><label for="solarSurplusKwh">Spare solar units per month</label><input id="solarSurplusKwh" name="solarSurplusKwh" type="number" min="0" step="10" value="0"><span class="hint">0 if you have no solar</span></div>
+<details class="adv"><summary>Petrol / diesel comparison and more</summary><div class="fields">
 <div class="field"><label for="iceType">Compare with</label><select id="iceType" name="iceType"><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="cng">CNG</option></select></div>
 <div class="field"><label for="icePrice">Fuel price (₹/L or ₹/kg)</label><input id="icePrice" name="icePrice" type="number" min="0" step="0.1" value="${common.fuel.petrolPerLitre}"></div>
 <div class="field"><label for="iceKmPerUnit">Mileage (km/L or km/kg)</label><input id="iceKmPerUnit" name="iceKmPerUnit" type="number" min="1" step="1" value="15"></div>
@@ -322,14 +322,21 @@ function discomPageSpec(d) {
     title: `${d.name} Bill Calculator ${Y} – Unit Rate, Slabs & Charges`,
     description: `Calculate your ${d.name} (${d.fullName}) electricity bill with the GERC ${Y} tariff: slab-wise energy charges, fixed charges, FPPPA, electricity duty and smart meter ToU discount.`,
     h1: `${d.name} Electricity Bill Calculator ${Y}`,
-    lede: `${esc(d.fullName)} supplies ${esc(d.region)}. Enter your units or bill amount to get an itemised estimate using the GERC tariff effective ${fmtDate(data.effectiveFrom)}.`,
+    lede: `Type the units from your bill to see your ${esc(d.name)} bill, line by line. Rates from ${fmtDate(data.effectiveFrom)}.`,
     crumbs: [{ name: 'Gujarat bill calculator', file: PAGES.gujaratBill }, { name: `${d.name} bill calculator`, file: discomPage(d) }],
     app: true,
     faqs,
-    body: `${billForm(d.id)}
+    body: `${inShort([
+      ['Price per unit', `${inr2(firstRate)} to ${inr2(topRate)}, more as you use more`],
+      ['Plus', 'a small fixed charge, fuel surcharge and electricity tax'],
+      ['200 units a month', `about <strong>${inr(b200.total)}</strong>`],
+      ['300 units a month', `about <strong>${inr(b300.total)}</strong>`],
+      ['Covers', esc(d.region)]
+    ])}
+${billForm(d.id)}
 ${adSlot('after-calc')}
 <section class="prose">
-<h2>${esc(d.name)} residential tariff ${esc(Y)}</h2>
+<h2>${esc(d.name)} home electricity rates ${esc(Y)}</h2>
 <p>Rates from the GERC tariff order for ${esc(Y)} (${esc(d.orderCase)}), effective ${fmtDate(data.effectiveFrom)}. Slabs are per month.</p>
 ${catSections}
 <h3>Other charges</h3>
@@ -367,13 +374,19 @@ const SIZES = india.systemSizes.map((x) => x.kw);
 const yields = india.cities.map((c) => c.yield);
 const yLow = Math.min(...yields), yHigh = Math.max(...yields), yTypical = 1450;
 const lakh = (x) => x >= 100000 ? `₹${(x / 100000).toFixed(2).replace(/\.?0+$/, '')} lakh` : inr(x);
-const range = (a, b) => `${lakh(a)}–${lakh(b)}`;
+const range = (a, b) => `${lakh(a)} to ${lakh(b)}`;
 const perDay = (kw, y) => kw * y / 365;
+const round100 = (x) => Math.round(x / 100) * 100;
+function yearsText(y) {
+  const whole = Math.floor(y); let months = Math.round((y - whole) * 12);
+  return months === 0 || months === 12 ? `${whole + (months === 12 ? 1 : 0)} years` : `${whole} years ${months} months`;
+}
 
 function sizeFacts(kw) {
   const p = C.sizePrice(india, kw);
   const sub = C.pmSuryaGharSubsidy(common, kw);
-  const r = C.solarSimple(india, common, { kw, yieldKwhPerKwYear: yTypical, units: kw * 120, rate: india.defaultRate });
+  const units = Math.round(kw * yTypical / 12 / 10) * 10;
+  const r = C.solarSimple(india, common, { kw, yieldKwhPerKwYear: yTypical, units, rate: india.defaultRate });
   return {
     kw, p, sub,
     afterLow: p.low - sub, afterHigh: p.high - sub,
@@ -381,25 +394,40 @@ function sizeFacts(kw) {
     roof: kw * common.solarDefaults.sqftPerKw,
     dayLow: perDay(kw, yLow), dayHigh: perDay(kw, yHigh), dayTyp: perDay(kw, yTypical),
     month: kw * yTypical / 12, year: kw * yTypical,
-    suitsUnits: Math.round(kw * yTypical / 12 / 10) * 10,
+    suitsUnits: units, suitsBill: round100(units * india.defaultRate),
     r
   };
 }
 
+// A short plain-language summary box shown at the top of a page.
+function inShort(rows, title = 'In short') {
+  return `<section class="inshort" aria-label="${esc(title)}"><h2>${esc(title)}</h2><dl>${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl></section>`;
+}
+
+const GLOSSARY = `<section class="glossary"><h2>Words you will see</h2><dl>
+<div><dt>kW (kilowatt)</dt><dd>The size of a solar system. Bigger kW = more panels = more electricity.</dd></div>
+<div><dt>Unit</dt><dd>One unit on your electricity bill (1 kWh). A fan running for a full day uses about 1.5 units.</dd></div>
+<div><dt>Subsidy</dt><dd>Money the government pays back to you under PM Surya Ghar, after the system is installed.</dd></div>
+<div><dt>On-grid</dt><dd>Solar connected to the electricity line, without batteries. Only on-grid systems get the subsidy.</dd></div>
+<div><dt>Net meter</dt><dd>A two-way meter. It counts units you take from the line and units your panels send to it.</dd></div>
+<div><dt>DCR panels</dt><dd>Panels made with Indian cells. Required for the subsidy; your installer will use them.</dd></div>
+</dl></section>`;
+
 function sizeForm(kw, mode) {
   const cityOpts = india.cities.map((c, i) => `<option value="${i}"${c.name === 'Delhi' ? ' selected' : ''}>${esc(c.name)}${c.state !== c.name ? ` (${esc(c.state)})` : ''}</option>`).join('');
   const sizeOpts = SIZES.map((k) => `<option value="${k}"${k === kw ? ' selected' : ''}>${k} kW</option>`).join('');
+  const f = sizeFacts(kw);
   return `<section class="calc">
 <form class="card" data-calc="size" data-mode="${mode}" data-output="size-out" autocomplete="off">
-<h2>${mode === 'generation' ? 'Check generation for your city' : 'Price and savings for your home'}</h2>
+<h2>${mode === 'generation' ? 'Check for your city' : 'Check for your home'}</h2>
 <div class="fields">
-<div class="field"><label for="kw">System size</label><select id="kw" name="kw">${sizeOpts}</select></div>
-<div class="field"><label for="city">City</label><select id="city" name="city">${cityOpts}</select></div>
-<div class="field"><label for="units">Your monthly units</label><input id="units" name="units" type="number" min="0" step="10" value="${kw * 120}" inputmode="numeric"><span class="hint">From your bill. 0 = count every unit as saved.</span></div>
-<div class="field"><label for="rate">Your bill rate (₹/unit)</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="${india.defaultRate}" inputmode="decimal"><span class="hint">Bill amount ÷ units. Most homes: ₹6–9.</span></div>
-<div class="field"><label for="cost">Quoted price (₹, before subsidy)</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">Prefilled with a typical price</span></div>
-<details class="adv"><summary>More options</summary><div class="fields">
-<div class="field"><label for="exportRate">Export rate (₹/unit)</label><input id="exportRate" name="exportRate" type="number" min="0" step="0.05" value="${india.defaultExportRate}"><span class="hint">What your DISCOM pays for surplus</span></div>
+<div class="field"><label for="kw">Solar size</label><select id="kw" name="kw">${sizeOpts}</select></div>
+<div class="field"><label for="city">Your city</label><select id="city" name="city">${cityOpts}</select></div>
+<div class="field full"><label for="bill">Your monthly electricity bill (₹)</label><input id="bill" name="bill" type="number" min="0" step="100" value="${f.suitsBill}" inputmode="numeric"></div>
+<details class="adv"><summary>Change price or rate</summary><div class="fields">
+<div class="field"><label for="cost">Price quoted to you (₹)</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">Before subsidy. We fill in a typical price.</span></div>
+<div class="field"><label for="rate">Cost of 1 unit (₹)</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="${india.defaultRate}" inputmode="decimal"><span class="hint">Bill amount ÷ units on the bill</span></div>
+<div class="field"><label for="exportRate">Rate for extra units sold (₹)</label><input id="exportRate" name="exportRate" type="number" min="0" step="0.05" value="${india.defaultExportRate}"></div>
 </div></details>
 </div>
 </form>
@@ -411,10 +439,10 @@ function compareTable(current) {
   const rows = SIZES.map((kw) => {
     const f = sizeFacts(kw);
     const name = kw === current ? `<strong>${kw} kW</strong>` : `<a href="${pricePage(kw)}">${kw} kW</a>`;
-    return `<tr><td>${name}</td><td class="num">${range(f.p.low, f.p.high)}</td><td class="num">${inr(f.sub)}</td><td class="num">${range(f.afterLow, f.afterHigh)}</td><td class="num"><a href="${genPage(kw)}">${f.dayTyp.toFixed(1)}</a></td><td class="num">${f.roof}</td></tr>`;
+    return `<tr${kw === current ? ' class="current"' : ''}><td>${name}</td><td class="num">${inr(f.suitsBill)}</td><td class="num">${range(f.afterLow, f.afterHigh)}</td><td class="num">${f.dayTyp.toFixed(0)}</td></tr>`;
   }).join('');
-  return `<div class="table-wrap"><table><thead><tr><th>System</th><th class="num">Price</th><th class="num">Subsidy</th><th class="num">After subsidy</th><th class="num">Units/day</th><th class="num">Roof (sq ft)</th></tr></thead><tbody>${rows}</tbody></table></div>
-<p class="note">${esc(india.priceNote)} Units per day at a typical ${yTypical} units per kW per year.</p>`;
+  return `<div class="table-wrap"><table><thead><tr><th>Solar size</th><th class="num">Good for a monthly bill of</th><th class="num">You pay (after subsidy)</th><th class="num">Units a day</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="note">Prices are typical for a complete system, installed. Get 2 or 3 quotes before you buy.</p>`;
 }
 
 function neighbours(kw, fn, label) {
@@ -426,55 +454,54 @@ function pricePageSpec(kw) {
   const f = sizeFacts(kw);
   const acHours = Math.round(f.dayTyp / 1.3);
   const faqs = [
-    { q: `What is the price of a ${kw}kW solar system in India in 2026?`, a: `A ${kw}kW on-grid rooftop system with DCR panels typically costs ${range(f.p.low, f.p.high)} installed. After the PM Surya Ghar subsidy of ${inr(f.sub)} you pay about ${range(f.afterLow, f.afterHigh)}.` },
-    { q: `What is the ${kw}kW solar system price with subsidy?`, a: `About ${range(f.afterLow, f.afterHigh)} after the ${inr(f.sub)} central subsidy${kw > 3 ? ' (the subsidy is capped at ₹78,000 for 3 kW and above)' : ''}. Some states add their own top-up on top of this.` },
-    { q: `How many units does a ${kw}kW solar system generate per day?`, a: `About ${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day depending on the city, around ${Math.round(f.month)} units a month and ${Math.round(f.year).toLocaleString('en-IN')} a year at a typical site. <a href="${genPage(kw)}">See city-wise generation</a>.` },
-    { q: `How many panels are needed for ${kw}kW?`, a: `${f.panels} panels of ${india.panelWatt} W (${(f.panels * india.panelWatt / 1000).toFixed(2)} kW). With smaller 400–450 W panels you need ${Math.ceil(kw * 1000 / 440)}–${Math.ceil(kw * 1000 / 400)}.` },
-    { q: `How much roof area does ${kw}kW solar need?`, a: `About ${f.roof} sq ft of shadow-free roof, roughly ${Math.round(f.roof * 0.0929)} square metres.` },
-    { q: `Is ${kw}kW enough for my home?`, a: `A ${kw}kW system covers a home using about ${f.suitsUnits} units a month. Check the units on your last few bills; size the system to your average use, because surplus units earn only ₹2–3 each from the DISCOM.` },
-    { q: `Can a ${kw}kW solar system run an AC?`, a: `On-grid solar does not power the AC directly; it offsets your bill. ${kw}kW makes about ${f.dayTyp.toFixed(0)} units a day, enough to cover a 1.5-ton inverter AC for about ${acHours} hours of daily use.` }
+    { q: `What is the price of a ${kw}kW solar system in India in 2026?`, a: `A complete ${kw}kW rooftop system costs ${range(f.p.low, f.p.high)}, installed. After the government subsidy of ${inr(f.sub)}, you pay ${range(f.afterLow, f.afterHigh)}.` },
+    { q: `What is the ${kw}kW solar system price with subsidy?`, a: `${range(f.afterLow, f.afterHigh)}. The government pays ${inr(f.sub)} back into your bank account after installation${kw > 3 ? ' (₹78,000 is the maximum, for 3 kW and above)' : ''}.` },
+    { q: `How many units does a ${kw}kW solar system make per day?`, a: `About ${f.dayTyp.toFixed(0)} units a day (${f.dayLow.toFixed(0)} to ${f.dayHigh.toFixed(0)} depending on your city). That is about ${Math.round(f.month)} units a month. <a href="${genPage(kw)}">See your city</a>.` },
+    { q: `How many panels are needed for ${kw}kW?`, a: `${f.panels} panels of ${india.panelWatt} watts each. If your installer uses smaller panels, you need a few more.` },
+    { q: `How much roof space does ${kw}kW solar need?`, a: `About ${f.roof} sq ft of open roof with no shade, roughly a ${Math.round(Math.sqrt(f.roof * 0.75))} × ${Math.round(Math.sqrt(f.roof / 0.75))} ft area.` },
+    { q: `Is ${kw}kW enough for my home?`, a: `${kw}kW suits a home with a monthly bill of about ${inr(f.suitsBill)} (${f.suitsUnits} units). If your bill is much smaller, choose a smaller system: extra units sold to the grid earn very little.` },
+    { q: `Can a ${kw}kW solar system run an AC?`, a: `Yes, in effect. ${kw}kW makes about ${f.dayTyp.toFixed(0)} units a day, enough for a 1.5-ton inverter AC for about ${acHours} hours a day. The panels feed your home and the grid; the AC runs as normal and your bill goes down.` }
   ];
   return {
     file: pricePage(kw),
     title: `${kw}kW Solar System Price in India 2026 (With Subsidy) – Cost, Panels & Generation`,
-    description: `${kw}kW solar system price in India: ${range(f.p.low, f.p.high)} before subsidy, ${range(f.afterLow, f.afterHigh)} after the ${inr(f.sub)} PM Surya Ghar subsidy. ${f.panels} panels, ${f.roof} sq ft roof, about ${f.dayTyp.toFixed(0)} units a day.`,
-    h1: `${kw}kW Solar System Price in India 2026 (With Subsidy)`,
-    lede: `A ${kw}kW on-grid rooftop system costs <strong>${range(f.p.low, f.p.high)}</strong> installed, or <strong>${range(f.afterLow, f.afterHigh)}</strong> after the ${inr(f.sub)} PM Surya Ghar subsidy. It makes about ${f.dayTyp.toFixed(0)} units a day.`,
-    crumbs: [{ name: 'Solar system price', file: PAGES.home }, { name: `${kw}kW solar price`, file: pricePage(kw) }],
+    description: `${kw}kW solar system price in India: ${range(f.p.low, f.p.high)}. After the ${inr(f.sub)} PM Surya Ghar subsidy you pay ${range(f.afterLow, f.afterHigh)}. Makes about ${f.dayTyp.toFixed(0)} units a day.`,
+    h1: `${kw}kW Solar System Price in India (2026)`,
+    crumbs: [{ name: 'Solar price', file: PAGES.home }, { name: `${kw}kW solar price`, file: pricePage(kw) }],
     app: true,
     faqs,
-    body: `${sizeForm(kw, 'price')}
+    body: `${inShort([
+      ['Full price', range(f.p.low, f.p.high)],
+      ['Government subsidy', `${inr(f.sub)} back to you`],
+      ['<strong>You pay</strong>', `<strong>${range(f.afterLow, f.afterHigh)}</strong>`],
+      ['Electricity it makes', `about ${f.dayTyp.toFixed(0)} units a day`],
+      ['Good for', `a monthly bill of about ${inr(f.suitsBill)}`],
+      ['Money back in', `about ${yearsText(f.r.paybackYears)}`],
+      ['Roof space', `about ${f.roof} sq ft (${f.panels} panels)`]
+    ])}
+${sizeForm(kw, 'price')}
 ${adSlot('after-calc')}
 <section class="prose">
-<h2>${kw}kW solar price breakdown</h2>
-<div class="table-wrap"><table><tbody>
-<tr><td>Installed price (before subsidy)</td><td class="num">${range(f.p.low, f.p.high)}</td></tr>
-<tr class="minus"><td>PM Surya Ghar central subsidy</td><td class="num">−${inr(f.sub)}</td></tr>
-<tr class="total"><td>You pay</td><td class="num">${range(f.afterLow, f.afterHigh)}</td></tr>
-<tr><td>Price per kW</td><td class="num">${range(f.p.low / kw, f.p.high / kw)}</td></tr>
-</tbody></table></div>
-<p class="note">${esc(india.priceNote)}</p>
-<h2>What a ${kw}kW system includes</h2>
+<h2>What you get for the price</h2>
 <ul>
-<li><strong>Panels:</strong> ${f.panels} × ${india.panelWatt} W DCR (made-in-India cells), needed for the subsidy</li>
-<li><strong>Inverter:</strong> ${kw} kW on-grid string inverter</li>
-<li><strong>Mounting structure:</strong> galvanised steel; elevated structures cost more</li>
-<li><strong>Wiring and protection:</strong> DC/AC cables, ACDB/DCDB, earthing, lightning arrester</li>
-<li><strong>Net meter:</strong> applied through your DISCOM; meter and testing fees are usually extra</li>
+<li><strong>${f.panels} solar panels</strong> (${india.panelWatt} watts each, made in India)</li>
+<li><strong>A ${kw} kW inverter</strong>, the box that turns solar power into home electricity</li>
+<li><strong>A steel stand</strong> to hold the panels on your roof</li>
+<li><strong>Wiring, safety switches and earthing</strong></li>
+<li><strong>Installation</strong>. The new two-way meter (net meter) comes from your electricity company, usually for a small fee.</li>
 </ul>
-<h2>What changes the price</h2>
+<h2>Why prices differ</h2>
 <ul>
-<li><strong>Brand:</strong> Adani, Waaree, Tata Power Solar, Vikram, Premier and others differ by about 5–15% for the same size.</li>
-<li><strong>Panel type:</strong> TOPCon and bifacial panels cost a little more than Mono PERC but produce more per square foot.</li>
-<li><strong>Structure height</strong> and roof type (RCC, tin shed).</li>
-<li><strong>Battery:</strong> hybrid or off-grid systems with batteries cost much more and the PM Surya Ghar subsidy covers on-grid systems.</li>
+<li><strong>Brand:</strong> Adani, Waaree, Tata Power Solar and others differ by about 5–15%.</li>
+<li><strong>Stand height:</strong> a raised stand (so you can use the roof below) costs more.</li>
+<li><strong>Battery:</strong> a system with batteries costs much more, and does not get the subsidy.</li>
 </ul>
-<h2>${kw}kW generation and savings</h2>
-<p>At a typical site a ${kw}kW system makes about <strong>${f.dayTyp.toFixed(1)} units a day</strong>, ${Math.round(f.month)} a month and ${Math.round(f.year).toLocaleString('en-IN')} a year. Valued at ₹${india.defaultRate}/unit for a home using ${f.suitsUnits} units a month, that saves about <strong>${inr(f.r.savingMonthly)} a month</strong> and pays back the after-subsidy cost in about <strong>${f.r.paybackYears.toFixed(1)} years</strong>. <a href="${genPage(kw)}">City-wise ${kw}kW generation</a>.</p>
-<h2>Compare system sizes</h2>
+<h2>Which size is right for you?</h2>
+<p>Look at your monthly electricity bill and find the closest row.</p>
 ${compareTable(kw)}
-<p>${neighbours(kw, pricePage, 'solar price')} · <a href="${PAGES.subsidy}">PM Surya Ghar subsidy explained</a></p>
+<p>${neighbours(kw, pricePage, 'solar price')} · <a href="${genPage(kw)}">How much ${kw}kW makes in your city</a> · <a href="${PAGES.subsidy}">How to get the subsidy</a></p>
 </section>
+${GLOSSARY}
 ${adSlot('mid')}
 ${faqHtml(faqs)}`
   };
@@ -484,40 +511,47 @@ function genPageSpec(kw) {
   const f = sizeFacts(kw);
   const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const cityRows = india.cities.slice().sort((a, b) => b.yield - a.yield).map((c) => `<tr><td>${esc(c.name)}</td><td class="num">${perDay(kw, c.yield).toFixed(1)}</td><td class="num">${Math.round(kw * c.yield / 12)}</td><td class="num">${Math.round(kw * c.yield).toLocaleString('en-IN')}</td></tr>`).join('');
+  const cityRows = india.cities.slice().sort((a, b) => a.name.localeCompare(b.name)).map((c) => `<tr><td>${esc(c.name)}</td><td class="num">${perDay(kw, c.yield).toFixed(1)}</td><td class="num">${Math.round(kw * c.yield / 12)}</td></tr>`).join('');
   const monthRows = india.monthlyShare.map((s, m) => { const u = kw * yTypical * s; return `<tr><td>${MONTHS[m]}</td><td class="num">${(u / days[m]).toFixed(1)}</td><td class="num">${Math.round(u)}</td></tr>`; }).join('');
   const faqs = [
-    { q: `How many units does a ${kw}kW solar panel generate per day?`, a: `${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day on average, depending on the city. That is about 4 units per kW in cloudier places such as Kolkata and Guwahati and about 4.5 units per kW in Rajasthan and Gujarat.` },
-    { q: `How many units does a ${kw}kW solar system generate per month?`, a: `About ${Math.round(kw * yLow / 12)}–${Math.round(kw * yHigh / 12)} units a month on average. Output is highest in March to May and lowest in the monsoon months.` },
-    { q: `How many units does ${kw}kW solar produce in a year?`, a: `About ${Math.round(kw * yLow).toLocaleString('en-IN')}–${Math.round(kw * yHigh).toLocaleString('en-IN')} units a year, falling by about ${common.solarDefaults.degradationPctPerYear}% a year as panels age.` },
-    { q: `Why is my ${kw}kW system generating less than expected?`, a: 'Common reasons are shade from a water tank, parapet or tree, dust on panels (clean every 2–3 weeks in dry months), the monsoon season, the inverter tripping on high grid voltage, and wrong panel direction. A system making less than 80% of the figures here for a whole month is worth checking with your installer.' },
-    { q: `How much bill does ${kw}kW solar save?`, a: `At ₹${india.defaultRate}/unit, ${Math.round(f.month)} units a month is worth about ${inr(f.month * india.defaultRate)} a month, as long as you use those units yourself. <a href="${pricePage(kw)}">See ${kw}kW price and payback</a>.` }
+    { q: `How many units does a ${kw}kW solar panel make per day?`, a: `About ${f.dayTyp.toFixed(0)} units a day on average. Sunny places like Rajasthan and Gujarat get up to ${f.dayHigh.toFixed(1)}; cloudier places like Kolkata and Guwahati get about ${f.dayLow.toFixed(1)}.` },
+    { q: `How many units does a ${kw}kW solar system make per month?`, a: `About ${Math.round(kw * yLow / 12)} to ${Math.round(kw * yHigh / 12)} units a month. Most in March to May, least in the rainy months.` },
+    { q: `How many units does ${kw}kW solar make in a year?`, a: `About ${Math.round(kw * yLow).toLocaleString('en-IN')} to ${Math.round(kw * yHigh).toLocaleString('en-IN')} units a year.` },
+    { q: `Why is my ${kw}kW system making less than this?`, a: 'The usual reasons: shade from a water tank, wall or tree; dusty panels (clean them every 2–3 weeks when it is dry); cloudy or rainy weather; or the inverter switching off. If you get less than 80% of these figures for a whole month, call your installer.' },
+    { q: `How much money does ${kw}kW solar save?`, a: `About ${inr(f.month * india.defaultRate)} a month at ₹${india.defaultRate} per unit, if your home uses the units it makes. <a href="${pricePage(kw)}">See ${kw}kW price and savings</a>.` }
   ];
   return {
     file: genPage(kw),
     title: `${kw}kW Solar Panel Generation Per Day, Month & Year (City-wise, India)`,
-    description: `A ${kw}kW solar system generates ${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units per day, about ${Math.round(f.month)} units per month and ${Math.round(f.year).toLocaleString('en-IN')} units per year. City-wise and month-wise generation table for India.`,
-    h1: `${kw}kW Solar Panel Generation Per Day`,
-    lede: `A ${kw}kW rooftop system makes <strong>${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day</strong> in India, about ${Math.round(f.month)} units a month and ${Math.round(f.year).toLocaleString('en-IN')} a year at a typical site.`,
-    crumbs: [{ name: 'Solar system price', file: PAGES.home }, { name: `${kw}kW generation`, file: genPage(kw) }],
+    description: `A ${kw}kW solar system makes about ${f.dayTyp.toFixed(0)} units a day (${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} depending on city), about ${Math.round(f.month)} units a month and ${Math.round(f.year).toLocaleString('en-IN')} a year. City-wise and month-wise table.`,
+    h1: `How Many Units Does ${kw}kW Solar Make in a Day?`,
+    crumbs: [{ name: 'Solar price', file: PAGES.home }, { name: `${kw}kW units per day`, file: genPage(kw) }],
     app: true,
     faqs,
-    body: `${sizeForm(kw, 'generation')}
+    body: `${inShort([
+      ['<strong>Per day</strong>', `<strong>about ${f.dayTyp.toFixed(0)} units</strong>`],
+      ['Per month', `about ${Math.round(f.month)} units`],
+      ['Per year', `about ${Math.round(f.year).toLocaleString('en-IN')} units`],
+      ['Best months', 'March to May'],
+      ['Lowest months', 'July and August (rain)'],
+      ['Worth', `about ${inr(f.month * india.defaultRate)} off your bill a month`]
+    ])}
+${sizeForm(kw, 'generation')}
 ${adSlot('after-calc')}
 <section class="prose">
-<h2>${kw}kW solar generation by city</h2>
-<div class="table-wrap"><table><thead><tr><th>City</th><th class="num">Units/day</th><th class="num">Units/month</th><th class="num">Units/year</th></tr></thead><tbody>${cityRows}</tbody></table></div>
-<p class="note">${esc(india.yieldNote)}</p>
-<h2>${kw}kW generation month by month</h2>
-<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units/day</th><th class="num">Units/month</th></tr></thead><tbody>${monthRows}</tbody></table></div>
-<p class="note">At ${yTypical} units per kW per year. ${esc(india.monthlyShareNote)}</p>
-<h2>How to check your own system</h2>
+<h2>Units a day in your city (${kw}kW)</h2>
+<div class="table-wrap"><table><thead><tr><th>City</th><th class="num">Units a day</th><th class="num">Units a month</th></tr></thead><tbody>${cityRows}</tbody></table></div>
+<p class="note">Average over the year, for panels facing south with no shade. Your real figure can be about 10% higher or lower.</p>
+<h2>Month by month</h2>
+<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units a day</th><th class="num">Units in month</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+<p class="note">For a typical city. In Tamil Nadu, the rainy dip comes in October to December instead.</p>
+<h2>Is your system working properly? Check in 3 steps</h2>
 <ol>
-<li>Open your inverter app or display and note the daily units ("Today" or "E-Day").</li>
-<li>Compare a sunny week's average with the units per day for your city above.</li>
-<li>Below 80% for weeks at a time: clean the panels, look for new shade, and ask your installer to check the inverter for trips.</li>
+<li>Open your inverter app (or the screen on the inverter) and find <strong>today's units</strong>.</li>
+<li>On a sunny day, compare it with your city in the table above.</li>
+<li>Much lower for weeks? Clean the panels, check for new shade, and call your installer.</li>
 </ol>
-<p>${neighbours(kw, genPage, 'generation')} · <a href="${pricePage(kw)}">${kw}kW price with subsidy</a></p>
+<p>${neighbours(kw, genPage, 'units per day')} · <a href="${pricePage(kw)}">${kw}kW price with subsidy</a></p>
 </section>
 ${adSlot('mid')}
 ${faqHtml(faqs)}`
@@ -530,32 +564,32 @@ SIZES.forEach((kw) => { pages.push(pricePageSpec(kw)); pages.push(genPageSpec(kw
 (() => {
   const f3 = sizeFacts(3), f1 = sizeFacts(1), f10 = sizeFacts(10);
   const faqs = [
-    { q: 'What is the price of solar panels for a home in India in 2026?', a: `A complete on-grid rooftop system costs about ${range(f1.p.low, f1.p.high)} for 1 kW, ${range(f3.p.low, f3.p.high)} for 3 kW and ${range(f10.p.low, f10.p.high)} for 10 kW, before the PM Surya Ghar subsidy.` },
-    { q: 'How much subsidy is available for rooftop solar?', a: 'Under PM Surya Ghar: Muft Bijli Yojana, ₹30,000 per kW for the first 2 kW and ₹18,000 for the 3rd kW, up to ₹78,000 for 3 kW and above. It is paid to your bank account after the net meter is installed.' },
-    { q: 'Which size of solar system do I need?', a: `Divide your average monthly units by about 120. A home using 360 units a month needs about 3 kW. Each kW needs about ${common.solarDefaults.sqftPerKw} sq ft of shadow-free roof.` },
-    { q: 'How many units does 1kW solar generate per day?', a: `About ${perDay(1, yLow).toFixed(1)}–${perDay(1, yHigh).toFixed(1)} units a day, or ${Math.round(yLow / 12)}–${Math.round(yHigh / 12)} units a month, depending on the city. <a href="${genPage(1)}">1kW generation by city</a>.` }
+    { q: 'How much do solar panels cost for a home in India in 2026?', a: `A complete system costs about ${range(f1.p.low, f1.p.high)} for 1 kW, ${range(f3.p.low, f3.p.high)} for 3 kW and ${range(f10.p.low, f10.p.high)} for 10 kW. The government subsidy then pays you back up to ₹78,000.` },
+    { q: 'How much subsidy does the government give?', a: 'Under PM Surya Ghar: ₹30,000 for 1 kW, ₹60,000 for 2 kW and ₹78,000 for 3 kW or more. It is paid into your bank account after installation.' },
+    { q: 'What size of solar do I need?', a: `Look at your monthly bill. Roughly: up to ₹1,000 → 1 kW, ₹2,000 → 2 kW, ₹2,500–3,000 → 3 kW, ₹4,000–5,000 → 5 kW. Each kW needs about ${common.solarDefaults.sqftPerKw} sq ft of open roof.` },
+    { q: 'How many units does 1kW solar make in a day?', a: `About 4 units a day, a little more in sunny states. <a href="${genPage(1)}">See your city</a>.` }
   ];
   pages.push({
     file: PAGES.home,
     title: 'Solar System Price in India 2026 With Subsidy – 1kW to 10kW Cost & Generation',
-    description: 'Rooftop solar system price in India for 1kW, 2kW, 3kW, 5kW and 10kW, before and after the PM Surya Ghar subsidy, with units generated per day and a savings calculator for your city.',
-    h1: 'Solar System Price in India 2026 (With Subsidy)',
-    lede: 'Installed price, PM Surya Ghar subsidy, units per day and payback for every common system size, with a calculator for your city and bill.',
+    description: 'How much rooftop solar costs in India for 1kW, 2kW, 3kW, 5kW and 10kW, how much the government subsidy pays, how many units it makes and how fast it pays back.',
+    h1: 'How Much Does Rooftop Solar Cost in India?',
+    lede: 'Find your monthly electricity bill in the table to see which solar size suits you, what you pay after the government subsidy, and how much electricity it makes.',
     app: true,
     faqs,
-    body: `<h2>Price list: 1kW to 10kW</h2>
-${compareTable(null)}
+    body: `${compareTable(null)}
 ${sizeForm(3, 'price')}
 ${adSlot('after-calc')}
-<h2>Price and generation by size</h2>
-<ul class="grid-links">${SIZES.map((kw) => { const f = sizeFacts(kw); return `<li><a href="${pricePage(kw)}"><strong>${kw}kW solar system price</strong><small>${range(f.afterLow, f.afterHigh)} after subsidy · ${f.dayTyp.toFixed(0)} units/day</small></a></li>`; }).join('')}</ul>
+<h2>Prices by size</h2>
+<ul class="grid-links">${SIZES.map((kw) => { const f = sizeFacts(kw); return `<li><a href="${pricePage(kw)}"><strong>${kw}kW solar price</strong><small>You pay ${range(f.afterLow, f.afterHigh)}</small></a></li>`; }).join('')}</ul>
 <h2>More tools</h2>
 <ul class="grid-links">
-<li><a href="${PAGES.subsidy}"><strong>PM Surya Ghar subsidy</strong><small>Amount per kW and how to apply</small></a></li>
-<li><a href="${PAGES.solar}"><strong>Gujarat solar savings</strong><small>Exact slab-wise savings on your DISCOM bill</small></a></li>
-<li><a href="${PAGES.gujaratBill}"><strong>Gujarat electricity bill calculator</strong><small>UGVCL, MGVCL, DGVCL, PGVCL, Torrent</small></a></li>
-<li><a href="${PAGES.ev}"><strong>EV charging cost</strong><small>₹/km at home vs public chargers</small></a></li>
+<li><a href="${PAGES.subsidy}"><strong>Government subsidy</strong><small>How much you get and how to apply</small></a></li>
+<li><a href="${PAGES.solar}"><strong>Gujarat solar savings</strong><small>Uses your electricity company's exact rates</small></a></li>
+<li><a href="${PAGES.gujaratBill}"><strong>Gujarat electricity bill</strong><small>UGVCL, MGVCL, DGVCL, PGVCL, Torrent</small></a></li>
+<li><a href="${PAGES.ev}"><strong>Electric vehicle charging cost</strong><small>Cost per km at home and outside</small></a></li>
 </ul>
+${GLOSSARY}
 ${faqHtml(faqs)}`
   });
 })();

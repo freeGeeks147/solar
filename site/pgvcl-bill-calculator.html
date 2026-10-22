@@ -24,31 +24,32 @@
 <main><div class="wrap">
 <div class="crumbs"><a href="./">Home</a> › <a href="gujarat-electricity-bill-calculator.html">Gujarat bill calculator</a> › PGVCL bill calculator</div>
 <h1>PGVCL Electricity Bill Calculator 2026-27</h1>
-<p class="lede">Paschim Gujarat Vij Company Ltd supplies Saurashtra and Kutch. Enter your units or bill amount to get an itemised estimate using the GERC tariff effective 1 April 2026.</p>
+<p class="lede">Type the units from your bill to see your PGVCL bill, line by line. Rates from 1 April 2026.</p>
+<section class="inshort" aria-label="In short"><h2>In short</h2><dl><div><dt>Price per unit</dt><dd>₹3.05 to ₹5.20, more as you use more</dd></div><div><dt>Plus</dt><dd>a small fixed charge, fuel surcharge and electricity tax</dd></div><div><dt>200 units a month</dt><dd>about <strong>₹1,400</strong></dd></div><div><dt>300 units a month</dt><dd>about <strong>₹2,214</strong></dd></div><div><dt>Covers</dt><dd>Saurashtra and Kutch</dd></div></dl></section>
 <section class="calc">
 <form class="card" data-calc="bill" data-output="bill-out" autocomplete="off">
-<h2>Enter your details</h2>
+<h2>Your details</h2>
 <div class="fields">
-<div class="field full"><label for="discom">Electricity company (DISCOM)</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl" selected>PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad">Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
-<div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
-<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="3"></div>
+<div class="field full"><label for="discom">Your electricity company</label><select id="discom" name="discom"><option value="ugvcl">UGVCL (North Gujarat)</option><option value="mgvcl">MGVCL (Central Gujarat)</option><option value="dgvcl">DGVCL (South Gujarat)</option><option value="pgvcl" selected>PGVCL (Saurashtra and Kutch)</option><option value="torrent-ahmedabad">Torrent Power Ahmedabad (Ahmedabad and Gandhinagar cities)</option><option value="torrent-surat">Torrent Power Surat (Surat city)</option></select></div>
+<div class="field"><label for="category">Area</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">Sanctioned load (kW)</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="3"><span class="hint">Printed on your bill</span></div>
 <div class="field"><label for="meter">Meter type</label><select id="meter" name="meter">
-<option value="postpaid">Regular (postpaid)</option>
-<option value="postpaid-smart">Smart meter, postpaid</option>
-<option value="prepaid-smart">Smart meter, prepaid</option>
+<option value="postpaid">Regular meter</option>
+<option value="postpaid-smart">Smart meter (pay after use)</option>
+<option value="prepaid-smart">Smart meter (prepaid / recharge)</option>
 </select></div>
-<div class="field" data-show="smart"><label for="solarHoursPct">% of use 11:00-17:00</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Gets 60 paise/unit ToU discount</span></div>
+<div class="field" data-show="smart"><label for="solarHoursPct">% of electricity used 11 am–5 pm</label><input id="solarHoursPct" name="solarHoursPct" type="number" min="0" max="100" step="5" value="25"><span class="hint">Smart meters get 60 paise off per unit in these hours</span></div>
 <div class="field full"><span class="hint" style="font-weight:600">Calculate from</span><div class="seg" role="radiogroup">
 <label><input type="radio" name="inputMode" value="units" checked> Units used</label>
 <label><input type="radio" name="inputMode" value="amount"> Bill amount</label>
 </div></div>
-<div class="field" data-show="units"><label for="units">Units (kWh)</label><input id="units" name="units" type="number" min="0" step="1" value="400"></div>
+<div class="field" data-show="units"><label for="units">Units used (from your bill)</label><input id="units" name="units" type="number" min="0" step="1" value="400"></div>
 <div class="field hidden" data-show="amount"><label for="amount">Bill amount (₹)</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500"></div>
 <div class="field"><label for="months">Billing period</label><select id="months" name="months"><option value="1">1 month</option><option value="2" selected>2 months</option></select></div>
 <fieldset class="from-bill full"><legend>From your bill (optional)</legend>
-<p class="hint">These two figures vary by quarter and connection. We fill in estimates. Copy them from your bill for an exact match.</p>
-<div class="fields"><div class="field"><label for="fppa">FPPPA / FPPAS (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Estimate shown. Changes every quarter.</span></div>
-<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">Estimate shown for your category.</span></div></div></fieldset>
+<p class="hint">We have filled in typical values. For an exact answer, copy these two numbers from your bill.</p>
+<div class="fields"><div class="field"><label for="fppa">Fuel surcharge per unit (₹)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Shown as FPPPA or FPPAS on your bill</span></div>
+<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">A state tax, shown on your bill</span></div></div></fieldset>
 <details class="adv"><summary>More options</summary><div class="fields"><div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div></div></details>
 </div>
 </form>
@@ -56,11 +57,11 @@
 </section>
 
 <section class="prose">
-<h2>PGVCL residential tariff 2026-27</h2>
+<h2>PGVCL home electricity rates 2026-27</h2>
 <p>Rates from the GERC tariff order for 2026-27 (Case No. 2583 of 2025, order dated 25.03.2026), effective 1 April 2026. Slabs are per month.</p>
-<h3>RGP (Urban / non-rural) </h3>
+<h3>City or town </h3>
 <p>Energy charges</p><div class="table-wrap"><table><thead><tr><th>Monthly units</th><th class="num">₹ per unit</th><th class="num">Paise</th></tr></thead><tbody><tr><td>1–50 units</td><td class="num">₹3.05</td><td class="num">305 paise</td></tr><tr><td>51–100 units</td><td class="num">₹3.50</td><td class="num">350 paise</td></tr><tr><td>101–250 units</td><td class="num">₹4.15</td><td class="num">415 paise</td></tr><tr><td>Above 250 units</td><td class="num">₹5.20</td><td class="num">520 paise</td></tr></tbody></table></div>
-<p>Fixed charges </p><div class="table-wrap"><table><thead><tr><th>Sanctioned load</th><th class="num">Fixed charge / month</th></tr></thead><tbody><tr><td>Up to 2 kW</td><td class="num">₹15</td></tr><tr><td>Above 2 to 4 kW</td><td class="num">₹25</td></tr><tr><td>Above 4 to 6 kW</td><td class="num">₹45</td></tr><tr><td>Above 6 kW</td><td class="num">₹70</td></tr></tbody></table></div><h3>RGP (Rural, Gram Panchayat area) </h3>
+<p>Fixed charges </p><div class="table-wrap"><table><thead><tr><th>Sanctioned load</th><th class="num">Fixed charge / month</th></tr></thead><tbody><tr><td>Up to 2 kW</td><td class="num">₹15</td></tr><tr><td>Above 2 to 4 kW</td><td class="num">₹25</td></tr><tr><td>Above 4 to 6 kW</td><td class="num">₹45</td></tr><tr><td>Above 6 kW</td><td class="num">₹70</td></tr></tbody></table></div><h3>Village (Gram Panchayat) </h3>
 <p>Energy charges</p><div class="table-wrap"><table><thead><tr><th>Monthly units</th><th class="num">₹ per unit</th><th class="num">Paise</th></tr></thead><tbody><tr><td>1–50 units</td><td class="num">₹2.65</td><td class="num">265 paise</td></tr><tr><td>51–100 units</td><td class="num">₹3.10</td><td class="num">310 paise</td></tr><tr><td>101–250 units</td><td class="num">₹3.75</td><td class="num">375 paise</td></tr><tr><td>Above 250 units</td><td class="num">₹4.90</td><td class="num">490 paise</td></tr></tbody></table></div>
 <p>Fixed charges <span class="verify" title="Cross-checked from secondary sources; confirm against the GERC schedule">(verify)</span></p><div class="table-wrap"><table><thead><tr><th>Sanctioned load</th><th class="num">Fixed charge / month</th></tr></thead><tbody><tr><td>Up to 2 kW</td><td class="num">₹15</td></tr><tr><td>Above 2 to 4 kW</td><td class="num">₹25</td></tr><tr><td>Above 4 to 6 kW</td><td class="num">₹45</td></tr><tr><td>Above 6 kW</td><td class="num">₹70</td></tr></tbody></table></div><h3>BPL household <span class="verify" title="Cross-checked from secondary sources; confirm against the GERC schedule">(verify)</span></h3>
 <p>Energy charges</p><div class="table-wrap"><table><thead><tr><th>Monthly units</th><th class="num">₹ per unit</th><th class="num">Paise</th></tr></thead><tbody><tr><td>1–30 units</td><td class="num">₹1.50</td><td class="num">150 paise</td></tr><tr><td>31–50 units</td><td class="num">₹3.05</td><td class="num">305 paise</td></tr><tr><td>51–100 units</td><td class="num">₹3.50</td><td class="num">350 paise</td></tr><tr><td>101–250 units</td><td class="num">₹4.15</td><td class="num">415 paise</td></tr><tr><td>Above 250 units</td><td class="num">₹5.20</td><td class="num">520 paise</td></tr></tbody></table></div>
