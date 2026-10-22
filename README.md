@@ -63,6 +63,10 @@ Each quarter, update `fppaPerUnit` from a recent bill or the DISCOM's FPPPA noti
 | Net-metering surplus ₹2.25/unit | GERC regulation (2021 amendment) (**verify** it has not been revised) |
 | PM Surya Ghar ₹30k/kW ×2, ₹18k for the 3rd kW, cap ₹78k | Current scheme |
 
+## FPPPA and duty: estimates users can overwrite
+
+FPPPA changes every quarter and the duty base is not confirmed, so the bill calculator shows both in a visible **From your bill (optional)** box. The fields are prefilled from `fppaPerUnit` and `electricityDutyPct`, and the result marks them `est.` until the user types the figures printed on their bill. Values the user enters carry over to the solar link. Updating the defaults each quarter keeps estimates close, but users with a bill in hand always get an exact match.
+
 ## Next steps
 
 Watch Search Console for 2–3 months. If the DISCOM pages get impressions, add Maharashtra, UP, Rajasthan and Kerala: add a `data/<state>.json` and generalise `build.js` to loop over states.

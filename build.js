@@ -140,7 +140,13 @@ ${meterField()}`;
 
 function advancedBillFields() {
   return `<div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div>
-<div class="field"><label for="fppa">FPPPA (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01"><span class="hint">Check your latest bill; changes quarterly</span></div>`;
+${chargeFields()}`;
+}
+
+// The two figures we cannot pin down for every consumer. Prefilled with estimates; users overwrite them from their bill.
+function chargeFields() {
+  return `<div class="field"><label for="fppa">FPPPA / FPPAS (₹/unit)</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">Estimate shown. Changes every quarter.</span></div>
+<div class="field"><label for="dutyPct">Electricity duty (%)</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">Estimate shown for your category.</span></div>`;
 }
 
 function billForm(discomId) {
@@ -156,7 +162,10 @@ ${commonBillFields(discomId)}
 <div class="field" data-show="units"><label for="units">Units (kWh)</label><input id="units" name="units" type="number" min="0" step="1" value="${discomId.startsWith('torrent') ? 200 : 400}"></div>
 <div class="field hidden" data-show="amount"><label for="amount">Bill amount (₹)</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500"></div>
 <div class="field"><label for="months">Billing period</label><select id="months" name="months"><option value="1"${discomId.startsWith('torrent') ? ' selected' : ''}>1 month</option><option value="2"${discomId.startsWith('torrent') ? '' : ' selected'}>2 months</option></select></div>
-<details class="adv"><summary>More options</summary><div class="fields">${advancedBillFields()}</div></details>
+<fieldset class="from-bill full"><legend>From your bill (optional)</legend>
+<p class="hint">These two figures vary by quarter and connection. We fill in estimates. Copy them from your bill for an exact match.</p>
+<div class="fields">${chargeFields()}</div></fieldset>
+<details class="adv"><summary>More options</summary><div class="fields"><div class="field"><label for="phase">Supply</label><select id="phase" name="phase"><option value="single">Single phase</option><option value="three">Three phase</option></select></div></div></details>
 </div>
 </form>
 <div class="card" id="bill-out" aria-live="polite"></div>

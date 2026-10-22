@@ -49,12 +49,17 @@
     sel.value = t.categories.indexOf(current) >= 0 ? current : 'urban';
   }
 
-  function setFppaDefault(form) {
-    var el = form.elements.fppa;
-    if (!el) return;
-    var t = C.getTariff(data, form.elements.discom.value, 'urban');
-    el.placeholder = t.fppa.toFixed(2);
-    if (!el.dataset.touched) el.value = t.fppa.toFixed(2);
+  // FPPPA and duty are prefilled with estimates until the user types their own bill's figure.
+  function setChargeDefaults(form) {
+    var t = C.getTariff(data, form.elements.discom.value, form.elements.category ? form.elements.category.value : 'urban');
+    var f = form.elements.fppa, d = form.elements.dutyPct;
+    if (f && !f.dataset.touched) f.value = t.fppa.toFixed(2);
+    if (d && !d.dataset.touched) d.value = t.dutyPct;
+  }
+
+  function isEstimate(form, name) {
+    var el = form.elements[name];
+    return el && !el.dataset.touched;
   }
 
   function toggleSmart(form) {
@@ -70,6 +75,7 @@
       loadKw: Number(f.loadKw) || 1,
       phase: f.phase || 'single',
       fppa: f.fppa,
+      dutyPct: f.dutyPct,
       meter: f.meter || 'postpaid',
       solarHoursPct: Number(f.solarHoursPct) || 0
     };
@@ -99,6 +105,10 @@
     }).join('');
     return '<svg class="chart" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(opts.title || 'chart') + '">' +
       '<line x1="' + pad + '" x2="' + (w - pad) + '" y1="' + zeroY + '" y2="' + zeroY + '" stroke="var(--border)"/>' + bars + '</svg>';
+  }
+
+  function estTag(form, name) {
+    return isEstimate(form, name) ? ' <span class="est" title="Default estimate. Enter the figure from your bill.">est.</span>' : '';
   }
 
   // ---------- Bill calculator ----------
@@ -139,16 +149,19 @@
       '<div class="table-wrap"><table><thead><tr><th>Bill item</th><th class="num">Calculation</th><th class="num">Amount</th></tr></thead><tbody>' +
         '<tr><td>Fixed charge</td><td class="num">' + esc(f.loadKw) + ' kW load</td><td class="num">' + rs2(b.fixed) + '</td></tr>' +
         rows +
-        '<tr><td>FPPPA (fuel surcharge)</td><td class="num">' + num(b.units, 1) + ' × ' + rs2(b.fppaRate) + '</td><td class="num">' + rs2(b.fppa) + '</td></tr>' +
+        '<tr><td>FPPPA (fuel surcharge)' + estTag(form, 'fppa') + '</td><td class="num">' + num(b.units, 1) + ' × ' + rs2(b.fppaRate) + '</td><td class="num">' + rs2(b.fppa) + '</td></tr>' +
         (b.prepaidRebate ? '<tr class="minus"><td>Prepaid rebate (3% of energy)</td><td></td><td class="num">−' + rs2(b.prepaidRebate) + '</td></tr>' : '') +
         (b.touDiscount ? '<tr class="minus"><td>ToU discount ' + esc(data.common.tou.window) + '</td><td class="num">' + num(b.solarHoursUnits, 1) + ' × ₹0.60</td><td class="num">−' + rs2(b.touDiscount) + '</td></tr>' : '') +
-        '<tr><td>Electricity duty</td><td class="num">' + b.dutyPct + '%</td><td class="num">' + rs2(b.duty) + '</td></tr>' +
+        '<tr><td>Electricity duty' + estTag(form, 'dutyPct') + '</td><td class="num">' + b.dutyPct + '%</td><td class="num">' + rs2(b.duty) + '</td></tr>' +
         '<tr class="total"><td>Total</td><td></td><td class="num">' + rs2(b.total) + '</td></tr>' +
       '</tbody></table></div>' +
       smartCompare +
-      '<p class="note">Estimate based on the GERC ' + esc(data.tariffYear) + ' tariff. Your actual bill can differ by meter rent, rounding, arrears or a different quarterly FPPPA.</p>' +
+      '<p class="note">Based on the GERC ' + esc(data.tariffYear) + ' tariff.' +
+        (isEstimate(form, 'fppa') || isEstimate(form, 'dutyPct') ? ' Items marked <span class="est">est.</span> use our default estimate; enter the figures printed on your bill under “From your bill” for an exact match.' : ' Using the FPPPA and duty you entered.') +
+        ' Meter rent, rounding and arrears are not included.</p>' +
       '<a class="cta" href="' + link('solar-rooftop-calculator-gujarat.html', {
-        discom: o.discom, category: o.category, units: Math.round(b.units / o.months), loadKw: f.loadKw
+        discom: o.discom, category: o.category, units: Math.round(b.units / o.months), loadKw: f.loadKw,
+        fppa: isEstimate(form, 'fppa') ? '' : f.fppa, dutyPct: isEstimate(form, 'dutyPct') ? '' : f.dutyPct
       }) + '">See how much rooftop solar saves on this bill →</a>';
   }
 
@@ -275,13 +288,19 @@
 
   function bind(form, render) {
     var out = document.getElementById(form.dataset.output);
+    var query = new URLSearchParams(location.search);
+    ['fppa', 'dutyPct'].forEach(function (n) {
+      var el = form.elements[n];
+      if (!el) return;
+      if (query.get(n)) el.dataset.touched = '1'; // a shared link carries the user's own bill figures
+      el.addEventListener('input', function () { this.dataset.touched = this.value === '' ? '' : '1'; });
+    });
     prefill(form);
     if (form.elements.discom) {
       setCategories(form);
       prefill(form); // category options exist now
-      setFppaDefault(form);
+      setChargeDefaults(form);
     }
-    if (form.elements.fppa) form.elements.fppa.addEventListener('input', function () { this.dataset.touched = '1'; });
     if (form.elements.meter) toggleSmart(form);
     form.addEventListener('submit', function (e) { e.preventDefault(); });
     function run() {
@@ -289,11 +308,12 @@
     }
     form.addEventListener('input', run);
     form.addEventListener('change', function (e) {
-      if (e.target.name === 'discom') { setCategories(form); setFppaDefault(form); }
+      if (e.target.name === 'discom') { setCategories(form); setChargeDefaults(form); }
+      if (e.target.name === 'category') setChargeDefaults(form);
       if (e.target.name === 'meter') toggleSmart(form);
       if (e.target.name === 'city' && form.elements.discom) {
         var c = data.cities[Number(e.target.value)];
-        if (c) { form.elements.discom.value = c.discom; setCategories(form); setFppaDefault(form); }
+        if (c) { form.elements.discom.value = c.discom; setCategories(form); setChargeDefaults(form); }
         if (form.elements.yield) form.elements.yield.value = '';
       }
       if (e.target.name === 'vehicle') applyPreset(form);

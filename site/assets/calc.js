@@ -70,7 +70,8 @@
   }
 
   /*
-   * opts: { discom, category, loadKw, phase, units, months, fppa, meter, solarHoursPct, solarHoursUnits }
+   * opts: { discom, category, loadKw, phase, units, months, fppa, dutyPct, meter, solarHoursPct, solarHoursUnits }
+   * fppa and dutyPct override the tariff defaults when given (users copy them from their own bill).
    * meter: 'postpaid' | 'postpaid-smart' | 'prepaid-smart'
    */
   function calcBill(data, opts) {
@@ -78,6 +79,7 @@
     var months = opts.months || 1;
     var units = Math.max(0, Number(opts.units) || 0);
     var fppaRate = opts.fppa != null && opts.fppa !== '' ? Number(opts.fppa) : t.fppa;
+    var dutyPct = opts.dutyPct != null && opts.dutyPct !== '' ? Number(opts.dutyPct) : t.dutyPct;
     var meter = opts.meter || 'postpaid';
     var smart = meter === 'postpaid-smart' || meter === 'prepaid-smart';
 
@@ -95,7 +97,7 @@
     var touDiscount = solarHoursUnits * data.common.tou.solarHoursDiscountPerUnit;
 
     var dutyBase = Math.max(0, fixed + energy.total + fppa - prepaidRebate - touDiscount);
-    var duty = dutyBase * t.dutyPct / 100;
+    var duty = dutyBase * dutyPct / 100;
     var total = dutyBase + duty;
 
     return {
@@ -110,7 +112,7 @@
       prepaidRebate: prepaidRebate,
       touDiscount: touDiscount,
       solarHoursUnits: solarHoursUnits,
-      dutyPct: t.dutyPct,
+      dutyPct: dutyPct,
       duty: duty,
       total: total,
       effectiveRate: units > 0 ? total / units : 0

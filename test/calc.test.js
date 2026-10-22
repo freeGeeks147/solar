@@ -108,3 +108,15 @@ test('EV: solar-hours home charging is cheapest with surplus solar', () => {
   near(r.iceMonthly, 1000 / 15 * 94.5);
   assert.ok(r.savingMonthly > 0);
 });
+
+test('FPPPA and duty from the user\'s bill override the defaults', () => {
+  const base = { discom: 'ugvcl', loadKw: 3, units: 300 };
+  const def = C.calcBill(data, base);
+  assert.equal(def.dutyPct, 15);
+  near(def.fppaRate, 2.3);
+  const own = C.calcBill(data, { ...base, fppa: '2.85', dutyPct: '12' });
+  near(own.fppa, 300 * 2.85);
+  near(own.duty, (own.fixed + own.energy + own.fppa) * 0.12);
+  // empty fields fall back to the defaults
+  near(C.calcBill(data, { ...base, fppa: '', dutyPct: '' }).total, def.total);
+});
