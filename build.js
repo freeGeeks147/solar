@@ -15,6 +15,7 @@ const OUT = path.join(ROOT, 'site');
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'site.config.json'), 'utf8'));
 const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/gujarat.json'), 'utf8'));
 const common = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/common.json'), 'utf8'));
+const india = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/india.json'), 'utf8'));
 const base = cfg.baseUrl.replace(/\/$/, '');
 const Y = data.tariffYear;
 
@@ -28,6 +29,7 @@ const VERIFY = '<span class="verify" title="Cross-checked from secondary sources
 
 const PAGES = {
   home: 'index.html',
+  gujaratBill: 'gujarat-electricity-bill-calculator.html',
   solar: 'solar-rooftop-calculator-gujarat.html',
   ev: 'ev-charging-cost-calculator-gujarat.html',
   subsidy: 'pm-surya-ghar-subsidy-gujarat.html',
@@ -37,6 +39,8 @@ const PAGES = {
   privacy: 'privacy-policy.html'
 };
 const discomPage = (d) => d.slug + '.html';
+const pricePage = (kw) => `${kw}kw-solar-system-price-in-india.html`;
+const genPage = (kw) => `${kw}kw-solar-panel-generation-per-day.html`;
 
 function adSlot(name) {
   if (!cfg.adsenseClient) return '';
@@ -67,11 +71,13 @@ function layout(p) {
     p.faqs ? faqJsonLd(p.faqs) : null
   ].filter(Boolean);
   const nav = [
-    ['Bill calculator', PAGES.home],
-    ['Rooftop solar', PAGES.solar],
-    ['EV charging', PAGES.ev],
+    ['Solar price', PAGES.home],
+    ['3kW', pricePage(3)],
+    ['5kW', pricePage(5)],
+    ['Generation', genPage(3)],
     ['Subsidy', PAGES.subsidy],
-    ['Net metering', PAGES.netMetering]
+    ['Gujarat bill', PAGES.gujaratBill],
+    ['EV charging', PAGES.ev]
   ];
   return `<!doctype html>
 <html lang="en-IN">
@@ -93,7 +99,7 @@ ${cfg.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-<a class="logo" href="./">${esc(cfg.siteName.split(' ')[0])} <span>${esc(cfg.siteName.split(' ').slice(1).join(' '))}</span></a>
+<a class="logo" href="./">${esc(cfg.siteName.split(' ')[0])}<span>${esc(cfg.siteName.split(' ').slice(1).join(' '))}</span></a>
 <nav class="nav" aria-label="Main">${nav.map(([n, f]) => `<a href="${f}"${f === p.file ? ' aria-current="page"' : ''}>${n}</a>`).join('')}</nav>
 </div></header>
 <main><div class="wrap">
@@ -104,12 +110,18 @@ ${p.body}
 </div></main>
 <footer class="site-footer"><div class="wrap">
 <div class="links">
+${india.systemSizes.map((x) => `<a href="${pricePage(x.kw)}">${x.kw}kW solar price</a>`).join('\n')}
+</div>
+<div class="links">
+${india.systemSizes.map((x) => `<a href="${genPage(x.kw)}">${x.kw}kW generation</a>`).join('\n')}
+</div>
+<div class="links">
 ${data.discoms.map((d) => `<a href="${discomPage(d)}">${esc(d.name)} bill calculator</a>`).join('\n')}
 <a href="${PAGES.tou}">Smart meter ToU discount</a>
 <a href="${PAGES.about}">About &amp; sources</a>
 <a href="${PAGES.privacy}">Privacy policy</a>
 </div>
-<p>Tariffs: GERC ${esc(Y)} orders, effective ${fmtDate(data.effectiveFrom)}. Last reviewed ${fmtDate(data.lastReviewed)}. Results are estimates, not your official bill. Not affiliated with any DISCOM or government body.</p>
+<p>Prices and generation figures are estimates; get itemised quotes before buying. Gujarat tariffs: GERC ${esc(Y)} orders. Last reviewed ${fmtDate(india.lastReviewed)}. Not affiliated with any DISCOM, installer, brand or government body.</p>
 </div></footer>
 ${p.app ? '<script src="assets/calc.js"></script>\n<script src="assets/data.js"></script>\n<script src="assets/app.js"></script>\n' : ''}</body>
 </html>
@@ -311,7 +323,7 @@ function discomPageSpec(d) {
     description: `Calculate your ${d.name} (${d.fullName}) electricity bill with the GERC ${Y} tariff: slab-wise energy charges, fixed charges, FPPPA, electricity duty and smart meter ToU discount.`,
     h1: `${d.name} Electricity Bill Calculator ${Y}`,
     lede: `${esc(d.fullName)} supplies ${esc(d.region)}. Enter your units or bill amount to get an itemised estimate using the GERC tariff effective ${fmtDate(data.effectiveFrom)}.`,
-    crumbs: [{ name: 'Gujarat bill calculator', file: PAGES.home }, { name: `${d.name} bill calculator`, file: discomPage(d) }],
+    crumbs: [{ name: 'Gujarat bill calculator', file: PAGES.gujaratBill }, { name: `${d.name} bill calculator`, file: discomPage(d) }],
     app: true,
     faqs,
     body: `${billForm(d.id)}
@@ -349,7 +361,206 @@ ${faqHtml(faqs)}
 
 data.discoms.forEach((d) => pages.push(discomPageSpec(d)));
 
-// Home: Gujarat hub
+// ---------- Solar system size pages (all India) ----------
+
+const SIZES = india.systemSizes.map((x) => x.kw);
+const yields = india.cities.map((c) => c.yield);
+const yLow = Math.min(...yields), yHigh = Math.max(...yields), yTypical = 1450;
+const lakh = (x) => x >= 100000 ? `₹${(x / 100000).toFixed(2).replace(/\.?0+$/, '')} lakh` : inr(x);
+const range = (a, b) => `${lakh(a)}–${lakh(b)}`;
+const perDay = (kw, y) => kw * y / 365;
+
+function sizeFacts(kw) {
+  const p = C.sizePrice(india, kw);
+  const sub = C.pmSuryaGharSubsidy(common, kw);
+  const r = C.solarSimple(india, common, { kw, yieldKwhPerKwYear: yTypical, units: kw * 120, rate: india.defaultRate });
+  return {
+    kw, p, sub,
+    afterLow: p.low - sub, afterHigh: p.high - sub,
+    panels: C.panelCount(india, kw),
+    roof: kw * common.solarDefaults.sqftPerKw,
+    dayLow: perDay(kw, yLow), dayHigh: perDay(kw, yHigh), dayTyp: perDay(kw, yTypical),
+    month: kw * yTypical / 12, year: kw * yTypical,
+    suitsUnits: Math.round(kw * yTypical / 12 / 10) * 10,
+    r
+  };
+}
+
+function sizeForm(kw, mode) {
+  const cityOpts = india.cities.map((c, i) => `<option value="${i}"${c.name === 'Delhi' ? ' selected' : ''}>${esc(c.name)}${c.state !== c.name ? ` (${esc(c.state)})` : ''}</option>`).join('');
+  const sizeOpts = SIZES.map((k) => `<option value="${k}"${k === kw ? ' selected' : ''}>${k} kW</option>`).join('');
+  return `<section class="calc">
+<form class="card" data-calc="size" data-mode="${mode}" data-output="size-out" autocomplete="off">
+<h2>${mode === 'generation' ? 'Check generation for your city' : 'Price and savings for your home'}</h2>
+<div class="fields">
+<div class="field"><label for="kw">System size</label><select id="kw" name="kw">${sizeOpts}</select></div>
+<div class="field"><label for="city">City</label><select id="city" name="city">${cityOpts}</select></div>
+<div class="field"><label for="units">Your monthly units</label><input id="units" name="units" type="number" min="0" step="10" value="${kw * 120}" inputmode="numeric"><span class="hint">From your bill. 0 = count every unit as saved.</span></div>
+<div class="field"><label for="rate">Your bill rate (₹/unit)</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="${india.defaultRate}" inputmode="decimal"><span class="hint">Bill amount ÷ units. Most homes: ₹6–9.</span></div>
+<div class="field"><label for="cost">Quoted price (₹, before subsidy)</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">Prefilled with a typical price</span></div>
+<details class="adv"><summary>More options</summary><div class="fields">
+<div class="field"><label for="exportRate">Export rate (₹/unit)</label><input id="exportRate" name="exportRate" type="number" min="0" step="0.05" value="${india.defaultExportRate}"><span class="hint">What your DISCOM pays for surplus</span></div>
+</div></details>
+</div>
+</form>
+<div class="card" id="size-out" aria-live="polite"></div>
+</section>`;
+}
+
+function compareTable(current) {
+  const rows = SIZES.map((kw) => {
+    const f = sizeFacts(kw);
+    const name = kw === current ? `<strong>${kw} kW</strong>` : `<a href="${pricePage(kw)}">${kw} kW</a>`;
+    return `<tr><td>${name}</td><td class="num">${range(f.p.low, f.p.high)}</td><td class="num">${inr(f.sub)}</td><td class="num">${range(f.afterLow, f.afterHigh)}</td><td class="num"><a href="${genPage(kw)}">${f.dayTyp.toFixed(1)}</a></td><td class="num">${f.roof}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table><thead><tr><th>System</th><th class="num">Price</th><th class="num">Subsidy</th><th class="num">After subsidy</th><th class="num">Units/day</th><th class="num">Roof (sq ft)</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="note">${esc(india.priceNote)} Units per day at a typical ${yTypical} units per kW per year.</p>`;
+}
+
+function neighbours(kw, fn, label) {
+  const i = SIZES.indexOf(kw);
+  return [SIZES[i - 1], SIZES[i + 1]].filter(Boolean).map((k) => `<a href="${fn(k)}">${k} kW ${label}</a>`).join(' · ');
+}
+
+function pricePageSpec(kw) {
+  const f = sizeFacts(kw);
+  const acHours = Math.round(f.dayTyp / 1.3);
+  const faqs = [
+    { q: `What is the price of a ${kw}kW solar system in India in 2026?`, a: `A ${kw}kW on-grid rooftop system with DCR panels typically costs ${range(f.p.low, f.p.high)} installed. After the PM Surya Ghar subsidy of ${inr(f.sub)} you pay about ${range(f.afterLow, f.afterHigh)}.` },
+    { q: `What is the ${kw}kW solar system price with subsidy?`, a: `About ${range(f.afterLow, f.afterHigh)} after the ${inr(f.sub)} central subsidy${kw > 3 ? ' (the subsidy is capped at ₹78,000 for 3 kW and above)' : ''}. Some states add their own top-up on top of this.` },
+    { q: `How many units does a ${kw}kW solar system generate per day?`, a: `About ${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day depending on the city, around ${Math.round(f.month)} units a month and ${Math.round(f.year).toLocaleString('en-IN')} a year at a typical site. <a href="${genPage(kw)}">See city-wise generation</a>.` },
+    { q: `How many panels are needed for ${kw}kW?`, a: `${f.panels} panels of ${india.panelWatt} W (${(f.panels * india.panelWatt / 1000).toFixed(2)} kW). With smaller 400–450 W panels you need ${Math.ceil(kw * 1000 / 440)}–${Math.ceil(kw * 1000 / 400)}.` },
+    { q: `How much roof area does ${kw}kW solar need?`, a: `About ${f.roof} sq ft of shadow-free roof, roughly ${Math.round(f.roof * 0.0929)} square metres.` },
+    { q: `Is ${kw}kW enough for my home?`, a: `A ${kw}kW system covers a home using about ${f.suitsUnits} units a month. Check the units on your last few bills; size the system to your average use, because surplus units earn only ₹2–3 each from the DISCOM.` },
+    { q: `Can a ${kw}kW solar system run an AC?`, a: `On-grid solar does not power the AC directly; it offsets your bill. ${kw}kW makes about ${f.dayTyp.toFixed(0)} units a day, enough to cover a 1.5-ton inverter AC for about ${acHours} hours of daily use.` }
+  ];
+  return {
+    file: pricePage(kw),
+    title: `${kw}kW Solar System Price in India 2026 (With Subsidy) – Cost, Panels & Generation`,
+    description: `${kw}kW solar system price in India: ${range(f.p.low, f.p.high)} before subsidy, ${range(f.afterLow, f.afterHigh)} after the ${inr(f.sub)} PM Surya Ghar subsidy. ${f.panels} panels, ${f.roof} sq ft roof, about ${f.dayTyp.toFixed(0)} units a day.`,
+    h1: `${kw}kW Solar System Price in India 2026 (With Subsidy)`,
+    lede: `A ${kw}kW on-grid rooftop system costs <strong>${range(f.p.low, f.p.high)}</strong> installed, or <strong>${range(f.afterLow, f.afterHigh)}</strong> after the ${inr(f.sub)} PM Surya Ghar subsidy. It makes about ${f.dayTyp.toFixed(0)} units a day.`,
+    crumbs: [{ name: 'Solar system price', file: PAGES.home }, { name: `${kw}kW solar price`, file: pricePage(kw) }],
+    app: true,
+    faqs,
+    body: `${sizeForm(kw, 'price')}
+${adSlot('after-calc')}
+<section class="prose">
+<h2>${kw}kW solar price breakdown</h2>
+<div class="table-wrap"><table><tbody>
+<tr><td>Installed price (before subsidy)</td><td class="num">${range(f.p.low, f.p.high)}</td></tr>
+<tr class="minus"><td>PM Surya Ghar central subsidy</td><td class="num">−${inr(f.sub)}</td></tr>
+<tr class="total"><td>You pay</td><td class="num">${range(f.afterLow, f.afterHigh)}</td></tr>
+<tr><td>Price per kW</td><td class="num">${range(f.p.low / kw, f.p.high / kw)}</td></tr>
+</tbody></table></div>
+<p class="note">${esc(india.priceNote)}</p>
+<h2>What a ${kw}kW system includes</h2>
+<ul>
+<li><strong>Panels:</strong> ${f.panels} × ${india.panelWatt} W DCR (made-in-India cells), needed for the subsidy</li>
+<li><strong>Inverter:</strong> ${kw} kW on-grid string inverter</li>
+<li><strong>Mounting structure:</strong> galvanised steel; elevated structures cost more</li>
+<li><strong>Wiring and protection:</strong> DC/AC cables, ACDB/DCDB, earthing, lightning arrester</li>
+<li><strong>Net meter:</strong> applied through your DISCOM; meter and testing fees are usually extra</li>
+</ul>
+<h2>What changes the price</h2>
+<ul>
+<li><strong>Brand:</strong> Adani, Waaree, Tata Power Solar, Vikram, Premier and others differ by about 5–15% for the same size.</li>
+<li><strong>Panel type:</strong> TOPCon and bifacial panels cost a little more than Mono PERC but produce more per square foot.</li>
+<li><strong>Structure height</strong> and roof type (RCC, tin shed).</li>
+<li><strong>Battery:</strong> hybrid or off-grid systems with batteries cost much more and the PM Surya Ghar subsidy covers on-grid systems.</li>
+</ul>
+<h2>${kw}kW generation and savings</h2>
+<p>At a typical site a ${kw}kW system makes about <strong>${f.dayTyp.toFixed(1)} units a day</strong>, ${Math.round(f.month)} a month and ${Math.round(f.year).toLocaleString('en-IN')} a year. Valued at ₹${india.defaultRate}/unit for a home using ${f.suitsUnits} units a month, that saves about <strong>${inr(f.r.savingMonthly)} a month</strong> and pays back the after-subsidy cost in about <strong>${f.r.paybackYears.toFixed(1)} years</strong>. <a href="${genPage(kw)}">City-wise ${kw}kW generation</a>.</p>
+<h2>Compare system sizes</h2>
+${compareTable(kw)}
+<p>${neighbours(kw, pricePage, 'solar price')} · <a href="${PAGES.subsidy}">PM Surya Ghar subsidy explained</a></p>
+</section>
+${adSlot('mid')}
+${faqHtml(faqs)}`
+  };
+}
+
+function genPageSpec(kw) {
+  const f = sizeFacts(kw);
+  const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const cityRows = india.cities.slice().sort((a, b) => b.yield - a.yield).map((c) => `<tr><td>${esc(c.name)}</td><td class="num">${perDay(kw, c.yield).toFixed(1)}</td><td class="num">${Math.round(kw * c.yield / 12)}</td><td class="num">${Math.round(kw * c.yield).toLocaleString('en-IN')}</td></tr>`).join('');
+  const monthRows = india.monthlyShare.map((s, m) => { const u = kw * yTypical * s; return `<tr><td>${MONTHS[m]}</td><td class="num">${(u / days[m]).toFixed(1)}</td><td class="num">${Math.round(u)}</td></tr>`; }).join('');
+  const faqs = [
+    { q: `How many units does a ${kw}kW solar panel generate per day?`, a: `${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day on average, depending on the city. That is about 4 units per kW in cloudier places such as Kolkata and Guwahati and about 4.5 units per kW in Rajasthan and Gujarat.` },
+    { q: `How many units does a ${kw}kW solar system generate per month?`, a: `About ${Math.round(kw * yLow / 12)}–${Math.round(kw * yHigh / 12)} units a month on average. Output is highest in March to May and lowest in the monsoon months.` },
+    { q: `How many units does ${kw}kW solar produce in a year?`, a: `About ${Math.round(kw * yLow).toLocaleString('en-IN')}–${Math.round(kw * yHigh).toLocaleString('en-IN')} units a year, falling by about ${common.solarDefaults.degradationPctPerYear}% a year as panels age.` },
+    { q: `Why is my ${kw}kW system generating less than expected?`, a: 'Common reasons are shade from a water tank, parapet or tree, dust on panels (clean every 2–3 weeks in dry months), the monsoon season, the inverter tripping on high grid voltage, and wrong panel direction. A system making less than 80% of the figures here for a whole month is worth checking with your installer.' },
+    { q: `How much bill does ${kw}kW solar save?`, a: `At ₹${india.defaultRate}/unit, ${Math.round(f.month)} units a month is worth about ${inr(f.month * india.defaultRate)} a month, as long as you use those units yourself. <a href="${pricePage(kw)}">See ${kw}kW price and payback</a>.` }
+  ];
+  return {
+    file: genPage(kw),
+    title: `${kw}kW Solar Panel Generation Per Day, Month & Year (City-wise, India)`,
+    description: `A ${kw}kW solar system generates ${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units per day, about ${Math.round(f.month)} units per month and ${Math.round(f.year).toLocaleString('en-IN')} units per year. City-wise and month-wise generation table for India.`,
+    h1: `${kw}kW Solar Panel Generation Per Day`,
+    lede: `A ${kw}kW rooftop system makes <strong>${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} units a day</strong> in India, about ${Math.round(f.month)} units a month and ${Math.round(f.year).toLocaleString('en-IN')} a year at a typical site.`,
+    crumbs: [{ name: 'Solar system price', file: PAGES.home }, { name: `${kw}kW generation`, file: genPage(kw) }],
+    app: true,
+    faqs,
+    body: `${sizeForm(kw, 'generation')}
+${adSlot('after-calc')}
+<section class="prose">
+<h2>${kw}kW solar generation by city</h2>
+<div class="table-wrap"><table><thead><tr><th>City</th><th class="num">Units/day</th><th class="num">Units/month</th><th class="num">Units/year</th></tr></thead><tbody>${cityRows}</tbody></table></div>
+<p class="note">${esc(india.yieldNote)}</p>
+<h2>${kw}kW generation month by month</h2>
+<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units/day</th><th class="num">Units/month</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+<p class="note">At ${yTypical} units per kW per year. ${esc(india.monthlyShareNote)}</p>
+<h2>How to check your own system</h2>
+<ol>
+<li>Open your inverter app or display and note the daily units ("Today" or "E-Day").</li>
+<li>Compare a sunny week's average with the units per day for your city above.</li>
+<li>Below 80% for weeks at a time: clean the panels, look for new shade, and ask your installer to check the inverter for trips.</li>
+</ol>
+<p>${neighbours(kw, genPage, 'generation')} · <a href="${pricePage(kw)}">${kw}kW price with subsidy</a></p>
+</section>
+${adSlot('mid')}
+${faqHtml(faqs)}`
+  };
+}
+
+SIZES.forEach((kw) => { pages.push(pricePageSpec(kw)); pages.push(genPageSpec(kw)); });
+
+// Home: solar price hub
+(() => {
+  const f3 = sizeFacts(3), f1 = sizeFacts(1), f10 = sizeFacts(10);
+  const faqs = [
+    { q: 'What is the price of solar panels for a home in India in 2026?', a: `A complete on-grid rooftop system costs about ${range(f1.p.low, f1.p.high)} for 1 kW, ${range(f3.p.low, f3.p.high)} for 3 kW and ${range(f10.p.low, f10.p.high)} for 10 kW, before the PM Surya Ghar subsidy.` },
+    { q: 'How much subsidy is available for rooftop solar?', a: 'Under PM Surya Ghar: Muft Bijli Yojana, ₹30,000 per kW for the first 2 kW and ₹18,000 for the 3rd kW, up to ₹78,000 for 3 kW and above. It is paid to your bank account after the net meter is installed.' },
+    { q: 'Which size of solar system do I need?', a: `Divide your average monthly units by about 120. A home using 360 units a month needs about 3 kW. Each kW needs about ${common.solarDefaults.sqftPerKw} sq ft of shadow-free roof.` },
+    { q: 'How many units does 1kW solar generate per day?', a: `About ${perDay(1, yLow).toFixed(1)}–${perDay(1, yHigh).toFixed(1)} units a day, or ${Math.round(yLow / 12)}–${Math.round(yHigh / 12)} units a month, depending on the city. <a href="${genPage(1)}">1kW generation by city</a>.` }
+  ];
+  pages.push({
+    file: PAGES.home,
+    title: 'Solar System Price in India 2026 With Subsidy – 1kW to 10kW Cost & Generation',
+    description: 'Rooftop solar system price in India for 1kW, 2kW, 3kW, 5kW and 10kW, before and after the PM Surya Ghar subsidy, with units generated per day and a savings calculator for your city.',
+    h1: 'Solar System Price in India 2026 (With Subsidy)',
+    lede: 'Installed price, PM Surya Ghar subsidy, units per day and payback for every common system size, with a calculator for your city and bill.',
+    app: true,
+    faqs,
+    body: `<h2>Price list: 1kW to 10kW</h2>
+${compareTable(null)}
+${sizeForm(3, 'price')}
+${adSlot('after-calc')}
+<h2>Price and generation by size</h2>
+<ul class="grid-links">${SIZES.map((kw) => { const f = sizeFacts(kw); return `<li><a href="${pricePage(kw)}"><strong>${kw}kW solar system price</strong><small>${range(f.afterLow, f.afterHigh)} after subsidy · ${f.dayTyp.toFixed(0)} units/day</small></a></li>`; }).join('')}</ul>
+<h2>More tools</h2>
+<ul class="grid-links">
+<li><a href="${PAGES.subsidy}"><strong>PM Surya Ghar subsidy</strong><small>Amount per kW and how to apply</small></a></li>
+<li><a href="${PAGES.solar}"><strong>Gujarat solar savings</strong><small>Exact slab-wise savings on your DISCOM bill</small></a></li>
+<li><a href="${PAGES.gujaratBill}"><strong>Gujarat electricity bill calculator</strong><small>UGVCL, MGVCL, DGVCL, PGVCL, Torrent</small></a></li>
+<li><a href="${PAGES.ev}"><strong>EV charging cost</strong><small>₹/km at home vs public chargers</small></a></li>
+</ul>
+${faqHtml(faqs)}`
+  });
+})();
+
+// Gujarat bill hub
 (() => {
   const g = data.tariffGroups['gujarat-state'].categories.urban;
   const faqs = [
@@ -358,7 +569,8 @@ data.discoms.forEach((d) => pages.push(discomPageSpec(d)));
     { q: `Did Gujarat electricity rates change in ${Y}?`, a: `GERC kept base energy and fixed charges unchanged for ${Y}. It raised the prepaid smart meter rebate to 3% and widened the 60 paise/unit smart meter discount window to ${esc(data.common.tou.window)}.` }
   ];
   pages.push({
-    file: PAGES.home,
+    file: PAGES.gujaratBill,
+    crumbs: [{ name: 'Gujarat bill calculator', file: PAGES.gujaratBill }],
     title: `Gujarat Electricity Bill Calculator ${Y} – UGVCL, MGVCL, DGVCL, PGVCL, Torrent`,
     description: `Free Gujarat electricity bill calculator with GERC ${Y} slab rates for UGVCL, MGVCL, DGVCL, PGVCL and Torrent Power, plus rooftop solar payback and EV charging cost calculators.`,
     h1: `Gujarat Electricity Bill Calculator ${Y}`,
@@ -521,7 +733,7 @@ pages.push({
 <h2>Who is eligible</h2>
 <p>${esc(data.common.tou.eligibility)}. Ordinary electromechanical or non-smart meters cannot record time of use, so the discount does not apply.</p>
 <h2>How much it saves</h2>
-<p>Moving 100 units a month (washing machine, water heater, pump, EV charging) into ${esc(data.common.tou.window)} saves ₹60 plus duty, about ₹69 a month. Use the <a href="${PAGES.home}">bill calculator</a> with a smart meter selected to see your exact figure.</p>
+<p>Moving 100 units a month (washing machine, water heater, pump, EV charging) into ${esc(data.common.tou.window)} saves ₹60 plus duty, about ₹69 a month. Use the <a href="${PAGES.gujaratBill}">bill calculator</a> with a smart meter selected to see your exact figure.</p>
 </section>`
 });
 
@@ -569,7 +781,7 @@ ${cfg.contactEmail ? `<h2>Contact</h2><p><a href="mailto:${esc(cfg.contactEmail)
 for (const p of pages) fs.writeFileSync(path.join(OUT, p.file), layout(p));
 
 fs.writeFileSync(path.join(OUT, 'assets/data.js'),
-  '/* Generated by build.js from data/*.json. Do not edit by hand. */\nwindow.SITE_DATA = ' + JSON.stringify({ gujarat: data, common }) + ';\n');
+  '/* Generated by build.js from data/*.json. Do not edit by hand. */\nwindow.SITE_DATA = ' + JSON.stringify({ gujarat: data, common, india }) + ';\n');
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

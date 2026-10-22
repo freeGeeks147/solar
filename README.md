@@ -1,4 +1,4 @@
-# Bijli Calc: Gujarat electricity, solar and EV calculators
+# Bijli Bajao (bijlibajao.com): rooftop solar price, generation and savings
 
 A static site with no backend, no database and no build dependencies. It contains:
 
@@ -9,11 +9,22 @@ A static site with no backend, no database and no build dependencies. It contain
 
 All maths runs in the browser. The tariff tables, sample bills and FAQs are baked into static HTML so search engines can crawl them.
 
+## Site focus (from keyword research, Oct 2026)
+
+Ahrefs (India) showed `[size]kw solar panel price`, `... price in india`, `... with subsidy` and `[size]kw solar panel unit generation` at 1,000+ searches/month each, all "Easy", while Gujarat bill-calculator searches were under 100. So the site leads with:
+
+- `index.html`: solar price hub for 1kW–10kW (price, subsidy, units/day, calculator)
+- `{n}kw-solar-system-price-in-india.html` and `{n}kw-solar-panel-generation-per-day.html` for 1, 2, 3, 4, 5, 6, 8 and 10 kW, generated from `data/india.json`
+- Gujarat bill, solar and EV calculators as a supporting section (`gujarat-electricity-bill-calculator.html` and the DISCOM pages)
+
+**Update `systemSizes` prices in `data/india.json` every 3–6 months** from current installer price lists, and refresh `lastReviewed`.
+
 ## Layout
 
 ```
 data/gujarat.json     Tariffs, DISCOMs, cities and solar yield   <- edit every April
 data/common.json      Subsidy, solar/EV defaults, fuel prices
+data/india.json       System-size prices, city-wise solar yield (all India)
 site.config.json      Site name, domain, AdSense ID
 build.js              Generates site/*.html, sitemap.xml, robots.txt, ads.txt, assets/data.js
 site/assets/calc.js   Calculation engine (shared by browser, build and tests)

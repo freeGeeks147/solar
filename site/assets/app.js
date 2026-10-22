@@ -5,6 +5,7 @@
   var D = window.SITE_DATA;
   var data = D.gujarat;
   var common = D.common;
+  var india = D.india;
 
   var inr0 = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
   var inr2 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -284,19 +285,64 @@
       '<p class="note">Home cost is the extra amount added to your electricity bill, so it uses your DISCOM\'s higher slabs, FPPPA and duty. Solar-hours charging gets the 60 paise ToU discount only with a smart meter. Charging from surplus rooftop solar is valued at the ₹' + data.common.netMetering.surplusRatePerUnit + '/unit export income you give up. Fuel and energy only; excludes purchase price, insurance and maintenance.</p>';
   }
 
+  // ---------- System size (any state, flat ₹/unit) ----------
+
+  function renderSize(form, out) {
+    var f = readForm(form);
+    var kw = Number(f.kw) || 3;
+    var city = india.cities[Number(f.city) || 0];
+    var band = C.sizePrice(india, kw);
+    var costEl = form.elements.cost;
+    if (costEl && !costEl.dataset.touched) costEl.value = Math.round(band.mid / 1000) * 1000;
+    var r = C.solarSimple(india, common, {
+      kw: kw, yieldKwhPerKwYear: city.yield, units: Number(f.units) || 0,
+      rate: Number(f.rate) || india.defaultRate, exportRate: f.exportRate, cost: Number(f.cost) || band.mid
+    });
+    var mode = form.dataset.mode || 'price';
+    var monthRows = r.months.map(function (m) {
+      return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.perDay, 1) + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
+    }).join('');
+    var kpis = mode === 'generation'
+      ? '<div class="kpi hero"><div class="k">Units per day</div><div class="v">' + num(r.generationPerDay, 1) + '</div></div>' +
+        '<div class="kpi"><div class="k">Units per month</div><div class="v">' + num(r.generationPerMonth) + '</div></div>' +
+        '<div class="kpi"><div class="k">Units per year</div><div class="v">' + num(r.generationYear1) + '</div></div>' +
+        '<div class="kpi"><div class="k">Saving per month</div><div class="v">' + rs(r.savingMonthly) + '</div></div>' +
+        '<div class="kpi"><div class="k">Panels (' + india.panelWatt + ' W)</div><div class="v">' + r.panels + '</div></div>' +
+        '<div class="kpi"><div class="k">Roof needed</div><div class="v">~' + num(r.roofSqft) + ' sq ft</div></div>'
+      : '<div class="kpi hero"><div class="k">You pay after subsidy</div><div class="v">' + rs(r.netCost) + '</div></div>' +
+        '<div class="kpi"><div class="k">Subsidy</div><div class="v">' + rs(r.subsidy) + '</div></div>' +
+        '<div class="kpi"><div class="k">Payback</div><div class="v">' + (r.paybackYears === null ? '—' : num(r.paybackYears, 1) + ' yr') + '</div></div>' +
+        '<div class="kpi"><div class="k">Saving per month</div><div class="v">' + rs(r.savingMonthly) + '</div></div>' +
+        '<div class="kpi"><div class="k">Units per day</div><div class="v">' + num(r.generationPerDay, 1) + '</div></div>' +
+        '<div class="kpi"><div class="k">25-yr net saving</div><div class="v">' + rs(r.lifetimeNet) + '</div></div>';
+    var gujarat = city.state === 'Gujarat'
+      ? '<p class="note">In Gujarat? The <a href="solar-rooftop-calculator-gujarat.html?units=' + (Number(f.units) || 300) + '&kw=' + kw + '">Gujarat solar calculator</a> works out savings slab by slab on your DISCOM\'s exact tariff.</p>' : '';
+    out.innerHTML = '<div class="kpis">' + kpis + '</div>' +
+      '<div class="table-wrap"><table><tbody>' +
+        '<tr><td>System price (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
+        '<tr class="minus"><td>PM Surya Ghar subsidy</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
+        '<tr class="total"><td>Your cost</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+        '<tr><td>Generation in ' + esc(city.name) + '</td><td class="num">' + num(city.yield) + ' units per kW per year</td></tr>' +
+        '<tr><td>CO₂ avoided over 25 years</td><td class="num">' + num(r.co2Tonnes, 1) + ' tonnes</td></tr>' +
+      '</tbody></table></div>' +
+      '<h3>Month by month in ' + esc(city.name) + '</h3>' +
+      '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units/day</th><th class="num">Units/month</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
+      '<p class="note">Savings value each solar unit you use at ₹' + esc(f.rate || india.defaultRate) + '/unit and surplus units at the export rate. Inverter replacement (about year 10–12) and cleaning are not included.</p>' + gujarat;
+  }
+
   // ---------- Wiring ----------
 
   function bind(form, render) {
     var out = document.getElementById(form.dataset.output);
     var query = new URLSearchParams(location.search);
-    ['fppa', 'dutyPct'].forEach(function (n) {
+    ['fppa', 'dutyPct', 'cost'].forEach(function (n) {
       var el = form.elements[n];
       if (!el) return;
       if (query.get(n)) el.dataset.touched = '1'; // a shared link carries the user's own bill figures
       el.addEventListener('input', function () { this.dataset.touched = this.value === '' ? '' : '1'; });
     });
     prefill(form);
-    if (form.elements.discom) {
+    if (form.elements.discom && form.elements.category) {
       setCategories(form);
       prefill(form); // category options exist now
       setChargeDefaults(form);
@@ -316,6 +362,7 @@
         if (c) { form.elements.discom.value = c.discom; setCategories(form); setChargeDefaults(form); }
         if (form.elements.yield) form.elements.yield.value = '';
       }
+      if (e.target.name === 'kw' && form.elements.cost) form.elements.cost.dataset.touched = '';
       if (e.target.name === 'vehicle') applyPreset(form);
       if (e.target.name === 'iceType') applyFuelPrice(form);
       run();
@@ -323,7 +370,7 @@
     run();
   }
 
-  var forms = { bill: renderBill, solar: renderSolar, ev: renderEv };
+  var forms = { bill: renderBill, solar: renderSolar, ev: renderEv, size: renderSize };
   Array.prototype.forEach.call(document.querySelectorAll('form[data-calc]'), function (form) {
     if (form.dataset.calc === 'ev' && !new URLSearchParams(location.search).has('kwhPerKm')) applyPreset(form);
     bind(form, forms[form.dataset.calc]);

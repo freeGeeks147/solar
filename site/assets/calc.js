@@ -283,6 +283,82 @@
     };
   }
 
+  // Price band for a system size, interpolated between the listed sizes.
+  function sizePrice(india, kw) {
+    var s = india.systemSizes;
+    var exact = s.find(function (x) { return x.kw === kw; });
+    if (exact) return { low: exact.priceLow, high: exact.priceHigh, mid: (exact.priceLow + exact.priceHigh) / 2 };
+    var lo = s[0], hi = s[s.length - 1];
+    for (var i = 0; i < s.length - 1; i++) if (s[i].kw <= kw && s[i + 1].kw >= kw) { lo = s[i]; hi = s[i + 1]; }
+    var t = hi.kw === lo.kw ? 0 : (kw - lo.kw) / (hi.kw - lo.kw);
+    var low = lo.priceLow + t * (hi.priceLow - lo.priceLow);
+    var high = lo.priceHigh + t * (hi.priceHigh - lo.priceHigh);
+    return { low: low, high: high, mid: (low + high) / 2 };
+  }
+
+  function panelCount(india, kw) { return Math.ceil(kw * 1000 / india.panelWatt); }
+
+  /*
+   * Flat-rate solar model for any state (no DISCOM slabs).
+   * opts: { kw, yieldKwhPerKwYear, units (monthly use), rate (Rs/unit saved), exportRate, cost,
+   *         escalationPct, degradationPct, lifeYears }
+   */
+  function solarSimple(india, common, opts) {
+    var d = common.solarDefaults;
+    var kw = Number(opts.kw);
+    var yieldY = Number(opts.yieldKwhPerKwYear);
+    var units = Number(opts.units) || 0;
+    var rate = Number(opts.rate) || india.defaultRate;
+    var exportRate = opts.exportRate != null && opts.exportRate !== '' ? Number(opts.exportRate) : india.defaultExportRate;
+    var cost = Number(opts.cost) || sizePrice(india, kw).mid;
+    var esc = (opts.escalationPct != null ? Number(opts.escalationPct) : d.tariffEscalationPctPerYear) / 100;
+    var deg = (opts.degradationPct != null ? Number(opts.degradationPct) : d.degradationPctPerYear) / 100;
+    var life = Number(opts.lifeYears) || d.lifeYears;
+    var subsidy = pmSuryaGharSubsidy(common, kw);
+    var netCost = Math.max(0, cost - subsidy);
+
+    var months = [];
+    var years = [];
+    var cumulative = -netCost, payback = netCost === 0 ? 0 : null, cashflows = [-netCost], totalGen = 0;
+    for (var y = 1; y <= life; y++) {
+      var gf = Math.pow(1 - deg, y - 1), ef = Math.pow(1 + esc, y - 1);
+      var gen = 0, saving = 0;
+      for (var m = 0; m < 12; m++) {
+        var g = kw * yieldY * india.monthlyShare[m] * gf;
+        var used = units > 0 ? Math.min(g, units) : g;
+        var surplus = g - used;
+        var s = used * rate * ef + surplus * exportRate;
+        gen += g; saving += s;
+        if (y === 1) months.push({ month: m, generation: g, perDay: g / [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m], saving: s, surplus: surplus });
+      }
+      totalGen += gen;
+      var prev = cumulative;
+      cumulative += saving;
+      if (payback === null && cumulative >= 0) payback = (y - 1) + (-prev) / saving;
+      cashflows.push(saving);
+      years.push({ year: y, generation: gen, saving: saving, cumulative: cumulative });
+    }
+    return {
+      kw: kw,
+      panels: panelCount(india, kw),
+      roofSqft: kw * d.sqftPerKw,
+      cost: cost,
+      subsidy: subsidy,
+      netCost: netCost,
+      generationYear1: years[0].generation,
+      generationPerDay: years[0].generation / 365,
+      generationPerMonth: years[0].generation / 12,
+      savingYear1: years[0].saving,
+      savingMonthly: years[0].saving / 12,
+      paybackYears: payback,
+      lifetimeNet: cumulative,
+      irr: irr(cashflows),
+      co2Tonnes: totalGen * d.co2KgPerKwh / 1000,
+      months: months,
+      years: years
+    };
+  }
+
   // ---------- EV charging ----------
 
   /*
@@ -376,6 +452,9 @@
     emi: emi,
     irr: irr,
     solarRoi: solarRoi,
+    sizePrice: sizePrice,
+    panelCount: panelCount,
+    solarSimple: solarSimple,
     evCost: evCost
   };
 });

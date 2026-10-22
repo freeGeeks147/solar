@@ -120,3 +120,28 @@ test('FPPPA and duty from the user\'s bill override the defaults', () => {
   // empty fields fall back to the defaults
   near(C.calcBill(data, { ...base, fppa: '', dutyPct: '' }).total, def.total);
 });
+
+const india = require('../data/india.json');
+
+test('size price band and panel count', () => {
+  const p3 = C.sizePrice(india, 3);
+  assert.equal(p3.low, 165000);
+  assert.equal(p3.mid, 187500);
+  const p7 = C.sizePrice(india, 7); // between 6 and 8 kW
+  assert.equal(p7.low, 355000);
+  assert.equal(C.panelCount(india, 3), 6);
+  assert.equal(C.panelCount(india, 5), 10);
+});
+
+test('flat-rate solar model: 3 kW in Jaipur', () => {
+  const r = C.solarSimple(india, common, { kw: 3, yieldKwhPerKwYear: 1600, units: 0, rate: 7 });
+  near(r.generationYear1, 4800, 0.5);
+  near(r.generationPerDay, 4800 / 365, 0.01);
+  near(r.savingYear1, 4800 * 7, 0.5); // no use limit given: every unit valued at the bill rate
+  assert.equal(r.subsidy, 78000);
+  near(r.netCost, 187500 - 78000);
+  assert.ok(r.paybackYears > 2 && r.paybackYears < 5);
+  // surplus above monthly use earns only the export rate
+  const capped = C.solarSimple(india, common, { kw: 3, yieldKwhPerKwYear: 1600, units: 200, rate: 7 });
+  assert.ok(capped.savingYear1 < r.savingYear1);
+});
