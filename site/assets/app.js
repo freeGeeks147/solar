@@ -1,4 +1,5 @@
-/* UI bindings for the bill, solar and EV calculators. Data comes from assets/data.js (window.SITE_DATA). */
+/* UI bindings for the bill, solar, EV and system-size calculators, in English or Hindi
+ * (from <html lang>). Data comes from assets/data.js (window.SITE_DATA). */
 (function () {
   'use strict';
   var C = window.SolarCalc;
@@ -6,6 +7,8 @@
   var data = D.gujarat;
   var common = D.common;
   var india = D.india;
+  var HI = document.documentElement.lang === 'hi';
+  function t(en, hi) { return HI ? hi : en; }
 
   var inr0 = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
   var inr2 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -13,7 +16,10 @@
   function rs2(x) { return '₹' + inr2.format(x); }
   function num(x, d) { return new Intl.NumberFormat('en-IN', { maximumFractionDigits: d || 0 }).format(x); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var MONTHS = HI
+    ? ['जन', 'फ़र', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुला', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var U = t('units', 'यूनिट');
 
   function readForm(form) {
     var o = {};
@@ -37,25 +43,28 @@
         else el.value = v;
       });
     });
+    var unitsRadio = form.querySelector('input[name="inputMode"][value="units"]');
+    if (unitsRadio && q.has('units') && !q.has('inputMode') && !q.has('bill') && !q.has('amount')) unitsRadio.checked = true;
   }
 
   function setCategories(form) {
     var sel = form.elements.category;
     if (!sel) return;
-    var t = C.getTariff(data, form.elements.discom.value, 'urban');
+    var tf = C.getTariff(data, form.elements.discom.value, 'urban');
     var current = sel.value;
-    sel.innerHTML = t.categories.map(function (k) {
-      return '<option value="' + k + '">' + esc(t.group.categories[k].label) + '</option>';
+    sel.innerHTML = tf.categories.map(function (k) {
+      var c = tf.group.categories[k];
+      return '<option value="' + k + '">' + esc(HI && c.labelHi ? c.labelHi : c.label) + '</option>';
     }).join('');
-    sel.value = t.categories.indexOf(current) >= 0 ? current : 'urban';
+    sel.value = tf.categories.indexOf(current) >= 0 ? current : 'urban';
   }
 
   // FPPPA and duty are prefilled with estimates until the user types their own bill's figure.
   function setChargeDefaults(form) {
-    var t = C.getTariff(data, form.elements.discom.value, form.elements.category ? form.elements.category.value : 'urban');
+    var tf = C.getTariff(data, form.elements.discom.value, form.elements.category ? form.elements.category.value : 'urban');
     var f = form.elements.fppa, d = form.elements.dutyPct;
-    if (f && !f.dataset.touched) f.value = t.fppa.toFixed(2);
-    if (d && !d.dataset.touched) d.value = t.dutyPct;
+    if (f && !f.dataset.touched) f.value = tf.fppa.toFixed(2);
+    if (d && !d.dataset.touched) d.value = tf.dutyPct;
   }
 
   function isEstimate(form, name) {
@@ -90,7 +99,7 @@
 
   function svgBars(values, labels, opts) {
     opts = opts || {};
-    var w = 520, h = 160, pad = 24, n = values.length;
+    var w = 520, h = 170, pad = 24, n = values.length;
     var max = Math.max.apply(null, values.map(Math.abs).concat([1]));
     var min = Math.min.apply(null, values.concat([0]));
     var span = (max - Math.min(min, 0)) || 1;
@@ -99,7 +108,7 @@
     var bars = values.map(function (v, i) {
       var y = v >= 0 ? zeroY - (v / span) * (h - 2 * pad) : zeroY;
       var bh = Math.abs(v / span) * (h - 2 * pad);
-      var color = v >= 0 ? 'var(--brand)' : 'var(--accent)';
+      var color = v >= 0 ? 'var(--good)' : 'var(--sun)';
       var label = labels[i] && (n <= 12 || i % 5 === 0 || i === n - 1)
         ? '<text x="' + (pad + i * bw + bw / 2) + '" y="' + (h - 6) + '" text-anchor="middle">' + labels[i] + '</text>' : '';
       return '<rect x="' + (pad + i * bw + 1) + '" y="' + y + '" width="' + Math.max(1, bw - 2) + '" height="' + Math.max(0.5, bh) + '" fill="' + color + '" rx="2"><title>' + esc(labels[i] + ': ' + (opts.fmt ? opts.fmt(v) : v)) + '</title></rect>' + label;
@@ -108,21 +117,17 @@
       '<line x1="' + pad + '" x2="' + (w - pad) + '" y1="' + zeroY + '" y2="' + zeroY + '" stroke="var(--border)"/>' + bars + '</svg>';
   }
 
-  function estTag(form, name) {
-    return isEstimate(form, name) ? ' <span class="est" title="Default estimate. Enter the figure from your bill.">est.</span>' : '';
-  }
-
   // ---------- Plain-language helpers ----------
 
-  // 3.67 -> "3 years 8 months"
+  // 3.67 -> "3 years 8 months" / "3 साल 8 महीने"
   function yearsText(y) {
-    if (y === null || y === undefined) return 'more than 25 years';
+    if (y === null || y === undefined) return t('more than 25 years', '25 साल से ज़्यादा');
     var whole = Math.floor(y), months = Math.round((y - whole) * 12);
     if (months === 12) { whole += 1; months = 0; }
     var parts = [];
-    if (whole) parts.push(whole + (whole === 1 ? ' year' : ' years'));
-    if (months) parts.push(months + (months === 1 ? ' month' : ' months'));
-    return parts.join(' ') || 'less than a month';
+    if (whole) parts.push(whole + ' ' + t(whole === 1 ? 'year' : 'years', 'साल'));
+    if (months) parts.push(months + ' ' + t(months === 1 ? 'month' : 'months', 'महीने'));
+    return parts.join(' ') || t('less than a month', 'एक महीने से कम');
   }
 
   function tile(label, value, hero) {
@@ -132,6 +137,12 @@
   function more(summary, inner) {
     return '<details class="more"><summary>' + summary + '</summary>' + inner + '</details>';
   }
+
+  function estTag(form, name) {
+    return isEstimate(form, name) ? ' <span class="est" title="' + t('Typical value. Enter the figure from your bill.', 'सामान्य मान। अपने बिल का आंकड़ा भरें।') + '">' + t('est.', 'अनुमान') + '</span>' : '';
+  }
+
+  var RESULT_NOTE = '<p class="result-disclaimer">' + t('Estimate for information only, based on public information. Not official.', 'केवल जानकारी के लिए अनुमान, सार्वजनिक जानकारी पर आधारित। आधिकारिक नहीं।') + '</p>';
 
   // ---------- Bill calculator ----------
 
@@ -146,43 +157,50 @@
 
     var b = C.calcBill(data, o);
     var marginal = C.marginalRate(data, o);
-    var period = o.months === 2 ? 'for 2 months' : 'for the month';
+    var period = o.months === 2 ? t('for 2 months', '2 महीने का') : t('for the month', 'एक महीने का');
     var rows = b.slabRows.map(function (r, i) {
-      var label = i === 0 ? 'First ' + num(r.units) + ' units' : (r.to === null ? num(r.units) + ' units above ' + num(r.from) : 'Next ' + num(r.units) + ' units');
-      return '<tr><td>' + label + ' at ' + rs2(r.rate) + '</td><td class="num">' + rs(r.amount) + '</td></tr>';
+      var label = i === 0 ? t('First ' + num(r.units) + ' units', 'पहली ' + num(r.units) + ' यूनिट')
+        : r.to === null ? t(num(r.units) + ' units above ' + num(r.from), num(r.from) + ' से ऊपर की ' + num(r.units) + ' यूनिट')
+          : t('Next ' + num(r.units) + ' units', 'अगली ' + num(r.units) + ' यूनिट');
+      return '<tr><td>' + label + ' @ ' + rs2(r.rate) + '</td><td class="num">' + rs(r.amount) + '</td></tr>';
     }).join('');
 
     var smartLine = '';
     if (o.meter === 'postpaid') {
       var smart = C.calcBill(data, Object.assign({}, o, { meter: 'prepaid-smart', solarHoursPct: 30 }));
-      smartLine = '<p class="note"><strong>Tip:</strong> with a prepaid smart meter, and running some appliances between 11 am and 5 pm, this bill would be about ' + rs(smart.total) + ' (you save ' + rs(b.total - smart.total) + ').</p>';
+      smartLine = '<p class="tip"><strong>' + t('Tip:', 'सुझाव:') + '</strong> ' +
+        t('with a prepaid smart meter, and running some appliances between 11 am and 5 pm, this bill would be about ' + rs(smart.total) + ' (you save ' + rs(b.total - smart.total) + ').',
+          'प्रीपेड स्मार्ट मीटर हो और कुछ उपकरण सुबह 11 से शाम 5 बजे के बीच चलाएँ, तो यह बिल लगभग ' + rs(smart.total) + ' होगा (' + rs(b.total - smart.total) + ' की बचत)।') + '</p>';
     }
     var estimate = isEstimate(form, 'fppa') || isEstimate(form, 'dutyPct');
+    var answer = byBill
+      ? t('A bill of ' + rs(b.total) + ' means you used about <strong>' + num(b.units) + ' units</strong>. ', rs(b.total) + ' के बिल का मतलब है लगभग <strong>' + num(b.units) + ' यूनिट</strong> खर्च। ')
+      : t('Your bill: <strong>' + rs(b.total) + '</strong> ' + period + '. ', 'आपका बिल: ' + period + ' <strong>' + rs(b.total) + '</strong>। ');
+    answer += t('That is about <strong>' + rs2(b.effectiveRate) + ' per unit</strong> once all charges are added.', 'सभी चार्ज मिलाकर यह लगभग <strong>' + rs2(b.effectiveRate) + ' प्रति यूनिट</strong> पड़ता है।');
 
     out.innerHTML =
-      '<p class="answer">' + (byBill ? 'A bill of ' + rs(b.total) + ' means you used about <strong>' + num(b.units) + ' units</strong>. ' : 'Your bill: <strong>' + rs(b.total) + '</strong> ' + period + '. ') +
-        'That is about <strong>' + rs2(b.effectiveRate) + ' per unit</strong> once all charges are added.</p>' +
+      '<p class="answer">' + answer + '</p>' +
       '<div class="kpis three">' +
-        tile(o.months === 2 ? 'Bill (2 months)' : 'Bill (1 month)', rs(b.total), true) +
-        tile('Average cost per unit', rs2(b.effectiveRate)) +
-        tile('Each extra unit costs', rs2(marginal)) +
+        tile(o.months === 2 ? t('Bill (2 months)', 'बिल (2 महीने)') : t('Bill (1 month)', 'बिल (1 महीना)'), rs(b.total), true) +
+        tile(t('Average cost per unit', 'औसत प्रति यूनिट'), rs2(b.effectiveRate)) +
+        tile(t('Each extra unit costs', 'हर अतिरिक्त यूनिट'), rs2(marginal)) +
       '</div>' +
-      '<h3>What you pay for</h3>' +
+      '<h3>' + t('What you pay for', 'आप किसके पैसे देते हैं') + '</h3>' +
       '<div class="table-wrap"><table><tbody>' +
         rows +
-        '<tr><td>Fixed charge</td><td class="num">' + rs(b.fixed) + '</td></tr>' +
-        '<tr><td>Fuel surcharge (FPPPA)' + estTag(form, 'fppa') + '</td><td class="num">' + rs(b.fppa) + '</td></tr>' +
-        (b.prepaidRebate ? '<tr class="minus"><td>Prepaid meter discount</td><td class="num">−' + rs(b.prepaidRebate) + '</td></tr>' : '') +
-        (b.touDiscount ? '<tr class="minus"><td>Daytime (11 am–5 pm) discount</td><td class="num">−' + rs(b.touDiscount) + '</td></tr>' : '') +
-        '<tr><td>Government tax (electricity duty ' + b.dutyPct + '%)' + estTag(form, 'dutyPct') + '</td><td class="num">' + rs(b.duty) + '</td></tr>' +
-        '<tr class="total"><td>Total</td><td class="num">' + rs(b.total) + '</td></tr>' +
+        '<tr><td>' + t('Fixed charge', 'फ़िक्स्ड चार्ज') + '</td><td class="num">' + rs(b.fixed) + '</td></tr>' +
+        '<tr><td>' + t('Fuel surcharge (FPPPA)', 'ईंधन सरचार्ज (FPPPA)') + estTag(form, 'fppa') + '</td><td class="num">' + rs(b.fppa) + '</td></tr>' +
+        (b.prepaidRebate ? '<tr class="minus"><td>' + t('Prepaid meter discount', 'प्रीपेड मीटर छूट') + '</td><td class="num">−' + rs(b.prepaidRebate) + '</td></tr>' : '') +
+        (b.touDiscount ? '<tr class="minus"><td>' + t('Daytime (11 am–5 pm) discount', 'दिन (11 से 5 बजे) की छूट') + '</td><td class="num">−' + rs(b.touDiscount) + '</td></tr>' : '') +
+        '<tr><td>' + t('Government tax (electricity duty ' + b.dutyPct + '%)', 'सरकारी टैक्स (बिजली शुल्क ' + b.dutyPct + '%)') + estTag(form, 'dutyPct') + '</td><td class="num">' + rs(b.duty) + '</td></tr>' +
+        '<tr class="total"><td>' + t('Total', 'कुल') + '</td><td class="num">' + rs(b.total) + '</td></tr>' +
       '</tbody></table></div>' +
-      (estimate ? '<p class="note"><span class="est">est.</span> = our estimate. For an exact match, copy these two numbers from your bill into the box on the left.</p>' : '') +
-      smartLine +
+      (estimate ? '<p class="note"><span class="est">' + t('est.', 'अनुमान') + '</span> ' + t('= our estimate. For an exact match, copy these two numbers from your bill into the form.', '= हमारा अनुमान। सटीक जवाब के लिए ये दो आंकड़े अपने बिल से फ़ॉर्म में भरें।') + '</p>' : '') +
+      smartLine + RESULT_NOTE +
       '<a class="cta" href="' + link('solar-rooftop-calculator-gujarat.html', {
         discom: o.discom, category: o.category, units: Math.round(b.units / o.months), loadKw: f.loadKw,
         fppa: isEstimate(form, 'fppa') ? '' : f.fppa, dutyPct: isEstimate(form, 'dutyPct') ? '' : f.dutyPct
-      }) + '">How much would solar save on this bill? →</a>';
+      }) + '">' + t('How much would solar save on this bill? →', 'इस बिल पर सोलर से कितनी बचत होगी? →') + '</a>';
   }
 
   // ---------- Solar ROI (Gujarat, exact tariff) ----------
@@ -209,43 +227,50 @@
 
     var loanHtml = '';
     if (r.loan) {
-      var covers = r.loan.netMonthlyYear1 >= 0;
-      loanHtml = '<h3>With a loan</h3><p>You pay <strong>' + rs(r.loan.downPayment) + '</strong> upfront and an EMI of <strong>' + rs(r.loan.emi) + ' a month</strong> for ' + r.loan.years + ' years. ' +
-        (covers ? 'Your bill saving is bigger than the EMI, so you are <strong>' + rs(r.loan.netMonthlyYear1) + ' a month ahead</strong> from day one.' : 'The EMI is ' + rs(-r.loan.netMonthlyYear1) + ' a month more than your bill saving until the loan ends.') + '</p>';
+      var ahead = r.loan.netMonthlyYear1 >= 0;
+      loanHtml = '<div class="workings"><h3>' + t('With a loan', 'लोन के साथ') + '</h3><p>' +
+        t('You pay <strong>' + rs(r.loan.downPayment) + '</strong> upfront and an EMI of <strong>' + rs(r.loan.emi) + ' a month</strong> for ' + r.loan.years + ' years. ',
+          'आप शुरू में <strong>' + rs(r.loan.downPayment) + '</strong> देंगे और ' + r.loan.years + ' साल तक <strong>' + rs(r.loan.emi) + ' महीने</strong> की EMI। ') +
+        (ahead ? t('Your bill saving is bigger than the EMI, so you are <strong>' + rs(r.loan.netMonthlyYear1) + ' a month ahead</strong> from day one.', 'आपकी बिल बचत EMI से ज़्यादा है, इसलिए पहले दिन से आप हर महीने <strong>' + rs(r.loan.netMonthlyYear1) + ' फ़ायदे</strong> में हैं।')
+          : t('The EMI is ' + rs(-r.loan.netMonthlyYear1) + ' a month more than your bill saving until the loan ends.', 'लोन ख़त्म होने तक EMI आपकी बिल बचत से ' + rs(-r.loan.netMonthlyYear1) + ' महीना ज़्यादा है।')) + '</p></div>';
     }
 
     var cumul = r.years.map(function (y) { return y.cumulative; });
+    var esc_ = o.escalationPct != null ? o.escalationPct : common.solarDefaults.tariffEscalationPctPerYear;
     out.innerHTML =
-      '<p class="answer">A <strong>' + num(r.kw, 1) + ' kW</strong> system costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. ' +
-        'Your bill drops from ' + rs(r.billBefore) + ' to about <strong>' + rs(r.avgBillAfter) + ' a month</strong>, and the system pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.</p>' +
+      '<p class="answer">' + t(
+        'A <strong>' + num(r.kw, 1) + ' kW</strong> system costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. Your bill drops from ' + rs(r.billBefore) + ' to about <strong>' + rs(r.avgBillAfter) + ' a month</strong>, and the system pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.',
+        '<strong>' + num(r.kw, 1) + ' kW</strong> सिस्टम सरकारी सब्सिडी के बाद लगभग <strong>' + rs(r.netCost) + '</strong> का पड़ेगा। आपका बिल ' + rs(r.billBefore) + ' से घटकर लगभग <strong>' + rs(r.avgBillAfter) + ' महीना</strong> हो जाएगा, और <strong>' + yearsText(r.paybackYears) + '</strong> में पूरा पैसा वापस।') + '</p>' +
       '<div class="kpis">' +
-        tile('You pay (after subsidy)', rs(r.netCost), true) +
-        tile('You save every month', rs(r.savingMonthlyYear1)) +
-        tile('Money back in', yearsText(r.paybackYears)) +
-        tile('System size', num(r.kw, 1) + ' kW') +
-        tile('Bill now', rs(r.billBefore)) +
-        tile('Bill with solar', rs(r.avgBillAfter)) +
+        tile(t('You pay (after subsidy)', 'आप देंगे (सब्सिडी के बाद)'), rs(r.netCost), true) +
+        tile(t('You save every month', 'हर महीने बचत'), rs(r.savingMonthlyYear1)) +
+        tile(t('Money back in', 'पैसा वापस'), yearsText(r.paybackYears)) +
+        tile(t('Solar size', 'सोलर साइज़'), num(r.kw, 1) + ' kW') +
+        tile(t('Bill now', 'अभी का बिल'), rs(r.billBefore)) +
+        tile(t('Bill with solar', 'सोलर के बाद बिल'), rs(r.avgBillAfter)) +
       '</div>' +
       loanHtml +
-      more('See the full cost breakdown',
+      more(t('See the full cost breakdown', 'पूरा खर्च देखें'),
         '<div class="table-wrap"><table><tbody>' +
-          '<tr><td>System price (' + num(r.kw, 1) + ' kW)</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
-          '<tr class="minus"><td>Government subsidy (PM Surya Ghar)</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
-          '<tr class="total"><td>You pay</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
-          '<tr><td>Electricity made in a year</td><td class="num">' + num(r.generationYear1) + ' units</td></tr>' +
-          '<tr><td>Extra units sold to the grid</td><td class="num">' + num(r.exportUnitsYear1) + ' units = ' + rs(r.exportIncomeYear1) + '</td></tr>' +
-          '<tr><td>Total saving over 25 years (after cost)</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
-          '<tr><td>Roof space needed</td><td class="num">about ' + num(r.roofSqftNeeded) + ' sq ft</td></tr>' +
+          '<tr><td>' + t('System price', 'सिस्टम की कीमत') + ' (' + num(r.kw, 1) + ' kW)</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
+          '<tr class="minus"><td>' + t('Government subsidy (PM Surya Ghar)', 'सरकारी सब्सिडी (पीएम सूर्य घर)') + '</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
+          '<tr class="total"><td>' + t('You pay', 'आप देंगे') + '</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+          '<tr><td>' + t('Electricity made in a year', 'साल में बनी बिजली') + '</td><td class="num">' + num(r.generationYear1) + ' ' + U + '</td></tr>' +
+          '<tr><td>' + t('Extra units sold to the grid', 'ग्रिड को बेची अतिरिक्त यूनिट') + '</td><td class="num">' + num(r.exportUnitsYear1) + ' ' + U + ' = ' + rs(r.exportIncomeYear1) + '</td></tr>' +
+          '<tr><td>' + t('Total saving over 25 years (after cost)', '25 साल में कुल बचत (खर्च घटाकर)') + '</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
+          '<tr><td>' + t('Roof space needed', 'ज़रूरी छत') + '</td><td class="num">' + t('about ', 'लगभग ') + num(r.roofSqftNeeded) + t(' sq ft', ' वर्ग फ़ुट') + '</td></tr>' +
         '</tbody></table></div>') +
-      more('See your saving grow year by year',
-        svgBars(cumul, r.years.map(function (y) { return 'Y' + y.year; }), { fmt: rs, title: 'Money saved minus cost, by year' }) +
-        '<p class="note">Orange bars: still paying back. Green bars: pure profit.</p>') +
-      more('See month by month',
-        '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units made</th><th class="num">Bill with solar</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>') +
-      '<p class="note">Worked out on your company\'s actual tariff, before and after solar. Assumes electricity prices rise ' + (o.escalationPct != null ? o.escalationPct : common.solarDefaults.tariffEscalationPctPerYear) + '% a year. Does not include an inverter replacement (around year 10–12).</p>' +
+      more(t('See your saving grow year by year', 'साल-दर-साल बचत देखें'),
+        svgBars(cumul, r.years.map(function (y) { return (HI ? 'सा' : 'Y') + y.year; }), { fmt: rs, title: t('Money saved minus cost, by year', 'हर साल: बचत घटा खर्च') }) +
+        '<p class="note">' + t('Orange bars: still paying back. Green bars: pure profit.', 'नारंगी: पैसा अभी वापस आ रहा है। हरा: शुद्ध फ़ायदा।') + '</p>') +
+      more(t('See month by month', 'महीने के अनुसार देखें'),
+        '<div class="table-wrap"><table><thead><tr><th>' + t('Month', 'महीना') + '</th><th class="num">' + t('Units made', 'बनी यूनिट') + '</th><th class="num">' + t('Bill with solar', 'सोलर के बाद बिल') + '</th><th class="num">' + t('Saving', 'बचत') + '</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>') +
+      '<p class="note">' + t("Worked out on your company's actual tariff, before and after solar. Assumes electricity prices rise " + esc_ + '% a year. Does not include an inverter replacement (around year 10–12).',
+        'सोलर से पहले और बाद, आपकी कंपनी के असली टैरिफ़ पर गणना। बिजली दर हर साल ' + esc_ + '% बढ़ने का अनुमान। इन्वर्टर बदलने का खर्च (लगभग 10–12वें साल) शामिल नहीं।') + '</p>' +
+      RESULT_NOTE +
       '<a class="cta" href="' + link('ev-charging-cost-calculator-gujarat.html', {
         discom: o.discom, units: o.units, loadKw: f.loadKw, solarSurplusKwh: Math.round(r.generationMonthlyAvg * 0.3)
-      }) + '">Thinking of an electric vehicle? See the charging cost →</a>';
+      }) + '">' + t('Thinking of an electric vehicle? See the charging cost →', 'इलेक्ट्रिक गाड़ी लेने की सोच रहे हैं? चार्जिंग खर्च देखें →') + '</a>';
   }
 
   // ---------- EV ----------
@@ -277,58 +302,68 @@
     o.years = Number(f.years) || common.evDefaults.years;
 
     var r = C.evCost(data, common, o);
-    var names = { homeNight: 'At home (any time)', homeDay: 'At home, 11 am–5 pm', public: 'Public fast charger' };
+    var names = {
+      homeNight: t('At home (any time)', 'घर पर (कभी भी)'),
+      homeDay: t('At home, 11 am–5 pm', 'घर पर, 11 से 5 बजे'),
+      public: t('Public fast charger', 'बाहर का फ़ास्ट चार्जर')
+    };
     var rows = Object.keys(r.scenarios).map(function (k) {
       var s = r.scenarios[k];
-      return '<tr' + (k === r.best ? ' style="font-weight:700"' : '') + '><td>' + names[k] + (k === r.best ? ' (cheapest)' : '') + '</td><td class="num">' + rs(s.total) + '</td><td class="num">' + rs2(s.perKm) + '</td></tr>';
+      return '<tr' + (k === r.best ? ' class="best"' : '') + '><td>' + names[k] + (k === r.best ? ' <span class="badge">' + t('cheapest', 'सबसे सस्ता') + '</span>' : '') + '</td><td class="num">' + rs(s.total) + '</td><td class="num">' + rs2(s.perKm) + '</td></tr>';
     }).join('');
-    var fuel = esc(f.iceType);
+    var fuel = { petrol: t('petrol', 'पेट्रोल'), diesel: t('diesel', 'डीज़ल'), cng: 'CNG' }[f.iceType] || f.iceType;
 
     out.innerHTML =
-      '<p class="answer">Charging costs you about <strong>' + rs(r.mix.total) + ' a month</strong> (' + rs2(r.mix.perKm) + ' per km). ' +
-        'A ' + fuel + ' vehicle would cost ' + rs(r.iceMonthly) + ', so you save <strong>' + rs(r.savingMonthly) + ' every month</strong>.</p>' +
+      '<p class="answer">' + t(
+        'Charging costs you about <strong>' + rs(r.mix.total) + ' a month</strong> (' + rs2(r.mix.perKm) + ' per km). A ' + fuel + ' vehicle would cost ' + rs(r.iceMonthly) + ', so you save <strong>' + rs(r.savingMonthly) + ' every month</strong>.',
+        'चार्जिंग का खर्च लगभग <strong>' + rs(r.mix.total) + ' महीना</strong> (' + rs2(r.mix.perKm) + ' प्रति किमी)। ' + fuel + ' गाड़ी पर ' + rs(r.iceMonthly) + ' लगते, यानी हर महीने <strong>' + rs(r.savingMonthly) + ' की बचत</strong>।') + '</p>' +
       '<div class="kpis three">' +
-        tile('Charging cost per month', rs(r.mix.total), true) +
-        tile('Cost per km', rs2(r.mix.perKm)) +
-        tile('You save vs ' + fuel, rs(r.savingMonthly) + '/mo') +
+        tile(t('Charging cost per month', 'महीने का चार्जिंग खर्च'), rs(r.mix.total), true) +
+        tile(t('Cost per km', 'प्रति किमी खर्च'), rs2(r.mix.perKm)) +
+        tile(t('You save vs ', 'बचत, तुलना में ') + fuel, rs(r.savingMonthly) + t('/mo', '/माह')) +
       '</div>' +
-      '<h3>Where you charge makes a big difference</h3>' +
-      '<div class="table-wrap"><table><thead><tr><th>If you always charge</th><th class="num">Per month</th><th class="num">Per km</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<p>Over ' + r.years + ' years: EV about <strong>' + rs(r.evTotal) + '</strong>, ' + fuel + ' about <strong>' + rs(r.iceTotal) + '</strong>. You save about <strong>' + rs(r.savingTotal) + '</strong> on fuel.</p>' +
-      '<p class="note">Home cost is what charging adds to your electricity bill. Covers fuel and electricity only, not the vehicle price, insurance or servicing.</p>';
+      '<h3>' + t('Where you charge makes a big difference', 'कहाँ चार्ज करते हैं, इससे बड़ा फ़र्क पड़ता है') + '</h3>' +
+      '<div class="table-wrap"><table><thead><tr><th>' + t('If you always charge', 'अगर हमेशा चार्ज करें') + '</th><th class="num">' + t('Per month', 'प्रति माह') + '</th><th class="num">' + t('Per km', 'प्रति किमी') + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<p>' + t('Over ' + r.years + ' years: EV about <strong>' + rs(r.evTotal) + '</strong>, ' + fuel + ' about <strong>' + rs(r.iceTotal) + '</strong>. You save about <strong>' + rs(r.savingTotal) + '</strong> on fuel.',
+        r.years + ' साल में: EV पर लगभग <strong>' + rs(r.evTotal) + '</strong>, ' + fuel + ' पर लगभग <strong>' + rs(r.iceTotal) + '</strong>। ईंधन पर लगभग <strong>' + rs(r.savingTotal) + '</strong> की बचत।') + '</p>' +
+      '<p class="note">' + t('Home cost is what charging adds to your electricity bill. Covers fuel and electricity only, not the vehicle price, insurance or servicing.', 'घर का खर्च = चार्जिंग से बिजली बिल में जुड़ी रकम। केवल ईंधन और बिजली; गाड़ी की कीमत, बीमा या सर्विसिंग शामिल नहीं।') + '</p>' +
+      RESULT_NOTE;
   }
 
   // ---------- System size (any state, flat ₹/unit) ----------
 
   // Step-by-step explanation of the saving, using yearly averages per month.
-  function workings(r, units, rate, exportRate) {
+  function workings(r, units, rate, x) {
     var gen = r.generationPerMonth;
     var surplus = r.months.reduce(function (a, m) { return a + m.surplus; }, 0) / 12;
     var used = gen - surplus;
     var buy = Math.max(0, units - used);
     var steps = [];
-    if (units > 0) steps.push('Your home uses <strong>' + num(units) + ' units</strong> a month (' + rs(units * rate) + ' at ' + rs2(rate) + ' a unit).');
-    steps.push('Solar makes about <strong>' + num(gen) + ' units</strong> a month.');
+    if (units > 0) steps.push(t('Your home uses <strong>' + num(units) + ' units</strong> a month (' + rs(units * rate) + ' at ' + rs2(rate) + ' a unit).', 'आपका घर महीने में <strong>' + num(units) + ' यूनिट</strong> खर्च करता है (' + rs2(rate) + ' प्रति यूनिट पर ' + rs(units * rate) + ')।'));
+    steps.push(t('Solar makes about <strong>' + num(gen) + ' units</strong> a month.', 'सोलर महीने में लगभग <strong>' + num(gen) + ' यूनिट</strong> बनाता है।'));
     if (units <= 0) {
-      steps.push('Every solar unit is counted at ' + rs2(rate) + '. Saving: ' + num(gen) + ' × ' + rs2(rate) + ' = <strong>' + rs(gen * rate) + '</strong>.');
+      steps.push(t('Every solar unit is counted at ' + rs2(rate) + '. Saving: ' + num(gen) + ' × ' + rs2(rate) + ' = <strong>' + rs(gen * rate) + '</strong>.', 'हर सोलर यूनिट ' + rs2(rate) + ' की मानी गई। बचत: ' + num(gen) + ' × ' + rs2(rate) + ' = <strong>' + rs(gen * rate) + '</strong>।'));
     } else if (surplus < 1) {
-      steps.push('Your home uses all ' + num(used) + ' solar units, so you buy only <strong>' + num(buy) + ' units</strong> from the electricity company.');
-      steps.push('Saving: ' + num(used) + ' units × ' + rs2(rate) + ' = <strong>' + rs(used * rate) + ' a month</strong>.');
-      steps.push('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong>.');
+      steps.push(t('Your home uses all ' + num(used) + ' solar units, so you buy only <strong>' + num(buy) + ' units</strong> from the electricity company.', 'घर में सारी ' + num(used) + ' सोलर यूनिट इस्तेमाल होती हैं, इसलिए बिजली कंपनी से केवल <strong>' + num(buy) + ' यूनिट</strong> खरीदनी पड़ती हैं।'));
+      steps.push(t('Saving: ' + num(used) + ' units × ' + rs2(rate) + ' = <strong>' + rs(used * rate) + ' a month</strong>.', 'बचत: ' + num(used) + ' यूनिट × ' + rs2(rate) + ' = <strong>' + rs(used * rate) + ' महीना</strong>।'));
+      steps.push(t('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong>.', 'बिल: ' + rs(units * rate) + ' → लगभग <strong>' + rs(buy * rate) + '</strong>।'));
     } else {
-      if (buy >= 1) steps.push('Solar makes more than you use in sunny months and less in the rainy months, so some months have extra units. On average over the year:');
-      steps.push('Your home uses ' + num(used) + ' of them' + (buy >= 1 ? ' and buys ' + num(buy) + ' units from the company' : ', so you buy almost nothing') + '. The other <strong>' + num(surplus) + ' units</strong> go to the grid, and the company pays about ' + rs2(Number(exportRate)) + ' each.');
-      steps.push('Saving: ' + num(used) + ' × ' + rs2(rate) + ' + ' + num(surplus) + ' × ' + rs2(Number(exportRate)) + ' = <strong>' + rs(used * rate + surplus * exportRate) + ' a month</strong>.');
-      steps.push('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong> plus small fixed charges.');
+      if (buy >= 1) steps.push(t('Solar makes more than you use in sunny months and less in the rainy months, so some months have extra units. On average over the year:', 'धूप वाले महीनों में सोलर आपकी खपत से ज़्यादा और बारिश में कम बनाता है, इसलिए कुछ महीनों में यूनिट बचती हैं। साल का औसत:'));
+      steps.push(t('Your home uses ' + num(used) + ' of them' + (buy >= 1 ? ' and buys ' + num(buy) + ' units from the company' : ', so you buy almost nothing') + '. The other <strong>' + num(surplus) + ' units</strong> go to the grid, and the company pays about ' + rs2(x) + ' each.',
+        'घर में इनमें से ' + num(used) + ' यूनिट इस्तेमाल होती हैं' + (buy >= 1 ? ' और कंपनी से ' + num(buy) + ' यूनिट खरीदी जाती हैं' : ', यानी लगभग कुछ नहीं खरीदना पड़ता') + '। बाकी <strong>' + num(surplus) + ' यूनिट</strong> ग्रिड में जाती हैं, जिन पर कंपनी लगभग ' + rs2(x) + ' प्रति यूनिट देती है।'));
+      steps.push(t('Saving: ', 'बचत: ') + num(used) + ' × ' + rs2(rate) + ' + ' + num(surplus) + ' × ' + rs2(x) + ' = <strong>' + rs(used * rate + surplus * x) + t(' a month', ' महीना') + '</strong>' + t('.', '।'));
+      steps.push(t('Bill: ' + rs(units * rate) + ' → about <strong>' + rs(buy * rate) + '</strong> plus small fixed charges.', 'बिल: ' + rs(units * rate) + ' → लगभग <strong>' + rs(buy * rate) + '</strong> और थोड़ा फ़िक्स्ड चार्ज।'));
     }
-    return '<div class="workings"><h3>How we worked it out</h3><ol>' + steps.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>' +
-      '<p class="note">Units your home uses save the full ' + rs2(rate) + '. Extra units sold to the grid earn only about ' + rs2(Number(exportRate)) + ', so a system that makes about as much as you use pays back fastest. Figures are monthly averages over the year.</p></div>';
+    return '<div class="workings"><h3>' + t('How we worked it out', 'हमने कैसे निकाला') + '</h3><ol>' + steps.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ol>' +
+      '<p class="note">' + t('Units your home uses save the full ' + rs2(rate) + '. Extra units sold to the grid earn only about ' + rs2(x) + ', so a system that makes about as much as you use pays back fastest. Figures are monthly averages over the year.',
+        'घर में इस्तेमाल हर यूनिट पूरे ' + rs2(rate) + ' बचाती है। ग्रिड को बेची अतिरिक्त यूनिट पर केवल लगभग ' + rs2(x) + ' मिलते हैं, इसलिए खपत के बराबर बनाने वाला सिस्टम सबसे जल्दी पैसा लौटाता है। आंकड़े साल भर का मासिक औसत हैं।') + '</p></div>';
   }
 
   function renderSize(form, out) {
     var f = readForm(form);
     var kw = Number(f.kw) || 3;
     var city = india.cities[Number(f.city) || 0];
+    var cityName = HI ? city.nameHi : city.name;
     var band = C.sizePrice(india, kw);
     var costEl = form.elements.cost;
     if (costEl && !costEl.dataset.touched) costEl.value = Math.round(band.mid / 1000) * 1000;
@@ -337,43 +372,46 @@
     form.querySelector('[data-show="bill"]').classList.toggle('hidden', byUnits);
     form.querySelector('[data-show="units"]').classList.toggle('hidden', !byUnits);
     var units = byUnits ? Number(f.units) || 0 : Math.round((Number(f.bill) || 0) / rate);
-    var bill = units * rate;
+    var exportRate = f.exportRate === '' || f.exportRate == null ? india.defaultExportRate : Number(f.exportRate);
     var r = C.solarSimple(india, common, {
       kw: kw, yieldKwhPerKwYear: city.yield, units: units,
-      rate: rate, exportRate: f.exportRate, cost: Number(f.cost) || band.mid
+      rate: rate, exportRate: exportRate, cost: Number(f.cost) || band.mid
     });
     var monthRows = r.months.map(function (m) {
       return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.perDay, 1) + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
     }).join('');
     var tooBig = units > 0 && r.generationPerMonth > units * 1.25;
     var tooSmall = units > 0 && r.generationPerMonth < units * 0.6;
-    var fit = tooBig ? '<p class="note"><strong>Tip:</strong> ' + num(kw, 1) + ' kW makes more than your home uses. Extra units earn only about ₹' + (f.exportRate || india.defaultExportRate) + ' each, so a smaller system may pay back faster.</p>'
-      : tooSmall ? '<p class="note"><strong>Tip:</strong> ' + num(kw, 1) + ' kW covers only part of your bill. A bigger system would save more, if your roof has space.</p>' : '';
+    var fit = tooBig ? '<p class="tip"><strong>' + t('Tip:', 'सुझाव:') + '</strong> ' + t(num(kw, 1) + ' kW makes more than your home uses. Extra units earn only about ' + rs2(exportRate) + ' each, so a smaller system may pay back faster.', num(kw, 1) + ' kW आपकी खपत से ज़्यादा बनाता है। अतिरिक्त यूनिट पर केवल लगभग ' + rs2(exportRate) + ' मिलते हैं, इसलिए छोटा सिस्टम जल्दी पैसा लौटा सकता है।') + '</p>'
+      : tooSmall ? '<p class="tip"><strong>' + t('Tip:', 'सुझाव:') + '</strong> ' + t(num(kw, 1) + ' kW covers only part of your bill. A bigger system would save more, if your roof has space.', num(kw, 1) + ' kW आपके बिल का केवल कुछ हिस्सा कवर करता है। छत पर जगह हो तो बड़ा सिस्टम ज़्यादा बचाएगा।') + '</p>' : '';
 
-    var answer = form.dataset.mode === 'generation'
-      ? '<p class="answer">A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(city.name) + ' makes about <strong>' + num(r.generationPerDay, 1) + ' units a day</strong>, or ' + num(r.generationPerMonth) + ' units a month. That is worth about <strong>' + rs(r.savingMonthly) + ' off your bill every month</strong>.</p>'
-      : '<p class="answer">A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(city.name) + ' costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. It saves about <strong>' + rs(r.savingMonthly) + ' a month</strong> and pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.</p>';
-    var tiles = form.dataset.mode === 'generation'
-      ? tile('Units per day', num(r.generationPerDay, 1), true) + tile('Units per month', num(r.generationPerMonth)) + tile('Saves per month', rs(r.savingMonthly))
-      : tile('You pay (after subsidy)', rs(r.netCost), true) + tile('You save every month', rs(r.savingMonthly)) + tile('Money back in', yearsText(r.paybackYears));
+    var gen = form.dataset.mode === 'generation';
+    var answer = gen
+      ? t('A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(cityName) + ' makes about <strong>' + num(r.generationPerDay, 1) + ' units a day</strong>, or ' + num(r.generationPerMonth) + ' units a month. That is worth about <strong>' + rs(r.savingMonthly) + ' off your bill every month</strong>.',
+        esc(cityName) + ' में <strong>' + num(kw, 1) + ' kW</strong> सिस्टम रोज़ लगभग <strong>' + num(r.generationPerDay, 1) + ' यूनिट</strong>, यानी महीने में ' + num(r.generationPerMonth) + ' यूनिट बनाता है। इससे बिल हर महीने लगभग <strong>' + rs(r.savingMonthly) + ' कम</strong> होता है।')
+      : t('A <strong>' + num(kw, 1) + ' kW</strong> system in ' + esc(cityName) + ' costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. It saves about <strong>' + rs(r.savingMonthly) + ' a month</strong> and pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.',
+        esc(cityName) + ' में <strong>' + num(kw, 1) + ' kW</strong> सिस्टम सरकारी सब्सिडी के बाद लगभग <strong>' + rs(r.netCost) + '</strong> का पड़ेगा। यह हर महीने लगभग <strong>' + rs(r.savingMonthly) + '</strong> बचाता है और <strong>' + yearsText(r.paybackYears) + '</strong> में पूरा पैसा वापस।');
+    var tiles = gen
+      ? tile(t('Units per day', 'रोज़ की यूनिट'), num(r.generationPerDay, 1), true) + tile(t('Units per month', 'महीने की यूनिट'), num(r.generationPerMonth)) + tile(t('Saves per month', 'हर महीने बचत'), rs(r.savingMonthly))
+      : tile(t('You pay (after subsidy)', 'आप देंगे (सब्सिडी के बाद)'), rs(r.netCost), true) + tile(t('You save every month', 'हर महीने बचत'), rs(r.savingMonthly)) + tile(t('Money back in', 'पैसा वापस'), yearsText(r.paybackYears));
     var gujarat = city.state === 'Gujarat'
-      ? '<p class="note">Live in Gujarat? Our <a href="solar-rooftop-calculator-gujarat.html?units=' + (units || 300) + '&kw=' + kw + '">Gujarat calculator</a> uses your electricity company\'s exact rates.</p>' : '';
+      ? '<p class="note">' + t('Live in Gujarat? Our <a href="solar-rooftop-calculator-gujarat.html?units=' + (units || 300) + '&kw=' + kw + '">Gujarat calculator</a> uses your electricity company\'s exact rates.', 'गुजरात में रहते हैं? हमारा <a href="solar-rooftop-calculator-gujarat.html?units=' + (units || 300) + '&kw=' + kw + '">गुजरात कैलकुलेटर</a> आपकी बिजली कंपनी की सटीक दरों से गणना करता है।') + '</p>' : '';
 
-    out.innerHTML = answer +
-      '<div class="kpis three">' + tiles + '</div>' + fit + workings(r, units, rate, f.exportRate || india.defaultExportRate) +
-      more('See the full cost breakdown',
+    out.innerHTML = '<p class="answer">' + answer + '</p>' +
+      '<div class="kpis three">' + tiles + '</div>' + fit + workings(r, units, rate, exportRate) +
+      more(t('See the full cost breakdown', 'पूरा खर्च देखें'),
         '<div class="table-wrap"><table><tbody>' +
-          '<tr><td>System price (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
-          '<tr class="minus"><td>Government subsidy (PM Surya Ghar)</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
-          '<tr class="total"><td>You pay</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
-          '<tr><td>Solar panels</td><td class="num">' + r.panels + ' panels</td></tr>' +
-          '<tr><td>Roof space needed</td><td class="num">about ' + num(r.roofSqft) + ' sq ft</td></tr>' +
-          '<tr><td>Total saving over 25 years (after cost)</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
+          '<tr><td>' + t('System price', 'सिस्टम की कीमत') + ' (' + num(kw, 1) + ' kW)</td><td class="num">' + rs(r.cost) + '</td></tr>' +
+          '<tr class="minus"><td>' + t('Government subsidy (PM Surya Ghar)', 'सरकारी सब्सिडी (पीएम सूर्य घर)') + '</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
+          '<tr class="total"><td>' + t('You pay', 'आप देंगे') + '</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+          '<tr><td>' + t('Solar panels', 'सोलर पैनल') + '</td><td class="num">' + r.panels + ' ' + t('panels', 'पैनल') + '</td></tr>' +
+          '<tr><td>' + t('Roof space needed', 'ज़रूरी छत') + '</td><td class="num">' + t('about ', 'लगभग ') + num(r.roofSqft) + t(' sq ft', ' वर्ग फ़ुट') + '</td></tr>' +
+          '<tr><td>' + t('Total saving over 25 years (after cost)', '25 साल में कुल बचत (खर्च घटाकर)') + '</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
         '</tbody></table></div>') +
-      more('See month by month',
-        '<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Units a day</th><th class="num">Units in month</th><th class="num">Saving</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
-        '<p class="note">Less in the rainy months, most in March to May.</p>') +
-      gujarat;
+      more(t('See month by month', 'महीने के अनुसार देखें'),
+        '<div class="table-wrap"><table><thead><tr><th>' + t('Month', 'महीना') + '</th><th class="num">' + t('Units a day', 'रोज़ की यूनिट') + '</th><th class="num">' + t('Units in month', 'महीने की यूनिट') + '</th><th class="num">' + t('Saving', 'बचत') + '</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>' +
+        '<p class="note">' + t('Less in the rainy months, most in March to May.', 'बारिश के महीनों में कम, मार्च से मई में सबसे ज़्यादा।') + '</p>') +
+      gujarat + RESULT_NOTE;
   }
 
   // ---------- Wiring ----------
@@ -396,7 +434,7 @@
     if (form.elements.meter) toggleSmart(form);
     form.addEventListener('submit', function (e) { e.preventDefault(); });
     function run() {
-      try { render(form, out); } catch (err) { out.innerHTML = '<p class="verify">Could not calculate: ' + esc(err.message) + '</p>'; }
+      try { render(form, out); } catch (err) { out.innerHTML = '<p class="tip">' + t('Could not calculate: ', 'गणना नहीं हो सकी: ') + esc(err.message) + '</p>'; }
     }
     form.addEventListener('input', run);
     form.addEventListener('change', function (e) {

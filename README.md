@@ -26,12 +26,19 @@ data/gujarat.json     Tariffs, DISCOMs, cities and solar yield   <- edit every A
 data/common.json      Subsidy, solar/EV defaults, fuel prices
 data/india.json       System-size prices, city-wise solar yield (all India)
 site.config.json      Site name, domain, AdSense ID
-build.js              Generates site/*.html, sitemap.xml, robots.txt, ads.txt, assets/data.js
+build.js              Builds every page in English (site/) and Hindi (site/hi/), sitemap, robots, ads.txt, assets/data.js
+src/                  Page templates: layout.js (shell, disclaimer), forms.js, pages-solar.js, pages-gujarat.js, pages-static.js
 site/assets/calc.js   Calculation engine (shared by browser, build and tests)
 site/assets/app.js    Form wiring and result rendering
 site/                 The deployable website (generated HTML is committed)
 test/                 node --test unit tests for the engine
 ```
+
+## Languages
+
+Every page is generated twice: English at the site root and Hindi under `/hi/`, with `hreflang` links between them and a language switch in the header. Page text lives in `src/` as `tr('English', 'हिन्दी')` pairs, and calculator results in `site/assets/app.js` as `t('English', 'हिन्दी')` pairs. When you add or change text, update both.
+
+A disclaimer strip ("for information only, based on public information, not official or endorsed") is on every page, under every calculator result, and in full at `disclaimer.html`.
 
 ## Run locally
 

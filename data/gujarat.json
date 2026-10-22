@@ -14,7 +14,11 @@
     "Fields marked \"verify\": true were cross-checked from secondary sources only. Confirm them against the GERC tariff schedule PDF before each April update."
   ],
   "common": {
-    "electricityDutyPct": { "urban": 15, "rural": 7.5, "bpl": 7.5 },
+    "electricityDutyPct": {
+      "urban": 15,
+      "rural": 7.5,
+      "bpl": 7.5
+    },
     "electricityDutyBase": "fixed + energy + fppa",
     "electricityDutyVerify": true,
     "prepaidRebatePctOnEnergy": 3,
@@ -41,11 +45,32 @@
       "fullName": "Uttar Gujarat Vij Company Ltd",
       "region": "North Gujarat",
       "hq": "Mehsana",
-      "areas": ["Mehsana", "Patan", "Banaskantha", "Sabarkantha", "Aravalli", "Gandhinagar (outside Torrent area)", "Ahmedabad district (outside Torrent area)"],
+      "areas": [
+        "Mehsana",
+        "Patan",
+        "Banaskantha",
+        "Sabarkantha",
+        "Aravalli",
+        "Gandhinagar (outside Torrent area)",
+        "Ahmedabad district (outside Torrent area)"
+      ],
       "tariffGroup": "gujarat-state",
       "orderCase": "GERC FY 2026-27 tariff order (UGVCL)",
       "sourceUrl": "https://gercin.org/wp-content/uploads/2026/03/Tariff-Schedule-of-DGVCL-MGVCL-PGVCL-UGVCL-w.e.f.-01.04.2026.pdf",
-      "website": "https://www.ugvcl.com/"
+      "website": "https://www.ugvcl.com/",
+      "nameHi": "यूजीवीसीएल",
+      "fullNameHi": "उत्तर गुजरात विज कंपनी लिमिटेड",
+      "regionHi": "उत्तर गुजरात",
+      "areasHi": [
+        "मेहसाणा",
+        "पाटन",
+        "बनासकांठा",
+        "साबरकांठा",
+        "अरावली",
+        "गांधीनगर (टोरेंट क्षेत्र के बाहर)",
+        "अहमदाबाद ज़िला (टोरेंट क्षेत्र के बाहर)"
+      ],
+      "hqHi": "मेहसाणा"
     },
     {
       "id": "mgvcl",
@@ -54,11 +79,32 @@
       "fullName": "Madhya Gujarat Vij Company Ltd",
       "region": "Central Gujarat",
       "hq": "Vadodara",
-      "areas": ["Vadodara", "Anand", "Kheda", "Panchmahal", "Dahod", "Mahisagar", "Chhota Udaipur"],
+      "areas": [
+        "Vadodara",
+        "Anand",
+        "Kheda",
+        "Panchmahal",
+        "Dahod",
+        "Mahisagar",
+        "Chhota Udaipur"
+      ],
       "tariffGroup": "gujarat-state",
       "orderCase": "GERC FY 2026-27 tariff order (MGVCL)",
       "sourceUrl": "https://gercin.org/wp-content/uploads/2026/03/Tariff-Schedule-of-DGVCL-MGVCL-PGVCL-UGVCL-w.e.f.-01.04.2026.pdf",
-      "website": "https://www.mgvcl.com/"
+      "website": "https://www.mgvcl.com/",
+      "nameHi": "एमजीवीसीएल",
+      "fullNameHi": "मध्य गुजरात विज कंपनी लिमिटेड",
+      "regionHi": "मध्य गुजरात",
+      "areasHi": [
+        "वडोदरा",
+        "आणंद",
+        "खेड़ा",
+        "पंचमहाल",
+        "दाहोद",
+        "महीसागर",
+        "छोटा उदयपुर"
+      ],
+      "hqHi": "वडोदरा"
     },
     {
       "id": "dgvcl",
@@ -67,11 +113,32 @@
       "fullName": "Dakshin Gujarat Vij Company Ltd",
       "region": "South Gujarat",
       "hq": "Surat",
-      "areas": ["Surat district (outside Torrent city area)", "Bharuch", "Narmada", "Tapi", "Navsari", "Valsad", "Dang"],
+      "areas": [
+        "Surat district (outside Torrent city area)",
+        "Bharuch",
+        "Narmada",
+        "Tapi",
+        "Navsari",
+        "Valsad",
+        "Dang"
+      ],
       "tariffGroup": "gujarat-state",
       "orderCase": "GERC FY 2026-27 tariff order (DGVCL)",
       "sourceUrl": "https://gercin.org/wp-content/uploads/2026/03/Tariff-Schedule-of-DGVCL-MGVCL-PGVCL-UGVCL-w.e.f.-01.04.2026.pdf",
-      "website": "https://www.dgvcl.com/"
+      "website": "https://www.dgvcl.com/",
+      "nameHi": "डीजीवीसीएल",
+      "fullNameHi": "दक्षिण गुजरात विज कंपनी लिमिटेड",
+      "regionHi": "दक्षिण गुजरात",
+      "areasHi": [
+        "सूरत ज़िला (टोरेंट शहर क्षेत्र के बाहर)",
+        "भरूच",
+        "नर्मदा",
+        "तापी",
+        "नवसारी",
+        "वलसाड",
+        "डांग"
+      ],
+      "hqHi": "सूरत"
     },
     {
       "id": "pgvcl",
@@ -80,11 +147,42 @@
       "fullName": "Paschim Gujarat Vij Company Ltd",
       "region": "Saurashtra and Kutch",
       "hq": "Rajkot",
-      "areas": ["Rajkot", "Jamnagar", "Bhavnagar", "Junagadh", "Porbandar", "Amreli", "Kutch", "Surendranagar", "Morbi", "Botad", "Gir Somnath", "Devbhumi Dwarka"],
+      "areas": [
+        "Rajkot",
+        "Jamnagar",
+        "Bhavnagar",
+        "Junagadh",
+        "Porbandar",
+        "Amreli",
+        "Kutch",
+        "Surendranagar",
+        "Morbi",
+        "Botad",
+        "Gir Somnath",
+        "Devbhumi Dwarka"
+      ],
       "tariffGroup": "gujarat-state",
       "orderCase": "Case No. 2583 of 2025, order dated 25.03.2026",
       "sourceUrl": "https://gercin.org/wp-content/uploads/2026/03/PGVCL-2583-2025-Tariff-Order-for-FY-2026-27-dtd.-25.03.2026.pdf",
-      "website": "https://www.pgvcl.com/"
+      "website": "https://www.pgvcl.com/",
+      "nameHi": "पीजीवीसीएल",
+      "fullNameHi": "पश्चिम गुजरात विज कंपनी लिमिटेड",
+      "regionHi": "सौराष्ट्र और कच्छ",
+      "areasHi": [
+        "राजकोट",
+        "जामनगर",
+        "भावनगर",
+        "जूनागढ़",
+        "पोरबंदर",
+        "अमरेली",
+        "कच्छ",
+        "सुरेंद्रनगर",
+        "मोरबी",
+        "बोटाद",
+        "गिर सोमनाथ",
+        "देवभूमि द्वारका"
+      ],
+      "hqHi": "राजकोट"
     },
     {
       "id": "torrent-ahmedabad",
@@ -93,11 +191,22 @@
       "fullName": "Torrent Power Ltd, Ahmedabad-Gandhinagar licence area",
       "region": "Ahmedabad and Gandhinagar cities",
       "hq": "Ahmedabad",
-      "areas": ["Ahmedabad city", "Gandhinagar city"],
+      "areas": [
+        "Ahmedabad city",
+        "Gandhinagar city"
+      ],
       "tariffGroup": "torrent-ahmedabad",
       "orderCase": "Case No. 2585 of 2025, order dated 25.03.2026",
       "sourceUrl": "https://www.torrentpower.com/public/pdf/regulatory/TPL-D-A-2585-2025-Tariff-Order-of-FY-2026-27.pdf",
-      "website": "https://www.torrentpower.com/"
+      "website": "https://www.torrentpower.com/",
+      "nameHi": "टोरेंट पावर अहमदाबाद",
+      "fullNameHi": "टोरेंट पावर लिमिटेड, अहमदाबाद-गांधीनगर क्षेत्र",
+      "regionHi": "अहमदाबाद और गांधीनगर शहर",
+      "areasHi": [
+        "अहमदाबाद शहर",
+        "गांधीनगर शहर"
+      ],
+      "hqHi": "अहमदाबाद"
     },
     {
       "id": "torrent-surat",
@@ -106,116 +215,323 @@
       "fullName": "Torrent Power Ltd, Surat licence area",
       "region": "Surat city",
       "hq": "Surat",
-      "areas": ["Surat city (Torrent licence area)"],
+      "areas": [
+        "Surat city (Torrent licence area)"
+      ],
       "tariffGroup": "torrent-surat",
       "orderCase": "Case No. 2586 of 2025, order dated 25.03.2026",
       "sourceUrl": "https://www.torrentpower.com/public/pdf/regulatory/TPL-D-S-2586-2025-Tariff-Order-of-FY-2026-27.pdf",
-      "website": "https://www.torrentpower.com/"
+      "website": "https://www.torrentpower.com/",
+      "nameHi": "टोरेंट पावर सूरत",
+      "fullNameHi": "टोरेंट पावर लिमिटेड, सूरत क्षेत्र",
+      "regionHi": "सूरत शहर",
+      "areasHi": [
+        "सूरत शहर (टोरेंट क्षेत्र)"
+      ],
+      "hqHi": "सूरत"
     }
   ],
   "tariffGroups": {
     "gujarat-state": {
-      "fppaPerUnit": 2.30,
+      "fppaPerUnit": 2.3,
       "fppaVerify": true,
       "fppaNote": "State DISCOM FPPPA cut from Rs 3.35 to Rs 2.30 per unit (as cited in GERC FY 2026-27 orders). Revised quarterly.",
       "categories": {
         "urban": {
           "label": "City or town",
-          "fixed": { "type": "byLoad", "steps": [
-            { "uptoKw": 2, "amount": 15 },
-            { "uptoKw": 4, "amount": 25 },
-            { "uptoKw": 6, "amount": 45 },
-            { "uptoKw": null, "amount": 70 }
-          ] },
+          "fixed": {
+            "type": "byLoad",
+            "steps": [
+              {
+                "uptoKw": 2,
+                "amount": 15
+              },
+              {
+                "uptoKw": 4,
+                "amount": 25
+              },
+              {
+                "uptoKw": 6,
+                "amount": 45
+              },
+              {
+                "uptoKw": null,
+                "amount": 70
+              }
+            ]
+          },
           "slabs": [
-            { "upto": 50, "rate": 3.05 },
-            { "upto": 100, "rate": 3.50 },
-            { "upto": 250, "rate": 4.15 },
-            { "upto": null, "rate": 5.20 }
-          ]
+            {
+              "upto": 50,
+              "rate": 3.05
+            },
+            {
+              "upto": 100,
+              "rate": 3.5
+            },
+            {
+              "upto": 250,
+              "rate": 4.15
+            },
+            {
+              "upto": null,
+              "rate": 5.2
+            }
+          ],
+          "labelHi": "शहर या कस्बा"
         },
         "rural": {
           "label": "Village (Gram Panchayat)",
-          "fixed": { "type": "byLoad", "verify": true, "steps": [
-            { "uptoKw": 2, "amount": 15 },
-            { "uptoKw": 4, "amount": 25 },
-            { "uptoKw": 6, "amount": 45 },
-            { "uptoKw": null, "amount": 70 }
-          ] },
+          "fixed": {
+            "type": "byLoad",
+            "verify": true,
+            "steps": [
+              {
+                "uptoKw": 2,
+                "amount": 15
+              },
+              {
+                "uptoKw": 4,
+                "amount": 25
+              },
+              {
+                "uptoKw": 6,
+                "amount": 45
+              },
+              {
+                "uptoKw": null,
+                "amount": 70
+              }
+            ]
+          },
           "slabs": [
-            { "upto": 50, "rate": 2.65 },
-            { "upto": 100, "rate": 3.10 },
-            { "upto": 250, "rate": 3.75 },
-            { "upto": null, "rate": 4.90 }
-          ]
+            {
+              "upto": 50,
+              "rate": 2.65
+            },
+            {
+              "upto": 100,
+              "rate": 3.1
+            },
+            {
+              "upto": 250,
+              "rate": 3.75
+            },
+            {
+              "upto": null,
+              "rate": 4.9
+            }
+          ],
+          "labelHi": "गाँव (ग्राम पंचायत)"
         },
         "bpl": {
           "label": "BPL household",
           "verify": true,
           "dutyKey": "bpl",
-          "fixed": { "type": "flat", "amount": 5 },
+          "fixed": {
+            "type": "flat",
+            "amount": 5
+          },
           "slabs": [
-            { "upto": 30, "rate": 1.50 },
-            { "upto": 50, "rate": 3.05 },
-            { "upto": 100, "rate": 3.50 },
-            { "upto": 250, "rate": 4.15 },
-            { "upto": null, "rate": 5.20 }
-          ]
+            {
+              "upto": 30,
+              "rate": 1.5
+            },
+            {
+              "upto": 50,
+              "rate": 3.05
+            },
+            {
+              "upto": 100,
+              "rate": 3.5
+            },
+            {
+              "upto": 250,
+              "rate": 4.15
+            },
+            {
+              "upto": null,
+              "rate": 5.2
+            }
+          ],
+          "labelHi": "बीपीएल परिवार"
         }
       }
     },
     "torrent-ahmedabad": {
-      "fppaPerUnit": 2.30,
+      "fppaPerUnit": 2.3,
       "fppaVerify": true,
       "fppaNote": "Placeholder: enter the FPPPA shown on your latest Torrent Power bill.",
       "categories": {
         "urban": {
           "label": "Home",
-          "fixed": { "type": "byPhase", "verify": true, "singlePhaseMaxKw": 6, "single": 25, "three": 65 },
+          "fixed": {
+            "type": "byPhase",
+            "verify": true,
+            "singlePhaseMaxKw": 6,
+            "single": 25,
+            "three": 65
+          },
           "slabs": [
-            { "upto": 50, "rate": 3.20 },
-            { "upto": 200, "rate": 3.95 },
-            { "upto": null, "rate": 5.00 }
-          ]
+            {
+              "upto": 50,
+              "rate": 3.2
+            },
+            {
+              "upto": 200,
+              "rate": 3.95
+            },
+            {
+              "upto": null,
+              "rate": 5.0
+            }
+          ],
+          "labelHi": "घरेलू"
         }
       }
     },
     "torrent-surat": {
-      "fppaPerUnit": 2.30,
+      "fppaPerUnit": 2.3,
       "fppaVerify": true,
       "fppaNote": "Placeholder: enter the FPPPA shown on your latest Torrent Power bill.",
       "categories": {
         "urban": {
           "label": "Home",
           "verify": true,
-          "fixed": { "type": "byPhase", "singlePhaseMaxKw": 6, "single": 25, "three": 65 },
+          "fixed": {
+            "type": "byPhase",
+            "singlePhaseMaxKw": 6,
+            "single": 25,
+            "three": 65
+          },
           "slabs": [
-            { "upto": 50, "rate": 3.20 },
-            { "upto": 100, "rate": 3.65 },
-            { "upto": 250, "rate": 4.25 },
-            { "upto": null, "rate": 5.05 }
-          ]
+            {
+              "upto": 50,
+              "rate": 3.2
+            },
+            {
+              "upto": 100,
+              "rate": 3.65
+            },
+            {
+              "upto": 250,
+              "rate": 4.25
+            },
+            {
+              "upto": null,
+              "rate": 5.05
+            }
+          ],
+          "labelHi": "घरेलू"
         }
       }
     }
   },
   "cities": [
-    { "name": "Ahmedabad", "yieldKwhPerKwYear": 1500, "discom": "torrent-ahmedabad" },
-    { "name": "Gandhinagar", "yieldKwhPerKwYear": 1500, "discom": "torrent-ahmedabad" },
-    { "name": "Surat", "yieldKwhPerKwYear": 1440, "discom": "torrent-surat" },
-    { "name": "Vadodara", "yieldKwhPerKwYear": 1480, "discom": "mgvcl" },
-    { "name": "Anand", "yieldKwhPerKwYear": 1480, "discom": "mgvcl" },
-    { "name": "Rajkot", "yieldKwhPerKwYear": 1520, "discom": "pgvcl" },
-    { "name": "Jamnagar", "yieldKwhPerKwYear": 1530, "discom": "pgvcl" },
-    { "name": "Bhavnagar", "yieldKwhPerKwYear": 1500, "discom": "pgvcl" },
-    { "name": "Junagadh", "yieldKwhPerKwYear": 1500, "discom": "pgvcl" },
-    { "name": "Bhuj (Kutch)", "yieldKwhPerKwYear": 1560, "discom": "pgvcl" },
-    { "name": "Mehsana", "yieldKwhPerKwYear": 1510, "discom": "ugvcl" },
-    { "name": "Palanpur", "yieldKwhPerKwYear": 1520, "discom": "ugvcl" },
-    { "name": "Bharuch", "yieldKwhPerKwYear": 1450, "discom": "dgvcl" },
-    { "name": "Navsari", "yieldKwhPerKwYear": 1420, "discom": "dgvcl" },
-    { "name": "Valsad / Vapi", "yieldKwhPerKwYear": 1400, "discom": "dgvcl" }
+    {
+      "name": "Ahmedabad",
+      "yieldKwhPerKwYear": 1500,
+      "discom": "torrent-ahmedabad",
+      "nameHi": "अहमदाबाद"
+    },
+    {
+      "name": "Gandhinagar",
+      "yieldKwhPerKwYear": 1500,
+      "discom": "torrent-ahmedabad",
+      "nameHi": "गांधीनगर"
+    },
+    {
+      "name": "Surat",
+      "yieldKwhPerKwYear": 1440,
+      "discom": "torrent-surat",
+      "nameHi": "सूरत"
+    },
+    {
+      "name": "Vadodara",
+      "yieldKwhPerKwYear": 1480,
+      "discom": "mgvcl",
+      "nameHi": "वडोदरा"
+    },
+    {
+      "name": "Anand",
+      "yieldKwhPerKwYear": 1480,
+      "discom": "mgvcl",
+      "nameHi": "आणंद"
+    },
+    {
+      "name": "Rajkot",
+      "yieldKwhPerKwYear": 1520,
+      "discom": "pgvcl",
+      "nameHi": "राजकोट"
+    },
+    {
+      "name": "Jamnagar",
+      "yieldKwhPerKwYear": 1530,
+      "discom": "pgvcl",
+      "nameHi": "जामनगर"
+    },
+    {
+      "name": "Bhavnagar",
+      "yieldKwhPerKwYear": 1500,
+      "discom": "pgvcl",
+      "nameHi": "भावनगर"
+    },
+    {
+      "name": "Junagadh",
+      "yieldKwhPerKwYear": 1500,
+      "discom": "pgvcl",
+      "nameHi": "जूनागढ़"
+    },
+    {
+      "name": "Bhuj (Kutch)",
+      "yieldKwhPerKwYear": 1560,
+      "discom": "pgvcl",
+      "nameHi": "भुज (कच्छ)"
+    },
+    {
+      "name": "Mehsana",
+      "yieldKwhPerKwYear": 1510,
+      "discom": "ugvcl",
+      "nameHi": "मेहसाणा"
+    },
+    {
+      "name": "Palanpur",
+      "yieldKwhPerKwYear": 1520,
+      "discom": "ugvcl",
+      "nameHi": "पालनपुर"
+    },
+    {
+      "name": "Bharuch",
+      "yieldKwhPerKwYear": 1450,
+      "discom": "dgvcl",
+      "nameHi": "भरूच"
+    },
+    {
+      "name": "Navsari",
+      "yieldKwhPerKwYear": 1420,
+      "discom": "dgvcl",
+      "nameHi": "नवसारी"
+    },
+    {
+      "name": "Valsad / Vapi",
+      "yieldKwhPerKwYear": 1400,
+      "discom": "dgvcl",
+      "nameHi": "वलसाड / वापी"
+    }
   ],
-  "solarMonthlyShare": [0.085, 0.088, 0.098, 0.099, 0.100, 0.080, 0.063, 0.062, 0.074, 0.086, 0.082, 0.083],
+  "solarMonthlyShare": [
+    0.085,
+    0.088,
+    0.098,
+    0.099,
+    0.1,
+    0.08,
+    0.063,
+    0.062,
+    0.074,
+    0.086,
+    0.082,
+    0.083
+  ],
   "solarYieldNote": "Annual yield estimates (kWh per kW installed, after typical system losses) are approximations for south-facing fixed-tilt rooftop systems. Refine per city with PVGIS or NASA POWER data."
 }
