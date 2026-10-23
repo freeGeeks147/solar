@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /*
- * Posts today's Facebook update (from social/facebook-posts.json) to each Page, then adds
- * the link as the first comment. Run by .github/workflows/facebook-posts.yml every Monday.
+ * Posts today's Facebook update (from social/facebook-posts.json) to each Page as a photo
+ * post: the post's card image (made by make-cards.js) with the text and link as the caption.
+ * Run by .github/workflows/facebook-posts.yml every Monday.
  *
  *   FB_PAGES='[{"id":"123","token":"EAA..."}]' node social/post-to-facebook.js salary
  *   node social/post-to-facebook.js solar --dry-run --date 2026-10-26
@@ -9,6 +10,7 @@
  * FB_PAGES is the Graph API Explorer response to me/accounts?fields=id,name,access_token,
  * pasted as is ({"data":[{"id","name","access_token"},...]}), or a list of {id, token}.
  * Page tokens taken from a long-lived user token don't expire (needs pages_manage_posts).
+ * A post without an image is published as a link post, which shows the page preview.
  * Facebook groups cannot be posted to through the API, so the group is scheduled by hand.
  * No dependencies; needs Node 18+ for fetch.
  */
@@ -37,10 +39,12 @@ if (!post) {
 }
 
 async function graph(endpoint, params) {
-  const res = await fetch(`${API}/${endpoint}`, { method: 'POST', body: new URLSearchParams(params) });
-  const body = await res.json();
-  if (!res.ok || body.error) throw new Error(body.error ? body.error.message : `HTTP ${res.status}`);
-  return body;
+  const body = new FormData();
+  for (const [k, v] of Object.entries(params)) v instanceof Blob ? body.append(k, v, 'card.jpg') : body.append(k, v);
+  const res = await fetch(`${API}/${endpoint}`, { method: 'POST', body });
+  const json = await res.json();
+  if (!res.ok || json.error) throw new Error(json.error ? json.error.message : `HTTP ${res.status}`);
+  return json;
 }
 
 function readPages(secret) {
@@ -59,22 +63,18 @@ async function main() {
   if (dryRun) return;
   const pages = readPages(process.env.FB_PAGES);
   if (!pages.length) throw new Error('FB_PAGES secret is empty');
+  const message = `${post.text}\n\n👉 ${post.link}`;
+  const image = post.image && fs.readFileSync(path.join(__dirname, post.image));
   let failed = 0;
   for (const page of pages) {
-    let id;
     try {
-      ({ id } = await graph(`${page.id}/feed`, { message: post.text, access_token: page.token }));
-      console.log(`Posted to ${page.name}: ${id}`);
+      const { id, post_id: postId } = image
+        ? await graph(`${page.id}/photos`, { source: new Blob([image], { type: 'image/jpeg' }), caption: message, access_token: page.token })
+        : await graph(`${page.id}/feed`, { message, link: post.link, access_token: page.token });
+      console.log(`Posted to ${page.name}: ${postId || id}`);
     } catch (err) {
       failed++;
-      console.error(`${page.name}: post failed: ${err.message}`);
-      continue;
-    }
-    try {
-      await graph(`${id}/comments`, { message: post.link, access_token: page.token });
-    } catch (err) {
-      failed++;
-      console.error(`${page.name}: link comment failed: ${err.message}`);
+      console.error(`${page.name} failed: ${err.message}`);
     }
   }
   if (failed) process.exit(1);
