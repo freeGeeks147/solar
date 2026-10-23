@@ -375,7 +375,7 @@
     var exportRate = f.exportRate === '' || f.exportRate == null ? india.defaultExportRate : Number(f.exportRate);
     var r = C.solarSimple(india, common, {
       kw: kw, yieldKwhPerKwYear: city.yield, units: units,
-      rate: rate, exportRate: exportRate, cost: Number(f.cost) || band.mid
+      rate: rate, exportRate: exportRate, cost: Number(costEl ? costEl.value : f.cost) || band.mid
     });
     var monthRows = r.months.map(function (m) {
       return '<tr><td>' + MONTHS[m.month] + '</td><td class="num">' + num(m.perDay, 1) + '</td><td class="num">' + num(m.generation) + '</td><td class="num">' + rs(m.saving) + '</td></tr>';
@@ -434,7 +434,7 @@
     if (form.elements.meter) toggleSmart(form);
     form.addEventListener('submit', function (e) { e.preventDefault(); });
     function run() {
-      try { render(form, out); } catch (err) { out.innerHTML = '<p class="tip">' + t('Could not calculate: ', 'गणना नहीं हो सकी: ') + esc(err.message) + '</p>'; }
+      try { render(form, out); addShare(form, out); } catch (err) { out.innerHTML = '<p class="tip">' + t('Could not calculate: ', 'गणना नहीं हो सकी: ') + esc(err.message) + '</p>'; }
     }
     form.addEventListener('input', run);
     form.addEventListener('change', function (e) {
@@ -452,6 +452,29 @@
       run();
     });
     run();
+  }
+
+  // WhatsApp button under each result's headline numbers. The link carries the form values, so it opens the same result.
+  var WA_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3z"/></svg>';
+  function shareUrl(form) {
+    var q = new URLSearchParams();
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.disabled || el.value === '') return;
+      if ((el.type === 'radio' || el.type === 'checkbox') && !el.checked) return;
+      if ((el.name === 'fppa' || el.name === 'dutyPct' || el.name === 'cost') && !el.dataset.touched) return; // keep defaults live
+      q.set(el.name, el.type === 'checkbox' ? '1' : el.value);
+    });
+    return location.origin + location.pathname + '?' + q.toString();
+  }
+  function addShare(form, out) {
+    var answer = out.querySelector('.answer');
+    if (!answer) return;
+    var text = answer.textContent.trim() + '\n\n' + t('Check yours (free): ', 'अपना हिसाब देखें (मुफ़्त): ') + shareUrl(form);
+    var wrap = document.createElement('p');
+    wrap.className = 'share';
+    wrap.innerHTML = '<a class="share-wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(text) + '">' + WA_ICON + t('Share on WhatsApp', 'WhatsApp पर भेजें') + '</a>';
+    var tiles = out.querySelector('.kpis');
+    out.insertBefore(wrap, tiles && tiles.parentNode === out ? tiles.nextSibling : null);
   }
 
   var forms = { bill: renderBill, solar: renderSolar, ev: renderEv, size: renderSize };
