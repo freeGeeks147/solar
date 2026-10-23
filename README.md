@@ -93,7 +93,7 @@ Watch Search Console for 2–3 months. If the DISCOM pages get impressions, add 
 
 `.github/workflows/facebook-posts.yml` posts to the Facebook Pages every Monday: the govtsalarycalc.com post at about 9:00 am IST and the bijlibachaao.com post at about 6:00 pm IST. The text comes from `social/facebook-posts.json` (one entry per date and slot) and the link goes in the first comment. Facebook groups can't be posted to through the API, so schedule the group post by hand.
 
-- Repo secret `FB_PAGES`: `[{"id":"<page id>","token":"<long-lived page access token>"}, ...]`, one entry per Page. The token needs `pages_manage_posts`.
+- Repo secret `FB_PAGES`: in Graph API Explorer, run `me/accounts?fields=id,name,access_token` with a long-lived user token and paste the whole response as the secret. Only the Pages you ticked when generating the token are included. A list of `{"id","token"}` also works. The token needs `pages_manage_posts`.
 - To test, go to Actions → Monday Facebook posts → Run workflow, with "dry run" ticked.
 - When the calendar runs out, the workflow logs "No post" and does nothing. Add the next weeks to the JSON.
 - GitHub pauses scheduled workflows after 60 days with no commits to the repo, so commit something (for example the next weeks of posts) at least every two months.

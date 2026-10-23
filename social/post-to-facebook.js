@@ -6,7 +6,9 @@
  *   FB_PAGES='[{"id":"123","token":"EAA..."}]' node social/post-to-facebook.js salary
  *   node social/post-to-facebook.js solar --dry-run --date 2026-10-26
  *
- * FB_PAGES holds one long-lived Page access token per Page (needs pages_manage_posts).
+ * FB_PAGES is the Graph API Explorer response to me/accounts?fields=id,name,access_token,
+ * pasted as is ({"data":[{"id","name","access_token"},...]}), or a list of {id, token}.
+ * Page tokens taken from a long-lived user token don't expire (needs pages_manage_posts).
  * Facebook groups cannot be posted to through the API, so the group is scheduled by hand.
  * No dependencies; needs Node 18+ for fetch.
  */
@@ -41,20 +43,31 @@ async function graph(endpoint, params) {
   return body;
 }
 
+function readPages(secret) {
+  let json;
+  try {
+    json = JSON.parse(secret || '[]');
+  } catch (err) {
+    throw new Error('FB_PAGES is not valid JSON. Paste the whole Graph API Explorer response, from { to }.');
+  }
+  const list = Array.isArray(json) ? json : json.data || [];
+  return list.map((p) => ({ id: p.id, name: p.name ? `${p.name} (${p.id})` : `page ${p.id}`, token: String(p.access_token || p.token || '').trim() }));
+}
+
 async function main() {
   console.log(`${today} ${slot}:\n${post.text}\nLink: ${post.link}\n`);
   if (dryRun) return;
-  const pages = JSON.parse(process.env.FB_PAGES || '[]');
+  const pages = readPages(process.env.FB_PAGES);
   if (!pages.length) throw new Error('FB_PAGES secret is empty');
   let failed = 0;
   for (const page of pages) {
     try {
       const { id } = await graph(`${page.id}/feed`, { message: post.text, access_token: page.token });
       await graph(`${id}/comments`, { message: post.link, access_token: page.token });
-      console.log(`Posted to page ${page.id}: ${id}`);
+      console.log(`Posted to ${page.name}: ${id}`);
     } catch (err) {
       failed++;
-      console.error(`Page ${page.id} failed: ${err.message}`);
+      console.error(`${page.name} failed: ${err.message}`);
     }
   }
   if (failed) process.exit(1);
