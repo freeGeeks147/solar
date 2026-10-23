@@ -61,13 +61,20 @@ async function main() {
   if (!pages.length) throw new Error('FB_PAGES secret is empty');
   let failed = 0;
   for (const page of pages) {
+    let id;
     try {
-      const { id } = await graph(`${page.id}/feed`, { message: post.text, access_token: page.token });
-      await graph(`${id}/comments`, { message: post.link, access_token: page.token });
+      ({ id } = await graph(`${page.id}/feed`, { message: post.text, access_token: page.token }));
       console.log(`Posted to ${page.name}: ${id}`);
     } catch (err) {
       failed++;
-      console.error(`${page.name} failed: ${err.message}`);
+      console.error(`${page.name}: post failed: ${err.message}`);
+      continue;
+    }
+    try {
+      await graph(`${id}/comments`, { message: post.link, access_token: page.token });
+    } catch (err) {
+      failed++;
+      console.error(`${page.name}: link comment failed: ${err.message}`);
     }
   }
   if (failed) process.exit(1);
