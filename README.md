@@ -88,3 +88,12 @@ FPPPA changes every quarter and the duty base is not confirmed, so the bill calc
 ## Next steps
 
 Watch Search Console for 2–3 months. If the DISCOM pages get impressions, add Maharashtra, UP, Rajasthan and Kerala: add a `data/<state>.json` and generalise `build.js` to loop over states.
+
+## Monday Facebook posts
+
+`.github/workflows/facebook-posts.yml` posts to the Facebook Pages every Monday: the govtsalarycalc.com post at about 9:00 am IST and the bijlibachaao.com post at about 6:00 pm IST. The text comes from `social/facebook-posts.json` (one entry per date and slot) and the link goes in the first comment. Facebook groups can't be posted to through the API, so schedule the group post by hand.
+
+- Repo secret `FB_PAGES`: `[{"id":"<page id>","token":"<long-lived page access token>"}, ...]`, one entry per Page. The token needs `pages_manage_posts`.
+- To test, go to Actions → Monday Facebook posts → Run workflow, with "dry run" ticked.
+- When the calendar runs out, the workflow logs "No post" and does nothing. Add the next weeks to the JSON.
+- GitHub pauses scheduled workflows after 60 days with no commits to the repo, so commit something (for example the next weeks of posts) at least every two months.

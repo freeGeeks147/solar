@@ -1,0 +1,35 @@
+name: Monday Facebook posts
+
+on:
+  schedule:
+    - cron: '27 3 * * 1'   # Monday about 9:00 am IST: govtsalarycalc.com post
+    - cron: '27 12 * * 1'  # Monday about 6:00 pm IST: bijlibachaao.com post
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Which post
+        type: choice
+        options: [salary, solar]
+      date:
+        description: Post date in the calendar (YYYY-MM-DD); blank for today
+        required: false
+      dry_run:
+        description: Only print the post, don't publish
+        type: boolean
+        default: true
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Post
+        env:
+          FB_PAGES: ${{ secrets.FB_PAGES }}
+          SLOT: ${{ github.event_name == 'schedule' && (github.event.schedule == '27 3 * * 1' && 'salary' || 'solar') || inputs.slot }}
+          DATE: ${{ inputs.date }}
+          DRY: ${{ inputs.dry_run && '--dry-run' || '' }}
+        run: node social/post-to-facebook.js "$SLOT" $DRY ${DATE:+--date "$DATE"}
