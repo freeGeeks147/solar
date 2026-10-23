@@ -19,7 +19,8 @@ function layout(page, lang, ctx) {
   const home = tr('Home', 'होम');
 
   const graph = [
-    { '@type': 'WebPage', name: page.title, url, description: page.description, inLanguage: lang === 'hi' ? 'hi-IN' : 'en-IN', dateModified: ctx.lastReviewed },
+    { '@type': 'WebSite', '@id': `${base}/#website`, name: cfg.siteName, alternateName: [cfg.siteName.replace(/\s+/g, ''), new URL(base).host], url: `${base}/`, inLanguage: ['en-IN', 'hi-IN'] },
+    { '@type': 'WebPage', isPartOf: { '@id': `${base}/#website` }, name: page.title, url, description: page.description, inLanguage: lang === 'hi' ? 'hi-IN' : 'en-IN', dateModified: ctx.lastReviewed },
     crumbs.length ? {
       '@type': 'BreadcrumbList',
       itemListElement: [{ name: home, file: 'index.html' }].concat(crumbs).map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: urlFor(lang, c.file) }))
@@ -57,7 +58,9 @@ function layout(page, lang, ctx) {
 <meta property="og:site_name" content="${esc(cfg.siteName)}">
 <meta property="og:locale" content="${lang === 'hi' ? 'hi_IN' : 'en_IN'}">
 <meta name="theme-color" content="#0b4a6f">
-${cfg.googleSiteVerification ? `<meta name="google-site-verification" content="${esc(cfg.googleSiteVerification)}">\n` : ''}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23f59e0b'/%3E%3C/svg%3E">
+${cfg.googleSiteVerification ? `<meta name="google-site-verification" content="${esc(cfg.googleSiteVerification)}">\n` : ''}<link rel="icon" href="${pre}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${pre}favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="${pre}favicon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&display=swap">
@@ -65,7 +68,7 @@ ${cfg.googleSiteVerification ? `<meta name="google-site-verification" content="$
 ${cfg.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(cfg.adsenseClient)}" crossorigin="anonymous"></script>\n` : ''}<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}</script>
 </head>
 <body>
-<header class="site-header"><div class="wrap">
+<header class="site-header" data-nosnippet><div class="wrap">
 <a class="logo" href="./">${icon('sun', 'logo-mark')}<span>${esc(brandA)}<b>${esc(brandB.join(' '))}</b></span></a>
 <nav class="nav" aria-label="${tr('Main', 'मुख्य')}">${nav.map(([n, f]) => `<a href="${f}"${f === page.file ? ' aria-current="page"' : ''}>${n}</a>`).join('')}</nav>
 <a class="lang-switch" href="${switchHref}" hreflang="${otherLang}" lang="${otherLang}">${lang === 'hi' ? 'English' : 'हिन्दी'}</a>
@@ -83,7 +86,7 @@ ${page.body}
     'इस साइट के सभी आंकड़े इंटरनेट पर उपलब्ध सार्वजनिक जानकारी (टैरिफ आदेश, सरकारी योजना पेज और इंस्टॉलर की कीमत सूची) से निकाले गए अनुमान हैं। ये आधिकारिक नहीं हैं और किसी सरकारी विभाग, बिजली कंपनी या सोलर ब्रांड द्वारा प्रमाणित नहीं हैं। कोई भी फ़ैसला लेने से पहले अपनी बिजली कंपनी या इंस्टॉलर से पुष्टि करें।'
   )} <a href="${PAGES.disclaimer}">${tr('Read the full disclaimer', 'पूरा अस्वीकरण पढ़ें')}</a>.</p></aside>
 </div></main>
-<footer class="site-footer"><div class="wrap">
+<footer class="site-footer" data-nosnippet><div class="wrap">
 <div class="footer-grid">
 <div><h2>${tr('Solar price', 'सोलर कीमत')}</h2><ul>${ctx.sizes.map((k) => `<li><a href="${ctx.pricePage(k)}">${k}kW ${tr('solar price', 'सोलर कीमत')}</a></li>`).join('')}</ul></div>
 <div><h2>${tr('Units per day', 'रोज़ की यूनिट')}</h2><ul>${ctx.sizes.map((k) => `<li><a href="${ctx.genPage(k)}">${k}kW ${tr('generation', 'उत्पादन')}</a></li>`).join('')}</ul></div>
