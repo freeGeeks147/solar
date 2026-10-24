@@ -65,7 +65,7 @@ ${cfg.googleSiteVerification ? `<meta name="google-site-verification" content="$
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="${pre}assets/style.css">
-${cfg.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(cfg.adsenseClient)}" crossorigin="anonymous"></script>\n` : ''}<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}</script>
+${cfg.ahrefsAnalyticsKey ? `<script async src="https://analytics.ahrefs.com/analytics.js" data-key="${esc(cfg.ahrefsAnalyticsKey)}"></script>\n` : ''}${cfg.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(cfg.adsenseClient)}" crossorigin="anonymous"></script>\n` : ''}<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}</script>
 </head>
 <body>
 <header class="site-header" data-nosnippet><div class="wrap">

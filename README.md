@@ -25,7 +25,7 @@ Ahrefs (India) showed `[size]kw solar panel price`, `... price in india`, `... w
 data/gujarat.json     Tariffs, DISCOMs, cities and solar yield   <- edit every April
 data/common.json      Subsidy, solar/EV defaults, fuel prices
 data/india.json       System-size prices, city-wise solar yield (all India)
-site.config.json      Site name, domain, AdSense ID
+site.config.json      Site name, domain, AdSense ID, Ahrefs analytics key
 build.js              Builds every page in English (site/) and Hindi (site/hi/), sitemap, robots, ads.txt, assets/data.js
 src/                  Page templates: layout.js (shell, disclaimer), forms.js, pages-solar.js, pages-gujarat.js, pages-static.js
 site/assets/calc.js   Calculation engine (shared by browser, build and tests)
