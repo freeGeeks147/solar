@@ -64,7 +64,7 @@ ${data.discoms.map((d) => `<li>${esc(lang === 'hi' ? d.nameHi : d.name)}: <a hre
 <h2>${tr('Advertising and cookies', 'विज्ञापन और कुकीज़')}</h2>
 <p>${tr('This site may show ads served by Google. Google and its partners use cookies to show ads based on your visits to this and other websites. You can turn off personalised ads at <a href="https://www.google.com/settings/ads" rel="nofollow noopener">Google Ad Settings</a>. See <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener">how Google uses data from sites that use its services</a>.', 'इस साइट पर Google के विज्ञापन दिख सकते हैं। Google और उसके साझेदार कुकीज़ से इस और दूसरी वेबसाइटों पर आपकी विज़िट के आधार पर विज्ञापन दिखाते हैं। आप <a href="https://www.google.com/settings/ads" rel="nofollow noopener">Google Ad Settings</a> में व्यक्तिगत विज्ञापन बंद कर सकते हैं। देखें <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener">Google डेटा का उपयोग कैसे करता है</a>।')}</p>
 <h2>${tr('Analytics', 'एनालिटिक्स')}</h2>
-<p>${tr('We may use anonymous traffic statistics to improve the site.', 'साइट सुधारने के लिए हम गुमनाम ट्रैफ़िक आंकड़ों का उपयोग कर सकते हैं।')}${contact}</p>
+<p>${tr('We use Ahrefs Web Analytics to count visits and see which pages are useful. It does not use cookies and does not identify you.', 'कौन-से पेज काम के हैं, यह जानने के लिए हम Ahrefs Web Analytics से विज़िट गिनते हैं। यह कुकीज़ का उपयोग नहीं करता और आपकी पहचान नहीं करता।')}${contact}</p>
 <p class="note">${tr(`Last updated ${date}.`, `अंतिम अपडेट ${date}।`)}</p>
 </section>`
   };
