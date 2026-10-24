@@ -91,7 +91,7 @@ Watch Search Console for 2–3 months. If the DISCOM pages get impressions, add 
 
 ## Monday Facebook posts
 
-`.github/workflows/facebook-posts.yml` posts to the Facebook Pages every Monday: the govtsalarycalc.com post at about 9:00 am IST and the bijlibachaao.com post at about 6:00 pm IST. Each is a photo post: the card image from `social/images/` with the text and link as the caption. Posts live in `social/facebook-posts.json` (one entry per date and slot, with a `card` describing the image). After adding posts, run `NODE_PATH=$(npm root -g) node social/make-cards.js` (needs Playwright) and commit the new images. Facebook groups can't be posted to through the API, so schedule the group post by hand.
+`.github/workflows/facebook-posts.yml` posts to the Facebook Pages every Monday: the 8thcpcpay.com post at about 9:00 am IST and the bijlibachaao.com post at about 6:00 pm IST. Each is a photo post: the card image from `social/images/` with the text and link as the caption. Posts live in `social/facebook-posts.json` (one entry per date and slot, with a `card` describing the image). After adding posts, run `NODE_PATH=$(npm root -g) node social/make-cards.js` (needs Playwright) and commit the new images. Facebook groups can't be posted to through the API, so schedule the group post by hand.
 
 - Repo secret `FB_PAGES`: in Graph API Explorer, run `me/accounts?fields=id,name,access_token` with a long-lived user token and paste the whole response as the secret. Only the Pages you ticked when generating the token are included. A list of `{"id","token"}` also works. The token needs `pages_manage_posts` and `pages_read_engagement`.
 - To test, go to Actions → Monday Facebook posts → Run workflow, with "dry run" ticked.
