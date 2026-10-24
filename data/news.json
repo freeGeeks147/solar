@@ -1,0 +1,83 @@
+{
+  "_rules": "Edited by the news agent (see .github/news-agent.md). build.js checks every entry (src/news.js): each source must be an official government or regulator site or a listed news outlet; kind 'official' needs one official source, kind 'reported' needs two different outlets. Demands, estimates and expectations must say so.",
+  "last_checked": "2026-10-24",
+  "status": [
+    {
+      "label": {"en": "Central subsidy (PM Surya Ghar)", "hi": "केंद्र की सब्सिडी (पीएम सूर्य घर)"},
+      "value": {"en": "₹30,000 per kW for the first 2 kW and ₹18,000 for the 3rd kW: ₹30,000 (1 kW), ₹60,000 (2 kW), ₹78,000 (3 kW or more)", "hi": "पहले 2 kW पर ₹30,000 प्रति kW और तीसरे kW पर ₹18,000: ₹30,000 (1 kW), ₹60,000 (2 kW), ₹78,000 (3 kW या ज़्यादा)"},
+      "source": "https://www.pmindia.gov.in/en/news_updates/cabinet-approves-pm-surya-ghar-muft-bijli-yojana/"
+    },
+    {
+      "label": {"en": "Gujarat extra subsidy", "hi": "गुजरात की अतिरिक्त सब्सिडी"},
+      "value": {"en": "For homes up to 2.18 kW commissioned from 22 October 2026: you pay 10% of the benchmark cost (5% for SC/ST), the state pays the rest after the central subsidy", "hi": "22 अक्टूबर 2026 से लगे 2.18 kW तक के घरेलू सिस्टम पर: आप बेंचमार्क लागत का 10% (SC/ST के लिए 5%) देंगे, केंद्र की सब्सिडी के बाद बाकी राज्य देगा"},
+      "source": "https://www.mercomindia.com/gujarat-announces-top-up-subsidy-for-smaller-pm-surya-ghar-consumers"
+    },
+    {
+      "label": {"en": "Homes with rooftop solar under the scheme", "hi": "योजना में रूफ़टॉप सोलर वाले घर"},
+      "value": {"en": "Over 50 lakh (August 2026); target 1 crore", "hi": "50 लाख से ज़्यादा (अगस्त 2026); लक्ष्य 1 करोड़"},
+      "source": "https://www.outlookbusiness.com/news/pm-surya-ghar-scheme-crosses-50-lakh-rooftop-solar-installations"
+    },
+    {
+      "label": {"en": "GST on solar panels and devices", "hi": "सोलर पैनल और उपकरणों पर GST"},
+      "value": {"en": "5% since 22 September 2025 (was 12%)", "hi": "22 सितंबर 2025 से 5% (पहले 12%)"},
+      "source": "https://upstox.com/news/personal-finance/latest-updates/what-is-the-new-gst-rate-on-solar-panels-solar-cells-and-other-commonly-used-solar-devices/article-180815/"
+    },
+    {
+      "label": {"en": "Gujarat electricity tariff", "hi": "गुजरात बिजली टैरिफ़"},
+      "value": {"en": "GERC tariff orders for FY 2026-27 issued on 25 March 2026, in force from 1 April 2026", "hi": "वित्त वर्ष 2026-27 के GERC टैरिफ़ आदेश 25 मार्च 2026 को जारी, 1 अप्रैल 2026 से लागू"},
+      "source": "https://gercin.org/orders/tariff_orders"
+    }
+  ],
+  "items": [
+    {
+      "date": "2026-10-22",
+      "kind": "reported",
+      "title": {"en": "Gujarat adds its own subsidy for small rooftop systems", "hi": "गुजरात ने छोटे रूफ़टॉप सिस्टम पर अपनी सब्सिडी जोड़ी"},
+      "summary": {"en": "Gujarat will top up the PM Surya Ghar subsidy for homes installing up to 2.18 kW from 22 October 2026, so the household pays only 10% of the benchmark cost (5% for SC/ST families). Systems above 2.18 kW do not get the state top-up. The exact rupee amounts depend on the benchmark cost in the state order, so check with your DISCOM.", "hi": "गुजरात 22 अक्टूबर 2026 से 2.18 kW तक का रूफ़टॉप सोलर लगाने वाले घरों के लिए पीएम सूर्य घर सब्सिडी के ऊपर अपनी सब्सिडी देगा, जिससे परिवार को बेंचमार्क लागत का केवल 10% (SC/ST परिवारों को 5%) देना होगा। 2.18 kW से बड़े सिस्टम को राज्य की सब्सिडी नहीं मिलेगी। रुपयों में सही रक़म राज्य के आदेश की बेंचमार्क लागत पर निर्भर है, इसलिए अपनी बिजली कंपनी से पुष्टि करें।"},
+      "sources": [
+        {"name": "Mercom India", "url": "https://www.mercomindia.com/gujarat-announces-top-up-subsidy-for-smaller-pm-surya-ghar-consumers"},
+        {"name": "Energetica India", "url": "https://www.energetica-india.net/news/gujarat-announces-additional-state-subsidy-for-rts-up-to-2-18-kwp-under-pm-surya-ghar"}
+      ]
+    },
+    {
+      "date": "2026-08-04",
+      "kind": "reported",
+      "title": {"en": "PM Surya Ghar crosses 50 lakh rooftop installations", "hi": "पीएम सूर्य घर में 50 लाख रूफ़टॉप इंस्टॉलेशन पूरे"},
+      "summary": {"en": "Over 50 lakh homes now have rooftop solar under PM Surya Ghar: Muft Bijli Yojana, with about 14.8 GW installed. July 2026 added a record 5.06 lakh homes in a single month.", "hi": "पीएम सूर्य घर: मुफ़्त बिजली योजना के तहत अब 50 लाख से ज़्यादा घरों पर रूफ़टॉप सोलर लग चुका है, कुल लगभग 14.8 GW। जुलाई 2026 में एक महीने में रिकॉर्ड 5.06 लाख घर जुड़े।"},
+      "sources": [
+        {"name": "ANI", "url": "https://aninews.in/news/business/pm-surya-ghar-scheme-crosses-50-lakh-rooftop-solar-installations-july-records-highest-monthly-additions20260804150000/"},
+        {"name": "Outlook Business", "url": "https://www.outlookbusiness.com/news/pm-surya-ghar-scheme-crosses-50-lakh-rooftop-solar-installations"}
+      ]
+    },
+    {
+      "date": "2026-03-25",
+      "kind": "official",
+      "title": {"en": "New Gujarat electricity tariffs for 2026-27", "hi": "गुजरात में 2026-27 के नए बिजली टैरिफ़"},
+      "summary": {"en": "The Gujarat Electricity Regulatory Commission issued tariff orders for FY 2026-27 for the state DISCOMs (UGVCL, MGVCL, DGVCL, PGVCL) and Torrent Power, effective from 1 April 2026. The bill calculators on this site use these orders.", "hi": "गुजरात विद्युत नियामक आयोग ने राज्य की बिजली कंपनियों (UGVCL, MGVCL, DGVCL, PGVCL) और टोरेंट पावर के लिए वित्त वर्ष 2026-27 के टैरिफ़ आदेश जारी किए, 1 अप्रैल 2026 से लागू। इस साइट के बिल कैलकुलेटर इन्हीं आदेशों पर आधारित हैं।"},
+      "sources": [
+        {"name": "GERC", "url": "https://gercin.org/orders/tariff_orders"},
+        {"name": "SolarQuarter", "url": "https://solarquarter.com/2026/03/27/gerc-issues-ugvcl-tariff-order-for-fy27-projects-%E2%82%B9906-crore-surplus-and-introduces-green-tariff/"}
+      ]
+    },
+    {
+      "date": "2025-09-22",
+      "kind": "reported",
+      "title": {"en": "GST on solar panels cut from 12% to 5%", "hi": "सोलर पैनल पर GST 12% से घटकर 5%"},
+      "summary": {"en": "Following the 56th GST Council meeting, GST on solar power devices, solar panels and cells and other renewable energy devices fell from 12% to 5% from 22 September 2025, making rooftop systems a little cheaper.", "hi": "GST काउंसिल की 56वीं बैठक के बाद, 22 सितंबर 2025 से सोलर उपकरणों, सोलर पैनल और सेल और अन्य नवीकरणीय ऊर्जा उपकरणों पर GST 12% से घटकर 5% हो गया, जिससे रूफ़टॉप सिस्टम थोड़े सस्ते हुए।"},
+      "sources": [
+        {"name": "Upstox News", "url": "https://upstox.com/news/personal-finance/latest-updates/what-is-the-new-gst-rate-on-solar-panels-solar-cells-and-other-commonly-used-solar-devices/article-180815/"},
+        {"name": "Energetica India", "url": "https://www.energetica-india.net/news/government-slashes-gst-on-renewable-energy-devices-from-12-percent-to-5-percent"}
+      ]
+    },
+    {
+      "date": "2024-02-29",
+      "kind": "official",
+      "title": {"en": "Cabinet approves PM Surya Ghar: Muft Bijli Yojana", "hi": "कैबिनेट ने पीएम सूर्य घर: मुफ़्त बिजली योजना मंज़ूर की"},
+      "summary": {"en": "The Union Cabinet approved the scheme with an outlay of ₹75,021 crore to put rooftop solar on 1 crore homes, with up to 300 units of free electricity a month. The subsidy is ₹30,000 for 1 kW, ₹60,000 for 2 kW and ₹78,000 for 3 kW or more.", "hi": "केंद्रीय कैबिनेट ने 1 करोड़ घरों पर रूफ़टॉप सोलर लगाने के लिए ₹75,021 करोड़ की इस योजना को मंज़ूरी दी, हर महीने 300 यूनिट तक मुफ़्त बिजली के साथ। सब्सिडी 1 kW पर ₹30,000, 2 kW पर ₹60,000 और 3 kW या ज़्यादा पर ₹78,000 है।"},
+      "sources": [
+        {"name": "PM India", "url": "https://www.pmindia.gov.in/en/news_updates/cabinet-approves-pm-surya-ghar-muft-bijli-yojana/"},
+        {"name": "Amar Ujala", "url": "https://www.amarujala.com/business/business-diary/cabinet-approves-pm-surya-ghar-muft-bijli-yojana-for-installing-rooftop-solar-in-one-crore-households-2024-02-29"}
+      ]
+    }
+  ]
+}

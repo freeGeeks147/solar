@@ -98,6 +98,7 @@ ${ctx.discoms.map((d) => `<li><a href="${d.slug}.html">${esc(lang === 'hi' ? d.n
 </ul></div>
 <div><h2>${esc(cfg.siteName)}</h2><ul>
 <li><a href="${PAGES.subsidy}">${tr('PM Surya Ghar subsidy', 'पीएम सूर्य घर सब्सिडी')}</a></li>
+<li><a href="${PAGES.news}">${tr('Solar & electricity news', 'सोलर और बिजली की ख़बरें')}</a></li>
 <li><a href="${PAGES.netMetering}">${tr('Net metering', 'नेट मीटरिंग')}</a></li>
 <li><a href="${PAGES.tou}">${tr('Smart meter discount', 'स्मार्ट मीटर छूट')}</a></li>
 <li><a href="${PAGES.about}">${tr('About & sources', 'हमारे बारे में और स्रोत')}</a></li>
