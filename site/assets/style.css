@@ -260,3 +260,17 @@ ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; 
 .site-footer .fine { border-top: 1px solid rgba(255, 255, 255, .12); margin-top: 22px; padding-top: 14px; font-size: .82rem; color: #8fa0b5; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* News page and home page news box */
+.news-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.news-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--surface); }
+.news-item h3 { margin: 4px 0; font-size: 1.05rem; }
+.news-item p { margin: 4px 0; }
+.news-meta { font-size: .82rem; color: var(--muted); }
+.news-badge { display: inline-block; padding: 1px 8px; border-radius: 6px; font-weight: 700; font-size: .75rem; }
+.news-badge.official { background: var(--good-soft); color: var(--good); }
+.news-badge.reported { background: var(--surface-2); color: var(--ink); }
+.news-sources, .news-src { font-size: .82rem; }
+.news-status th { width: 34%; white-space: normal; vertical-align: top; }
+.news-status td { white-space: normal; }
+.home-news { margin-top: 28px; }

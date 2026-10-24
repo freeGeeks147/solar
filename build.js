@@ -16,6 +16,7 @@ const makeForms = require('./src/forms');
 const solarPages = require('./src/pages-solar');
 const gujaratPages = require('./src/pages-gujarat');
 const staticPages = require('./src/pages-static');
+const { checkNews, newsPage, homeNews } = require('./src/news');
 
 const ROOT = __dirname;
 const OUT = path.join(ROOT, 'site');
@@ -24,6 +25,12 @@ const cfg = read('site.config.json');
 const data = read('data/gujarat.json');
 const common = read('data/common.json');
 const india = read('data/india.json');
+const news = read('data/news.json');
+const newsErrors = checkNews(news);
+if (newsErrors.length) {
+  console.error('data/news.json failed the sourcing check:\n  ' + newsErrors.join('\n  '));
+  process.exit(1);
+}
 const base = cfg.baseUrl.replace(/\/$/, '');
 const LANGS = ['en', 'hi'];
 
@@ -37,7 +44,8 @@ const PAGES = {
   tou: 'smart-meter-tou-tariff-gujarat.html',
   about: 'about.html',
   privacy: 'privacy-policy.html',
-  disclaimer: 'disclaimer.html'
+  disclaimer: 'disclaimer.html',
+  news: 'solar-news.html'
 };
 const pricePage = (kw) => `${kw}kw-solar-system-price-in-india.html`;
 const genPage = (kw) => `${kw}kw-solar-panel-generation-per-day.html`;
@@ -54,14 +62,15 @@ function faqHtml(faqs, lang) {
 }
 
 const forms = makeForms({ data, common, india, sizes });
-const ctx = { C, cfg, base, data, common, india, PAGES, sizes, pricePage, genPage, forms, adSlot, faqHtml, lastReviewed, discoms: data.discoms };
+const ctx = { C, cfg, base, data, common, india, news, PAGES, sizes, pricePage, genPage, forms, adSlot, faqHtml, lastReviewed, discoms: data.discoms };
 
 const written = [];
 for (const lang of LANGS) {
   const dir = lang === 'en' ? OUT : path.join(OUT, lang);
   fs.mkdirSync(dir, { recursive: true });
-  const pages = [...solarPages(lang, ctx), ...gujaratPages(lang, ctx), ...staticPages(lang, ctx)];
+  const pages = [...solarPages(lang, ctx), ...gujaratPages(lang, ctx), ...staticPages(lang, ctx), newsPage(lang, ctx)];
   for (const p of pages) {
+    if (p.file === PAGES.home) p.body += homeNews(lang, ctx);
     fs.writeFileSync(path.join(dir, p.file), layout(p, lang, ctx));
     written.push({ lang, file: p.file });
   }
@@ -73,7 +82,7 @@ fs.writeFileSync(path.join(OUT, 'assets/data.js'),
 const loc = (w) => `${base}/${w.lang === 'hi' ? 'hi/' : ''}${w.file === 'index.html' ? '' : w.file}`;
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${written.map((w) => `  <url><loc>${loc(w)}</loc><lastmod>${lastReviewed}</lastmod>${LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}-IN" href="${loc({ lang: l, file: w.file })}"/>`).join('')}</url>`).join('\n')}
+${written.map((w) => `  <url><loc>${loc(w)}</loc><lastmod>${[PAGES.news, PAGES.home].includes(w.file) && news.last_checked > lastReviewed ? news.last_checked : lastReviewed}</lastmod>${LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}-IN" href="${loc({ lang: l, file: w.file })}"/>`).join('')}</url>`).join('\n')}
 </urlset>
 `;
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), sitemap);
