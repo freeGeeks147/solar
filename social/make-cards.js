@@ -17,7 +17,7 @@ const posts = JSON.parse(fs.readFileSync(path.join(__dirname, 'facebook-posts.js
 const all = process.argv.includes('--all');
 
 const THEMES = {
-  salary: { site: 'govtsalarycalc.com', sub: 'Free salary calculator · Hindi & English', bg: 'linear-gradient(150deg,#0b2545 0%,#13315c 60%,#1d4e89 100%)', accent: '#f6c445', ink: '#0b2545', mark: '₹' },
+  salary: { site: '8thcpcpay.com', sub: 'Free salary calculator · Hindi & English', bg: 'linear-gradient(150deg,#0b2545 0%,#13315c 60%,#1d4e89 100%)', accent: '#f6c445', ink: '#0b2545', mark: '₹' },
   solar: { site: 'bijlibachaao.com', sub: 'Free solar & bill calculator · Hindi & English', bg: 'linear-gradient(150deg,#08384f 0%,#0b4a6f 55%,#0f6e8c 100%)', accent: '#ffb627', ink: '#08384f', mark: '☀' }
 };
 
