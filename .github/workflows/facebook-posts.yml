@@ -2,7 +2,7 @@ name: Monday Facebook posts
 
 on:
   schedule:
-    - cron: '27 3 * * 1'   # Monday about 9:00 am IST: govtsalarycalc.com post
+    - cron: '27 3 * * 1'   # Monday about 9:00 am IST: 8thcpcpay.com post
     - cron: '27 12 * * 1'  # Monday about 6:00 pm IST: bijlibachaao.com post
   workflow_dispatch:
     inputs:
