@@ -44,6 +44,7 @@ a site to the lists just to get an item through.
 
 ## Each run
 
+0. **Start from the live site.** Before anything else: `git checkout main && git fetch origin main && git reset --hard origin/main`. This discards any unpushed commit left over from an earlier run (its news is checked again below), so the pages you build always come from the current templates.
 1. Get the repository: call `add_repo` for owner `freeGeeks147`, repo `solar`, with `access: "push"`, and clone it.
 2. Read `data/news.json`. Note `last_checked` and the existing items.
 3. Search the web (WebSearch, `extended` mode), several queries in one turn, for example:
