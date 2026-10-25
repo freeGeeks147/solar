@@ -102,6 +102,7 @@ ${ctx.discoms.map((d) => `<li><a href="${d.slug}.html">${esc(lang === 'hi' ? d.n
 <li><a href="${PAGES.netMetering}">${tr('Net metering', 'नेट मीटरिंग')}</a></li>
 <li><a href="${PAGES.tou}">${tr('Smart meter discount', 'स्मार्ट मीटर छूट')}</a></li>
 <li><a href="${PAGES.about}">${tr('About & sources', 'हमारे बारे में और स्रोत')}</a></li>
+<li><a href="${PAGES.contact}">${tr('Contact us', 'संपर्क करें')}</a></li>
 <li><a href="${PAGES.disclaimer}">${tr('Disclaimer', 'अस्वीकरण')}</a></li>
 <li><a href="${PAGES.privacy}">${tr('Privacy policy', 'गोपनीयता नीति')}</a></li>
 <li><a href="${switchHref}" hreflang="${otherLang}" lang="${otherLang}">${lang === 'hi' ? 'English' : 'हिन्दी में देखें'}</a></li>
@@ -112,7 +113,7 @@ ${ctx.discoms.map((d) => `<li><a href="${d.slug}.html">${esc(lang === 'hi' ? d.n
     `केवल जानकारी के लिए अनुमान। किसी सरकारी विभाग, बिजली कंपनी, इंस्टॉलर या ब्रांड से संबद्ध या प्रमाणित नहीं। अंतिम समीक्षा ${fmtDate(ctx.lastReviewed, 'hi')}।`
   )}</p>
 </div></footer>
-${page.app ? `<script src="${pre}assets/calc.js"></script>\n<script src="${pre}assets/data.js"></script>\n<script src="${pre}assets/app.js"></script>\n` : ''}</body>
+${page.contact ? `<script src="${pre}assets/contact.js" defer></script>\n` : ''}${page.app ? `<script src="${pre}assets/calc.js"></script>\n<script src="${pre}assets/data.js"></script>\n<script src="${pre}assets/app.js"></script>\n` : ''}</body>
 </html>
 `;
 }

@@ -1,7 +1,7 @@
 'use strict';
 const { esc, t, fmtDate } = require('./util');
 
-// About, privacy policy and disclaimer pages.
+// About, contact, privacy policy and disclaimer pages.
 module.exports = function staticPages(lang, { cfg, data, common, PAGES, lastReviewed }) {
   const tr = t(lang);
   const date = fmtDate(lastReviewed, lang);
@@ -50,6 +50,32 @@ ${data.discoms.map((d) => `<li>${esc(lang === 'hi' ? d.nameHi : d.name)}: <a hre
 <h2>${tr('How often we update', 'हम कितनी बार अपडेट करते हैं')}</h2>
 <p>${tr('Electricity rates every April, when new tariff orders come out. Fuel surcharge and solar prices every few months.', 'बिजली दरें हर अप्रैल में, जब नए टैरिफ़ आदेश आते हैं। ईंधन सरचार्ज और सोलर कीमतें हर कुछ महीनों में।')} ${tr(`Last reviewed ${date}.`, `अंतिम समीक्षा ${date}।`)}</p>
 <p>${tr('All figures are estimates for information only.', 'सभी आंकड़े केवल जानकारी के लिए अनुमान हैं।')} <a href="${PAGES.disclaimer}">${tr('Read the disclaimer', 'अस्वीकरण पढ़ें')}</a>.${contact}</p>
+<p>${tr(`Questions or corrections? <a href="${PAGES.contact}">Send us a message</a>.`, `सवाल या सुधार? <a href="${PAGES.contact}">हमें संदेश भेजें</a>।`)}</p>
+</section>`
+  };
+
+  // The form posts to indiacwg.com/api/contact.php, which emails the owner; no address is shown.
+  const contactPage = {
+    file: PAGES.contact,
+    contact: true,
+    title: tr(`Contact Us – ${cfg.siteName}`, `संपर्क करें – ${cfg.siteName}`),
+    description: tr('Ask a question about a calculation, report a wrong rate or price, or get help before you choose a solar installer.', 'किसी गणना के बारे में सवाल पूछें, ग़लत दर या कीमत बताएँ, या सोलर इंस्टॉलर चुनने से पहले मदद लें।'),
+    h1: tr('Get in touch', 'संपर्क करें'),
+    crumbs: [{ name: tr('Contact', 'संपर्क'), file: PAGES.contact }],
+    body: `<section class="contact-card" id="contact">
+<div class="prose">
+<p>${tr('Have a question about a calculation? Found a wrong electricity rate, subsidy amount or price? Or want an honest second opinion before you finalise your solar installer? Send us a message. We read every message and reply by email.', 'किसी गणना के बारे में सवाल है? कोई बिजली दर, सब्सिडी राशि या कीमत ग़लत दिखी? या सोलर इंस्टॉलर तय करने से पहले एक ईमानदार राय चाहिए? हमें संदेश भेजें। हम हर संदेश पढ़ते हैं और ईमेल से जवाब देते हैं।')}</p>
+<p class="note">${tr('We are an independent website, not a government office or an electricity company. For your bill or connection, contact your electricity company.', 'हम एक स्वतंत्र वेबसाइट हैं, कोई सरकारी दफ़्तर या बिजली कंपनी नहीं। अपने बिल या कनेक्शन के लिए अपनी बिजली कंपनी से संपर्क करें।')}</p>
+</div>
+<form id="contact-form" class="card contact-form" action="https://indiacwg.com/api/contact.php" method="post">
+<div class="field"><label for="cf-name">${tr('Your name', 'आपका नाम')}</label><input id="cf-name" name="name" type="text" maxlength="100" autocomplete="name" required></div>
+<div class="field"><label for="cf-email">${tr('Your email', 'आपका ईमेल')}</label><input id="cf-email" name="email" type="email" maxlength="200" autocomplete="email" required></div>
+<div class="field"><label for="cf-message">${tr('Message', 'संदेश')}</label><textarea id="cf-message" name="message" rows="6" maxlength="5000" required></textarea></div>
+<input type="hidden" name="page" value="/${lang === 'hi' ? 'hi/' : ''}${PAGES.contact}">
+<div class="cf-hp" aria-hidden="true"><label for="cf-website">Leave this empty</label><input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" class="cta">${tr('Send message', 'संदेश भेजें')}</button>
+<p class="contact-status" role="status" aria-live="polite"></p>
+</form>
 </section>`
   };
 
@@ -61,6 +87,8 @@ ${data.discoms.map((d) => `<li>${esc(lang === 'hi' ? d.nameHi : d.name)}: <a hre
     crumbs: [{ name: tr('Privacy policy', 'गोपनीयता नीति'), file: PAGES.privacy }],
     body: `<section class="prose">
 <p>${tr('All calculations run in your browser. The numbers you type are not sent to or stored on our server.', 'सारी गणना आपके ब्राउज़र में होती है। आपके भरे आंकड़े हमारे सर्वर पर न भेजे जाते हैं, न रखे जाते हैं।')}</p>
+<h2>${tr('Contact form', 'संपर्क फ़ॉर्म')}</h2>
+<p>${tr(`If you use the <a href="${PAGES.contact}">contact form</a>, your name, email address and message are emailed to us so we can reply. We do not use them for anything else and do not share them.`, `अगर आप <a href="${PAGES.contact}">संपर्क फ़ॉर्म</a> इस्तेमाल करते हैं, तो आपका नाम, ईमेल पता और संदेश हमें ईमेल से आता है ताकि हम जवाब दे सकें। हम इन्हें किसी और काम में नहीं लेते और किसी से साझा नहीं करते।`)}</p>
 <h2>${tr('Advertising and cookies', 'विज्ञापन और कुकीज़')}</h2>
 <p>${tr('This site may show ads served by Google. Google and its partners use cookies to show ads based on your visits to this and other websites. You can turn off personalised ads at <a href="https://www.google.com/settings/ads" rel="nofollow noopener">Google Ad Settings</a>. See <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener">how Google uses data from sites that use its services</a>.', 'इस साइट पर Google के विज्ञापन दिख सकते हैं। Google और उसके साझेदार कुकीज़ से इस और दूसरी वेबसाइटों पर आपकी विज़िट के आधार पर विज्ञापन दिखाते हैं। आप <a href="https://www.google.com/settings/ads" rel="nofollow noopener">Google Ad Settings</a> में व्यक्तिगत विज्ञापन बंद कर सकते हैं। देखें <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener">Google डेटा का उपयोग कैसे करता है</a>।')}</p>
 <h2>${tr('Analytics', 'एनालिटिक्स')}</h2>
@@ -69,5 +97,5 @@ ${data.discoms.map((d) => `<li>${esc(lang === 'hi' ? d.nameHi : d.name)}: <a hre
 </section>`
   };
 
-  return [about, privacy, disclaimer];
+  return [about, contactPage, privacy, disclaimer];
 };

@@ -45,6 +45,7 @@ const PAGES = {
   about: 'about.html',
   privacy: 'privacy-policy.html',
   disclaimer: 'disclaimer.html',
+  contact: 'contact.html',
   news: 'solar-news.html'
 };
 const pricePage = (kw) => `${kw}kw-solar-system-price-in-india.html`;
