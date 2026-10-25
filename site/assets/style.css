@@ -129,11 +129,11 @@ main > .wrap > * + * { margin-top: 28px; }
 .field label, .field .label { font-size: .92rem; font-weight: 600; }
 .hint { font-size: .8rem; color: var(--muted); line-height: 1.4; }
 .sub { margin: 6px 0 0; font-size: 1.05rem; }
-input, select {
+input, select, textarea {
   font: inherit; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1.5px solid var(--border);
   border-radius: 10px; padding: 9px 12px; width: 100%; min-width: 0; min-height: 44px;
 }
-input:focus, select:focus { outline: none; border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun-soft); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun-soft); }
 label.check { flex-direction: row; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 label.check input { width: 20px; height: 20px; min-height: 0; accent-color: var(--good); }
 .seg { display: flex; background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
@@ -274,3 +274,16 @@ ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; 
 .news-status th { width: 34%; white-space: normal; vertical-align: top; }
 .news-status td { white-space: normal; }
 .home-news { margin-top: 28px; }
+
+/* Contact page */
+.contact-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 28px; align-items: start; }
+.contact-form { display: flex; flex-direction: column; gap: 14px; }
+.contact-form textarea { resize: vertical; }
+.contact-form button { border: 0; cursor: pointer; font: inherit; font-size: 1.05rem; margin-top: 4px; }
+.contact-form button:disabled { opacity: .6; cursor: wait; }
+.cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.contact-status { min-height: 1.4em; margin: 0; font-weight: 600; }
+.contact-status[data-state="sent"] { color: var(--good); }
+.contact-status[data-state="sending"] { color: var(--muted); }
+.contact-status[data-state]:not([data-state="sent"]):not([data-state="sending"]) { color: #c2410c; }
+@media (max-width: 760px) { .contact-card { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
