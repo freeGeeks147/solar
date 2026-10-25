@@ -113,7 +113,7 @@ ${ctx.discoms.map((d) => `<li><a href="${d.slug}.html">${esc(lang === 'hi' ? d.n
     `केवल जानकारी के लिए अनुमान। किसी सरकारी विभाग, बिजली कंपनी, इंस्टॉलर या ब्रांड से संबद्ध या प्रमाणित नहीं। अंतिम समीक्षा ${fmtDate(ctx.lastReviewed, 'hi')}।`
   )}</p>
 </div></footer>
-${page.contact ? `<script src="${pre}assets/contact.js" defer></script>\n` : ''}${page.app ? `<script src="${pre}assets/calc.js"></script>\n<script src="${pre}assets/data.js"></script>\n<script src="${pre}assets/app.js"></script>\n` : ''}</body>
+${page.contact ? `<script src="${pre}assets/contact.js?v=2" defer></script>\n` : ''}${page.app ? `<script src="${pre}assets/calc.js"></script>\n<script src="${pre}assets/data.js"></script>\n<script src="${pre}assets/app.js"></script>\n` : ''}</body>
 </html>
 `;
 }
