@@ -163,8 +163,8 @@ ${faqHtml(faqs, lang)}`
     ];
     return {
       file: genPage(kw),
-      title: tr(`${kw}kW Solar Panel Generation Per Day, Month & Year (City-wise, India)`, `${kw}kW सोलर पैनल रोज़, महीने और साल में कितनी यूनिट बनाता है (शहर अनुसार)`),
-      description: tr(`A ${kw}kW solar system makes about ${f.dayTyp.toFixed(0)} units a day (${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)} depending on city), about ${Math.round(f.month)} units a month and ${num(f.year)} a year. City-wise and month-wise table.`, `${kw}kW सोलर सिस्टम रोज़ लगभग ${f.dayTyp.toFixed(0)} यूनिट (शहर के अनुसार ${f.dayLow.toFixed(1)}–${f.dayHigh.toFixed(1)}), महीने में लगभग ${Math.round(f.month)} और साल में ${num(f.year)} यूनिट बनाता है। शहर और महीने के अनुसार तालिका।`),
+      title: tr(`${kw}kW Solar Unit Generation Per Day: ${f.dayTyp.toFixed(0)} Units? Check Your City`, `${kw}kW सोलर रोज़ कितनी यूनिट बनाता है? ${f.dayTyp.toFixed(0)} यूनिट, अपना शहर देखें`),
+      description: tr(`A ${kw}kW solar system makes about ${f.dayTyp.toFixed(0)} units a day on average, but your city can give ${f.dayLow.toFixed(1)} to ${f.dayHigh.toFixed(1)}. Check your city's units, the month-by-month output and how much it cuts your bill.`, `${kw}kW सोलर सिस्टम औसतन रोज़ लगभग ${f.dayTyp.toFixed(0)} यूनिट बनाता है, लेकिन आपके शहर में ${f.dayLow.toFixed(1)} से ${f.dayHigh.toFixed(1)} तक हो सकता है। अपने शहर की यूनिट, महीने-दर-महीने उत्पादन और बिल में बचत देखें।`),
       h1: tr(`How Many Units Does ${kw}kW Solar Make in a Day?`, `${kw}kW सोलर रोज़ कितनी यूनिट बनाता है?`),
       lede: tr(`Day, month and year figures for ${kw}kW of rooftop solar, city by city.`, `${kw}kW रूफ़टॉप सोलर का रोज़, महीने और साल का उत्पादन, शहर के अनुसार।`),
       heroExtra: stats([
