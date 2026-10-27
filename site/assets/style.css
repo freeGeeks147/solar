@@ -65,10 +65,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .lang-switch { flex: none; text-decoration: none; font-weight: 700; color: var(--hero-a); border: 2px solid var(--sun); border-radius: 999px; padding: 3px 14px; background: var(--sun-soft); }
 :root[data-theme="dark"] .lang-switch { color: var(--ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lang-switch { color: var(--ink); } }
+.lang-links { display: flex; gap: 6px; flex: none; }
 @media (max-width: 720px) {
   .site-header .wrap { flex-wrap: wrap; gap: 6px 12px; }
   .nav { order: 3; flex-basis: 100%; }
-  .lang-switch { margin-left: auto; }
+  .lang-switch, .lang-links { margin-left: auto; }
+  .lang-links .lang-switch { margin-left: 0; }
 }
 
 /* Hero band */

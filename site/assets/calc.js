@@ -37,8 +37,17 @@
 
   // ---------- Bill components ----------
 
-  function fixedCharge(fixed, loadKw, phase) {
+  // unitsPerMonth is needed only where the fixed charge depends on consumption (Madhya Pradesh).
+  function fixedCharge(fixed, loadKw, phase, unitsPerMonth) {
     if (fixed.type === 'flat') return fixed.amount;
+    if (fixed.type === 'perKw') return fixed.perKw * Math.max(1, Math.ceil(loadKw));
+    if (fixed.type === 'byUnits') {
+      var u = unitsPerMonth || 0;
+      for (var j = 0; j < fixed.steps.length; j++) {
+        if (u <= fixed.steps[j].uptoUnits) return fixed.steps[j].amount;
+      }
+      return fixed.perBlock.amount * Math.ceil(u / fixed.perBlock.units);
+    }
     if (fixed.type === 'byPhase') {
       var three = phase === 'three' || loadKw > fixed.singlePhaseMaxKw;
       return three ? fixed.three : fixed.single;
@@ -83,7 +92,7 @@
     var meter = opts.meter || 'postpaid';
     var smart = meter === 'postpaid-smart' || meter === 'prepaid-smart';
 
-    var fixed = fixedCharge(t.cat.fixed, Number(opts.loadKw) || 1, opts.phase) * months;
+    var fixed = fixedCharge(t.cat.fixed, Number(opts.loadKw) || 1, opts.phase, units / months) * months;
     var energy = energyCharge(t.cat.slabs, units, months);
     var fppa = units * fppaRate;
     var prepaidRebate = meter === 'prepaid-smart' ? energy.total * data.common.prepaidRebatePctOnEnergy / 100 : 0;
@@ -146,6 +155,13 @@
     var third = Math.max(0, Math.min(kw, 3) - 2) * s.perKwThird;
     return Math.min(first + third, s.cap);
   }
+  // Extra subsidy some states add on top of PM Surya Ghar: { perKw, cap }. Gujarat has none.
+  function stateSubsidy(data, kw) {
+    var st = data && data.stateSubsidy;
+    if (!st) return 0;
+    return Math.min(st.perKw * Math.max(0, Number(kw) || 0), st.cap);
+  }
+
 
   function recommendKw(common, o) {
     var annualUnits = o.units * 12;
@@ -199,7 +215,8 @@
     var billBefore = calcBill(data, opts).total;
 
     var gross = kw * costPerKw;
-    var subsidy = pmSuryaGharSubsidy(common, kw);
+    var subsidyState = stateSubsidy(data, kw);
+    var subsidy = pmSuryaGharSubsidy(common, kw) + subsidyState;
     var netCost = Math.max(0, gross - subsidy);
 
     var years = [];
@@ -262,6 +279,7 @@
       roofSqftNeeded: kw * d.sqftPerKw,
       grossCost: gross,
       subsidy: subsidy,
+      subsidyState: subsidyState,
       netCost: netCost,
       billBefore: billBefore,
       avgBillAfter: avgBillAfter,
@@ -448,6 +466,7 @@
     marginalRate: marginalRate,
     unitsFromBill: unitsFromBill,
     pmSuryaGharSubsidy: pmSuryaGharSubsidy,
+    stateSubsidy: stateSubsidy,
     recommendKw: recommendKw,
     emi: emi,
     irr: irr,

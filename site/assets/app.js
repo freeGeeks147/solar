@@ -1,14 +1,22 @@
-/* UI bindings for the bill, solar, EV and system-size calculators, in English or Hindi
- * (from <html lang>). Data comes from assets/data.js (window.SITE_DATA). */
+/* UI bindings for the bill, solar, EV and system-size calculators, in English, Hindi or
+ * Marathi (from <html lang>; Marathi falls back to Hindi where no Marathi text is given).
+ * Data comes from assets/data.js (window.SITE_DATA); <html data-state> picks a state's
+ * tariff, Gujarat otherwise. */
 (function () {
   'use strict';
   var C = window.SolarCalc;
   var D = window.SITE_DATA;
-  var data = D.gujarat;
+  var STATE = document.documentElement.getAttribute('data-state');
+  var data = (STATE && D.states && D.states[STATE]) || D.gujarat;
   var common = D.common;
   var india = D.india;
-  var HI = document.documentElement.lang === 'hi';
-  function t(en, hi) { return HI ? hi : en; }
+  var LANG = document.documentElement.lang;
+  var MR = LANG === 'mr';
+  var HI = LANG === 'hi' || MR;
+  function t(en, hi, mr) { return MR && mr ? mr : HI ? hi : en; }
+  function L(o) { return o ? t(o.en, o.hi || o.en, o.mr) : ''; }
+  var FUEL = data.fuelLabel ? L(data.fuelLabel) : t('Fuel surcharge (FPPPA)', 'ईंधन सरचार्ज (FPPPA)');
+  var PAGES = data.pages || { solar: 'solar-rooftop-calculator-gujarat.html', ev: 'ev-charging-cost-calculator-gujarat.html' };
 
   var inr0 = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
   var inr2 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -16,10 +24,12 @@
   function rs2(x) { return '₹' + inr2.format(x); }
   function num(x, d) { return new Intl.NumberFormat('en-IN', { maximumFractionDigits: d || 0 }).format(x); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  var MONTHS = HI
-    ? ['जन', 'फ़र', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुला', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
-    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var U = t('units', 'यूनिट');
+  var MONTHS = MR
+    ? ['जाने', 'फेब्रु', 'मार्च', 'एप्रि', 'मे', 'जून', 'जुलै', 'ऑग', 'सप्टें', 'ऑक्टो', 'नोव्हें', 'डिसें']
+    : HI
+      ? ['जन', 'फ़र', 'मार्च', 'अप्रै', 'मई', 'जून', 'जुला', 'अग', 'सित', 'अक्टू', 'नव', 'दिस']
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var U = t('units', 'यूनिट', 'युनिट');
 
   function readForm(form) {
     var o = {};
@@ -54,7 +64,7 @@
     var current = sel.value;
     sel.innerHTML = tf.categories.map(function (k) {
       var c = tf.group.categories[k];
-      return '<option value="' + k + '">' + esc(HI && c.labelHi ? c.labelHi : c.label) + '</option>';
+      return '<option value="' + k + '">' + esc(t(c.label, c.labelHi || c.label, c.labelMr)) + '</option>';
     }).join('');
     sel.value = tf.categories.indexOf(current) >= 0 ? current : 'urban';
   }
@@ -73,6 +83,7 @@
   }
 
   function toggleSmart(form) {
+    if (!form.elements.meter) return;
     var smart = /smart/.test(form.elements.meter.value);
     var row = form.querySelector('[data-show="smart"]');
     if (row) row.classList.toggle('hidden', !smart);
@@ -121,13 +132,13 @@
 
   // 3.67 -> "3 years 8 months" / "3 साल 8 महीने"
   function yearsText(y) {
-    if (y === null || y === undefined) return t('more than 25 years', '25 साल से ज़्यादा');
+    if (y === null || y === undefined) return t('more than 25 years', '25 साल से ज़्यादा', '25 वर्षांहून अधिक');
     var whole = Math.floor(y), months = Math.round((y - whole) * 12);
     if (months === 12) { whole += 1; months = 0; }
     var parts = [];
-    if (whole) parts.push(whole + ' ' + t(whole === 1 ? 'year' : 'years', 'साल'));
-    if (months) parts.push(months + ' ' + t(months === 1 ? 'month' : 'months', 'महीने'));
-    return parts.join(' ') || t('less than a month', 'एक महीने से कम');
+    if (whole) parts.push(whole + ' ' + t(whole === 1 ? 'year' : 'years', 'साल', 'वर्षे'));
+    if (months) parts.push(months + ' ' + t(months === 1 ? 'month' : 'months', 'महीने', 'महिने'));
+    return parts.join(' ') || t('less than a month', 'एक महीने से कम', 'एका महिन्यापेक्षा कमी');
   }
 
   function tile(label, value, hero) {
@@ -139,10 +150,10 @@
   }
 
   function estTag(form, name) {
-    return isEstimate(form, name) ? ' <span class="est" title="' + t('Typical value. Enter the figure from your bill.', 'सामान्य मान। अपने बिल का आंकड़ा भरें।') + '">' + t('est.', 'अनुमान') + '</span>' : '';
+    return isEstimate(form, name) ? ' <span class="est" title="' + t('Typical value. Enter the figure from your bill.', 'सामान्य मान। अपने बिल का आंकड़ा भरें।', 'सर्वसाधारण मूल्य. तुमच्या बिलावरील आकडा भरा.') + '">' + t('est.', 'अनुमान', 'अंदाज') + '</span>' : '';
   }
 
-  var RESULT_NOTE = '<p class="result-disclaimer">' + t('Estimate for information only, based on public information. Not official.', 'केवल जानकारी के लिए अनुमान, सार्वजनिक जानकारी पर आधारित। आधिकारिक नहीं।') + '</p>';
+  var RESULT_NOTE = '<p class="result-disclaimer">' + t('Estimate for information only, based on public information. Not official.', 'केवल जानकारी के लिए अनुमान, सार्वजनिक जानकारी पर आधारित। आधिकारिक नहीं।', 'केवळ माहितीसाठी अंदाज, सार्वजनिक माहितीवर आधारित. अधिकृत नाही.') + '</p>';
 
   // ---------- Bill calculator ----------
 
@@ -157,16 +168,17 @@
 
     var b = C.calcBill(data, o);
     var marginal = C.marginalRate(data, o);
-    var period = o.months === 2 ? t('for 2 months', '2 महीने का') : t('for the month', 'एक महीने का');
+    var period = o.months === 2 ? t('for 2 months', '2 महीने का', '2 महिन्यांचे') : t('for the month', 'एक महीने का', 'एका महिन्याचे');
     var rows = b.slabRows.map(function (r, i) {
-      var label = i === 0 ? t('First ' + num(r.units) + ' units', 'पहली ' + num(r.units) + ' यूनिट')
-        : r.to === null ? t(num(r.units) + ' units above ' + num(r.from), num(r.from) + ' से ऊपर की ' + num(r.units) + ' यूनिट')
-          : t('Next ' + num(r.units) + ' units', 'अगली ' + num(r.units) + ' यूनिट');
-      return '<tr><td>' + label + ' @ ' + rs2(r.rate) + '</td><td class="num">' + rs(r.amount) + '</td></tr>';
+      var label = i === 0 ? t('First ' + num(r.units) + ' units', 'पहली ' + num(r.units) + ' यूनिट', 'पहिली ' + num(r.units) + ' युनिट')
+        : r.to === null ? t(num(r.units) + ' units above ' + num(r.from), num(r.from) + ' से ऊपर की ' + num(r.units) + ' यूनिट', num(r.from) + ' वरील ' + num(r.units) + ' युनिट')
+          : t('Next ' + num(r.units) + ' units', 'अगली ' + num(r.units) + ' यूनिट', 'पुढील ' + num(r.units) + ' युनिट');
+      var price = r.rate === 0 ? t('free', 'मुफ़्त', 'मोफत') : rs2(r.rate);
+      return '<tr><td>' + label + ' @ ' + price + '</td><td class="num">' + rs(r.amount) + '</td></tr>';
     }).join('');
 
     var smartLine = '';
-    if (o.meter === 'postpaid') {
+    if (o.meter === 'postpaid' && form.elements.meter) {
       var smart = C.calcBill(data, Object.assign({}, o, { meter: 'prepaid-smart', solarHoursPct: 30 }));
       smartLine = '<p class="tip"><strong>' + t('Tip:', 'सुझाव:') + '</strong> ' +
         t('with a prepaid smart meter, and running some appliances between 11 am and 5 pm, this bill would be about ' + rs(smart.total) + ' (you save ' + rs(b.total - smart.total) + ').',
@@ -174,36 +186,36 @@
     }
     var estimate = isEstimate(form, 'fppa') || isEstimate(form, 'dutyPct');
     var answer = byBill
-      ? t('A bill of ' + rs(b.total) + ' means you used about <strong>' + num(b.units) + ' units</strong>. ', rs(b.total) + ' के बिल का मतलब है लगभग <strong>' + num(b.units) + ' यूनिट</strong> खर्च। ')
-      : t('Your bill: <strong>' + rs(b.total) + '</strong> ' + period + '. ', 'आपका बिल: ' + period + ' <strong>' + rs(b.total) + '</strong>। ');
-    answer += t('That is about <strong>' + rs2(b.effectiveRate) + ' per unit</strong> once all charges are added.', 'सभी चार्ज मिलाकर यह लगभग <strong>' + rs2(b.effectiveRate) + ' प्रति यूनिट</strong> पड़ता है।');
+      ? t('A bill of ' + rs(b.total) + ' means you used about <strong>' + num(b.units) + ' units</strong>. ', rs(b.total) + ' के बिल का मतलब है लगभग <strong>' + num(b.units) + ' यूनिट</strong> खर्च। ', rs(b.total) + ' बिल म्हणजे सुमारे <strong>' + num(b.units) + ' युनिट</strong> वापर. ')
+      : t('Your bill: <strong>' + rs(b.total) + '</strong> ' + period + '. ', 'आपका बिल: ' + period + ' <strong>' + rs(b.total) + '</strong>। ', 'तुमचे बिल: ' + period + ' <strong>' + rs(b.total) + '</strong>. ');
+    answer += t('That is about <strong>' + rs2(b.effectiveRate) + ' per unit</strong> once all charges are added.', 'सभी चार्ज मिलाकर यह लगभग <strong>' + rs2(b.effectiveRate) + ' प्रति यूनिट</strong> पड़ता है।', 'सर्व आकार मिळून हे सुमारे <strong>' + rs2(b.effectiveRate) + ' प्रति युनिट</strong> पडते.');
 
     out.innerHTML =
       '<p class="answer">' + answer + '</p>' +
       '<div class="kpis three">' +
-        tile(o.months === 2 ? t('Bill (2 months)', 'बिल (2 महीने)') : t('Bill (1 month)', 'बिल (1 महीना)'), rs(b.total), true) +
-        tile(t('Average cost per unit', 'औसत प्रति यूनिट'), rs2(b.effectiveRate)) +
-        tile(t('Each extra unit costs', 'हर अतिरिक्त यूनिट'), rs2(marginal)) +
+        tile(o.months === 2 ? t('Bill (2 months)', 'बिल (2 महीने)', 'बिल (2 महिने)') : t('Bill (1 month)', 'बिल (1 महीना)', 'बिल (1 महिना)'), rs(b.total), true) +
+        tile(t('Average cost per unit', 'औसत प्रति यूनिट', 'सरासरी प्रति युनिट'), rs2(b.effectiveRate)) +
+        tile(t('Each extra unit costs', 'हर अतिरिक्त यूनिट', 'प्रत्येक जादा युनिट'), rs2(marginal)) +
       '</div>' +
-      '<h3>' + t('What you pay for', 'आप किसके पैसे देते हैं') + '</h3>' +
+      '<h3>' + t('What you pay for', 'आप किसके पैसे देते हैं', 'तुम्ही कशाचे पैसे भरता') + '</h3>' +
       '<div class="table-wrap"><table><tbody>' +
         rows +
-        '<tr><td>' + t('Fixed charge', 'फ़िक्स्ड चार्ज') + '</td><td class="num">' + rs(b.fixed) + '</td></tr>' +
-        '<tr><td>' + t('Fuel surcharge (FPPPA)', 'ईंधन सरचार्ज (FPPPA)') + estTag(form, 'fppa') + '</td><td class="num">' + rs(b.fppa) + '</td></tr>' +
+        '<tr><td>' + t('Fixed charge', 'फ़िक्स्ड चार्ज', 'स्थिर आकार') + '</td><td class="num">' + rs(b.fixed) + '</td></tr>' +
+        '<tr><td>' + FUEL + estTag(form, 'fppa') + '</td><td class="num">' + rs(b.fppa) + '</td></tr>' +
         (b.prepaidRebate ? '<tr class="minus"><td>' + t('Prepaid meter discount', 'प्रीपेड मीटर छूट') + '</td><td class="num">−' + rs(b.prepaidRebate) + '</td></tr>' : '') +
         (b.touDiscount ? '<tr class="minus"><td>' + t('Daytime (11 am–5 pm) discount', 'दिन (11 से 5 बजे) की छूट') + '</td><td class="num">−' + rs(b.touDiscount) + '</td></tr>' : '') +
-        '<tr><td>' + t('Government tax (electricity duty ' + b.dutyPct + '%)', 'सरकारी टैक्स (बिजली शुल्क ' + b.dutyPct + '%)') + estTag(form, 'dutyPct') + '</td><td class="num">' + rs(b.duty) + '</td></tr>' +
-        '<tr class="total"><td>' + t('Total', 'कुल') + '</td><td class="num">' + rs(b.total) + '</td></tr>' +
+        '<tr><td>' + t('Government tax (electricity duty ' + b.dutyPct + '%)', 'सरकारी टैक्स (बिजली शुल्क ' + b.dutyPct + '%)', 'सरकारी कर (वीज शुल्क ' + b.dutyPct + '%)') + estTag(form, 'dutyPct') + '</td><td class="num">' + rs(b.duty) + '</td></tr>' +
+        '<tr class="total"><td>' + t('Total', 'कुल', 'एकूण') + '</td><td class="num">' + rs(b.total) + '</td></tr>' +
       '</tbody></table></div>' +
-      (estimate ? '<p class="note"><span class="est">' + t('est.', 'अनुमान') + '</span> ' + t('= our estimate. For an exact match, copy these two numbers from your bill into the form.', '= हमारा अनुमान। सटीक जवाब के लिए ये दो आंकड़े अपने बिल से फ़ॉर्म में भरें।') + '</p>' : '') +
+      (estimate ? '<p class="note"><span class="est">' + t('est.', 'अनुमान', 'अंदाज') + '</span> ' + t('= our estimate. For an exact match, copy these two numbers from your bill into the form.', '= हमारा अनुमान। सटीक जवाब के लिए ये दो आंकड़े अपने बिल से फ़ॉर्म में भरें।', '= आमचा अंदाज. अचूक उत्तरासाठी हे दोन आकडे तुमच्या बिलावरून फॉर्ममध्ये भरा.') + '</p>' : '') +
       smartLine + RESULT_NOTE +
-      '<a class="cta" href="' + link('solar-rooftop-calculator-gujarat.html', {
+      '<a class="cta" href="' + link(PAGES.solar, {
         discom: o.discom, category: o.category, units: Math.round(b.units / o.months), loadKw: f.loadKw,
         fppa: isEstimate(form, 'fppa') ? '' : f.fppa, dutyPct: isEstimate(form, 'dutyPct') ? '' : f.dutyPct
-      }) + '">' + t('How much would solar save on this bill? →', 'इस बिल पर सोलर से कितनी बचत होगी? →') + '</a>';
+      }) + '">' + t('How much would solar save on this bill? →', 'इस बिल पर सोलर से कितनी बचत होगी? →', 'या बिलावर सौर ऊर्जेने किती बचत होईल? →') + '</a>';
   }
 
-  // ---------- Solar ROI (Gujarat, exact tariff) ----------
+  // ---------- Solar ROI (exact tariff of the page's state) ----------
 
   function renderSolar(form, out) {
     var f = readForm(form);
@@ -240,37 +252,39 @@
     out.innerHTML =
       '<p class="answer">' + t(
         'A <strong>' + num(r.kw, 1) + ' kW</strong> system costs you about <strong>' + rs(r.netCost) + '</strong> after the government subsidy. Your bill drops from ' + rs(r.billBefore) + ' to about <strong>' + rs(r.avgBillAfter) + ' a month</strong>, and the system pays for itself in <strong>' + yearsText(r.paybackYears) + '</strong>.',
-        '<strong>' + num(r.kw, 1) + ' kW</strong> सिस्टम सरकारी सब्सिडी के बाद लगभग <strong>' + rs(r.netCost) + '</strong> का पड़ेगा। आपका बिल ' + rs(r.billBefore) + ' से घटकर लगभग <strong>' + rs(r.avgBillAfter) + ' महीना</strong> हो जाएगा, और <strong>' + yearsText(r.paybackYears) + '</strong> में पूरा पैसा वापस।') + '</p>' +
+        '<strong>' + num(r.kw, 1) + ' kW</strong> सिस्टम सरकारी सब्सिडी के बाद लगभग <strong>' + rs(r.netCost) + '</strong> का पड़ेगा। आपका बिल ' + rs(r.billBefore) + ' से घटकर लगभग <strong>' + rs(r.avgBillAfter) + ' महीना</strong> हो जाएगा, और <strong>' + yearsText(r.paybackYears) + '</strong> में पूरा पैसा वापस।',
+        '<strong>' + num(r.kw, 1) + ' kW</strong> यंत्रणा सरकारी अनुदानानंतर सुमारे <strong>' + rs(r.netCost) + '</strong> मध्ये पडेल. तुमचे बिल ' + rs(r.billBefore) + ' वरून सुमारे <strong>' + rs(r.avgBillAfter) + ' महिना</strong> इतके कमी होईल, आणि <strong>' + yearsText(r.paybackYears) + '</strong> मध्ये पूर्ण पैसे परत.') + '</p>' +
       '<div class="kpis">' +
-        tile(t('You pay (after subsidy)', 'आप देंगे (सब्सिडी के बाद)'), rs(r.netCost), true) +
-        tile(t('You save every month', 'हर महीने बचत'), rs(r.savingMonthlyYear1)) +
-        tile(t('Money back in', 'पैसा वापस'), yearsText(r.paybackYears)) +
-        tile(t('Solar size', 'सोलर साइज़'), num(r.kw, 1) + ' kW') +
-        tile(t('Bill now', 'अभी का बिल'), rs(r.billBefore)) +
-        tile(t('Bill with solar', 'सोलर के बाद बिल'), rs(r.avgBillAfter)) +
+        tile(t('You pay (after subsidy)', 'आप देंगे (सब्सिडी के बाद)', 'तुम्ही भरणार (अनुदानानंतर)'), rs(r.netCost), true) +
+        tile(t('You save every month', 'हर महीने बचत', 'दरमहा बचत'), rs(r.savingMonthlyYear1)) +
+        tile(t('Money back in', 'पैसा वापस', 'पैसे परत'), yearsText(r.paybackYears)) +
+        tile(t('Solar size', 'सोलर साइज़', 'सौर क्षमता'), num(r.kw, 1) + ' kW') +
+        tile(t('Bill now', 'अभी का बिल', 'सध्याचे बिल'), rs(r.billBefore)) +
+        tile(t('Bill with solar', 'सोलर के बाद बिल', 'सौरनंतरचे बिल'), rs(r.avgBillAfter)) +
       '</div>' +
       loanHtml +
       more(t('See the full cost breakdown', 'पूरा खर्च देखें'),
         '<div class="table-wrap"><table><tbody>' +
-          '<tr><td>' + t('System price', 'सिस्टम की कीमत') + ' (' + num(r.kw, 1) + ' kW)</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
-          '<tr class="minus"><td>' + t('Government subsidy (PM Surya Ghar)', 'सरकारी सब्सिडी (पीएम सूर्य घर)') + '</td><td class="num">−' + rs(r.subsidy) + '</td></tr>' +
-          '<tr class="total"><td>' + t('You pay', 'आप देंगे') + '</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
-          '<tr><td>' + t('Electricity made in a year', 'साल में बनी बिजली') + '</td><td class="num">' + num(r.generationYear1) + ' ' + U + '</td></tr>' +
+          '<tr><td>' + t('System price', 'सिस्टम की कीमत', 'यंत्रणेची किंमत') + ' (' + num(r.kw, 1) + ' kW)</td><td class="num">' + rs(r.grossCost) + '</td></tr>' +
+          '<tr class="minus"><td>' + t('Government subsidy (PM Surya Ghar)', 'सरकारी सब्सिडी (पीएम सूर्य घर)', 'सरकारी अनुदान (पीएम सूर्य घर)') + '</td><td class="num">−' + rs(r.subsidy - (r.subsidyState || 0)) + '</td></tr>' +
+          (r.subsidyState ? '<tr class="minus"><td>' + L(data.stateSubsidy.name) + '</td><td class="num">−' + rs(r.subsidyState) + '</td></tr>' : '') +
+          '<tr class="total"><td>' + t('You pay', 'आप देंगे', 'तुम्ही भरणार') + '</td><td class="num">' + rs(r.netCost) + '</td></tr>' +
+          '<tr><td>' + t('Electricity made in a year', 'साल में बनी बिजली', 'वर्षभरात तयार झालेली वीज') + '</td><td class="num">' + num(r.generationYear1) + ' ' + U + '</td></tr>' +
           '<tr><td>' + t('Extra units sold to the grid', 'ग्रिड को बेची अतिरिक्त यूनिट') + '</td><td class="num">' + num(r.exportUnitsYear1) + ' ' + U + ' = ' + rs(r.exportIncomeYear1) + '</td></tr>' +
           '<tr><td>' + t('Total saving over 25 years (after cost)', '25 साल में कुल बचत (खर्च घटाकर)') + '</td><td class="num">' + rs(r.lifetimeNet) + '</td></tr>' +
           '<tr><td>' + t('Roof space needed', 'ज़रूरी छत') + '</td><td class="num">' + t('about ', 'लगभग ') + num(r.roofSqftNeeded) + t(' sq ft', ' वर्ग फ़ुट') + '</td></tr>' +
         '</tbody></table></div>') +
       more(t('See your saving grow year by year', 'साल-दर-साल बचत देखें'),
-        svgBars(cumul, r.years.map(function (y) { return (HI ? 'सा' : 'Y') + y.year; }), { fmt: rs, title: t('Money saved minus cost, by year', 'हर साल: बचत घटा खर्च') }) +
+        svgBars(cumul, r.years.map(function (y) { return t('Y', 'सा', 'व') + y.year; }), { fmt: rs, title: t('Money saved minus cost, by year', 'हर साल: बचत घटा खर्च') }) +
         '<p class="note">' + t('Orange bars: still paying back. Green bars: pure profit.', 'नारंगी: पैसा अभी वापस आ रहा है। हरा: शुद्ध फ़ायदा।') + '</p>') +
       more(t('See month by month', 'महीने के अनुसार देखें'),
         '<div class="table-wrap"><table><thead><tr><th>' + t('Month', 'महीना') + '</th><th class="num">' + t('Units made', 'बनी यूनिट') + '</th><th class="num">' + t('Bill with solar', 'सोलर के बाद बिल') + '</th><th class="num">' + t('Saving', 'बचत') + '</th></tr></thead><tbody>' + monthRows + '</tbody></table></div>') +
-      '<p class="note">' + t("Worked out on your company's actual tariff, before and after solar. Assumes electricity prices rise " + esc_ + '% a year. Does not include an inverter replacement (around year 10–12).',
+      '<p class="note">' + t("Worked out on your company's tariff (from public sources), before and after solar. Assumes electricity prices rise " + esc_ + '% a year. Does not include an inverter replacement (around year 10–12).',
         'सोलर से पहले और बाद, आपकी कंपनी के असली टैरिफ़ पर गणना। बिजली दर हर साल ' + esc_ + '% बढ़ने का अनुमान। इन्वर्टर बदलने का खर्च (लगभग 10–12वें साल) शामिल नहीं।') + '</p>' +
       RESULT_NOTE +
-      '<a class="cta" href="' + link('ev-charging-cost-calculator-gujarat.html', {
+      (PAGES.ev ? '<a class="cta" href="' + link(PAGES.ev, {
         discom: o.discom, units: o.units, loadKw: f.loadKw, solarSurplusKwh: Math.round(r.generationMonthlyAvg * 0.3)
-      }) + '">' + t('Thinking of an electric vehicle? See the charging cost →', 'इलेक्ट्रिक गाड़ी लेने की सोच रहे हैं? चार्जिंग खर्च देखें →') + '</a>';
+      }) + '">' + t('Thinking of an electric vehicle? See the charging cost →', 'इलेक्ट्रिक गाड़ी लेने की सोच रहे हैं? चार्जिंग खर्च देखें →') + '</a>' : '');
   }
 
   // ---------- EV ----------

@@ -1,5 +1,5 @@
 'use strict';
-// Formatting and small helpers shared by every page, in English ('en') and Hindi ('hi').
+// Formatting and small helpers shared by every page, in English ('en'), Hindi ('hi') and Marathi ('mr').
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const nf = (d = 0) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: d, minimumFractionDigits: d });
@@ -7,31 +7,34 @@ const inr = (x) => '₹' + nf(0).format(Math.round(x));
 const inr2 = (x) => '₹' + nf(2).format(x);
 const num = (x, d = 0) => nf(d).format(x);
 
-// Picks the string for the language: t('hi')('Hello', 'नमस्ते') -> 'नमस्ते'
-const t = (lang) => (en, hi) => (lang === 'hi' ? hi : en);
+// Picks the string for the language: t('hi')('Hello', 'नमस्ते') -> 'नमस्ते'.
+// Marathi pages use the third string, or the Hindi one where no Marathi is given.
+const t = (lang) => (en, hi, mr) => (lang === 'hi' ? hi : lang === 'mr' ? (mr !== undefined ? mr : hi) : en);
 
 function lakh(x, lang) {
   if (x < 100000) return inr(x);
-  return `₹${(x / 100000).toFixed(2).replace(/\.?0+$/, '')} ${lang === 'hi' ? 'लाख' : 'lakh'}`;
+  return `₹${(x / 100000).toFixed(2).replace(/\.?0+$/, '')} ${lang === 'en' ? 'lakh' : 'लाख'}`;
 }
 
 function range(a, b, lang) {
-  return `${lakh(a, lang)} ${lang === 'hi' ? 'से' : 'to'} ${lakh(b, lang)}`;
+  return `${lakh(a, lang)} ${t(lang)('to', 'से', 'ते')} ${lakh(b, lang)}`;
 }
 
 // 3.67 -> "3 years 8 months" / "3 साल 8 महीने"
 function yearsText(y, lang) {
-  if (y === null || y === undefined) return lang === 'hi' ? '25 साल से ज़्यादा' : 'more than 25 years';
+  const tr = t(lang);
+  if (y === null || y === undefined) return tr('more than 25 years', '25 साल से ज़्यादा', '25 वर्षांहून अधिक');
   let whole = Math.floor(y), months = Math.round((y - whole) * 12);
   if (months === 12) { whole += 1; months = 0; }
-  const yr = lang === 'hi' ? 'साल' : whole === 1 ? 'year' : 'years';
-  const mo = lang === 'hi' ? 'महीने' : months === 1 ? 'month' : 'months';
+  const yr = tr(whole === 1 ? 'year' : 'years', 'साल', 'वर्षे');
+  const mo = tr(months === 1 ? 'month' : 'months', 'महीने', 'महिने');
   return months ? `${whole} ${yr} ${months} ${mo}` : `${whole} ${yr}`;
 }
 
 const MONTHS = {
   en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-  hi: ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर']
+  hi: ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'],
+  mr: ['जानेवारी', 'फेब्रुवारी', 'मार्च', 'एप्रिल', 'मे', 'जून', 'जुलै', 'ऑगस्ट', 'सप्टेंबर', 'ऑक्टोबर', 'नोव्हेंबर', 'डिसेंबर']
 };
 
 function fmtDate(iso, lang) {

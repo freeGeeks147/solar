@@ -25,6 +25,7 @@ Ahrefs (India) showed `[size]kw solar panel price`, `... price in india`, `... w
 data/gujarat.json     Tariffs, DISCOMs, cities and solar yield   <- edit every April
 data/common.json      Subsidy, solar/EV defaults, fuel prices
 data/india.json       System-size prices, city-wise solar yield (all India)
+data/states/*.json    Maharashtra, Madhya Pradesh, Bihar: tariffs (estimates), DISCOMs, cities, schemes <- edit every April
 site.config.json      Site name, domain, AdSense ID, Ahrefs analytics key
 build.js              Builds every page in English (site/) and Hindi (site/hi/), sitemap, robots, ads.txt, assets/data.js
 src/                  Page templates: layout.js (shell, disclaimer), forms.js, pages-solar.js, pages-gujarat.js, pages-static.js
@@ -37,6 +38,8 @@ test/                 node --test unit tests for the engine
 ## Languages
 
 Every page is generated twice: English at the site root and Hindi under `/hi/`, with `hreflang` links between them and a language switch in the header. Page text lives in `src/` as `tr('English', 'हिन्दी')` pairs, and calculator results in `site/assets/app.js` as `t('English', 'हिन्दी')` pairs. When you add or change text, update both.
+
+State pages (`src/pages-states.js`) are also built in the state's own language when its data file lists it in `langs`: Maharashtra in Marathi under `/mr/`. Marathi text is the optional third string, `tr('English', 'हिन्दी', 'मराठी')`; where it is missing the Hindi text is used, and links from a Marathi page to pages that have no Marathi version go to the Hindi version.
 
 A disclaimer strip ("for information only, based on public information, not official or endorsed") is on every page, under every calculator result, and in full at `disclaimer.html`.
 
@@ -87,7 +90,7 @@ FPPPA changes every quarter and the duty base is not confirmed, so the bill calc
 
 ## Next steps
 
-Watch Search Console for 2–3 months. If the DISCOM pages get impressions, add Maharashtra, UP, Rajasthan and Kerala: add a `data/<state>.json` and generalise `build.js` to loop over states.
+To add another state, copy one of `data/states/*.json`, fill in its tariff (mark unverified figures with `"verify": true` and keep `"estimate": true` until checked against the tariff order), and add its slug to `STATE_ORDER` in `build.js`. Fixed charges can be `flat`, `byPhase`, `byLoad` (steps), `perKw` or `byUnits` (Madhya Pradesh style).
 
 ## Monday Facebook posts
 
