@@ -1,0 +1,221 @@
+{
+ "state": "Bihar",
+ "stateHi": "बिहार",
+ "stateSlug": "bihar",
+ "langs": [
+  "en",
+  "hi"
+ ],
+ "tariffYear": "2026-27",
+ "effectiveFrom": "2026-04-01",
+ "lastReviewed": "2026-10-27",
+ "regulator": {
+  "name": "Bihar Electricity Regulatory Commission (BERC)",
+  "url": "https://berc.co.in/"
+ },
+ "orderName": "BERC tariff order FY 2026-27 (rates unchanged) and the state's 125 free units scheme",
+ "sourceUrl": "https://berc.co.in/images/pdf/tariff-order/2026-27/Tariff_Chart_FY_2026-27.pdf",
+ "billMonths": 1,
+ "fuelLabel": {
+  "en": "Fuel surcharge (FPPAS)",
+  "hi": "ईंधन सरचार्ज (FPPAS)"
+ },
+ "fuelHint": {
+  "en": "Usually small or nil in Bihar; copy it from your bill if shown",
+  "hi": "बिहार में आमतौर पर बहुत कम या शून्य; बिल पर हो तो वहाँ से भरें"
+ },
+ "notes": [
+  {
+   "en": "Units above 125 are charged at the rate after the state government's subsidy: about Rs 5.52 a unit in towns and Rs 2.45 in villages. Without subsidy the BERC rates are higher (Rs 7.42 and up).",
+   "hi": "125 से ऊपर की यूनिट पर राज्य सरकार की सब्सिडी के बाद की दर लगती है: शहर में लगभग ₹5.52 और गाँव में ₹2.45 प्रति यूनिट। सब्सिडी के बिना BERC की दरें ज़्यादा हैं (₹7.42 और ऊपर)।"
+  },
+  {
+   "en": "The fixed charge is taken as Rs 80 per kW a month in towns and Rs 40 per kW in villages, and is always included (it is not clear whether it is waived within the free units).",
+   "hi": "फ़िक्स्ड चार्ज शहर में ₹80 प्रति kW और गाँव में ₹40 प्रति kW प्रति माह माना गया है, और हमेशा जोड़ा गया है (मुफ़्त यूनिट में यह माफ़ है या नहीं, साफ़ नहीं)।"
+  }
+ ],
+ "estimate": true,
+ "common": {
+  "electricityDutyPct": {
+   "urban": 6,
+   "rural": 6
+  },
+  "prepaidRebatePctOnEnergy": 0,
+  "tou": {
+   "solarHoursDiscountPerUnit": 0
+  },
+  "netMetering": {
+   "surplusRatePerUnit": 2.71,
+   "verify": true,
+   "note": "BERC proposed Rs 2.71 a unit for rooftop solar surplus in FY 2026-27 (October 2026 consultation)."
+  }
+ },
+ "discoms": [
+  {
+   "id": "sbpdcl",
+   "name": "SBPDCL (South Bihar)",
+   "nameHi": "एसबीपीडीसीएल (दक्षिण बिहार)",
+   "fullName": "South Bihar Power Distribution Co. Ltd",
+   "fullNameHi": "साउथ बिहार पावर डिस्ट्रीब्यूशन कंपनी लिमिटेड",
+   "region": "Patna, Gaya, Bhagalpur, Munger, Arrah and the south",
+   "regionHi": "पटना, गया, भागलपुर, मुंगेर, आरा और दक्षिण बिहार",
+   "tariffGroup": "bihar",
+   "website": "https://sbpdcl.co.in/"
+  },
+  {
+   "id": "nbpdcl",
+   "name": "NBPDCL (North Bihar)",
+   "nameHi": "एनबीपीडीसीएल (उत्तर बिहार)",
+   "fullName": "North Bihar Power Distribution Co. Ltd",
+   "fullNameHi": "नॉर्थ बिहार पावर डिस्ट्रीब्यूशन कंपनी लिमिटेड",
+   "region": "Muzaffarpur, Darbhanga, Purnia, Saran, Tirhut and the north",
+   "regionHi": "मुज़फ़्फ़रपुर, दरभंगा, पूर्णिया, सारण, तिरहुत और उत्तर बिहार",
+   "tariffGroup": "bihar",
+   "website": "https://nbpdcl.co.in/"
+  }
+ ],
+ "tariffGroups": {
+  "bihar": {
+   "fppaPerUnit": 0,
+   "fppaVerify": true,
+   "categories": {
+    "urban": {
+     "label": "Town (urban)",
+     "labelHi": "शहर (शहरी)",
+     "fixed": {
+      "type": "perKw",
+      "perKw": 80,
+      "verify": true
+     },
+     "slabs": [
+      {
+       "upto": 125,
+       "rate": 0,
+       "free": true
+      },
+      {
+       "upto": null,
+       "rate": 5.52
+      }
+     ],
+     "withoutSubsidy": "Rs 7.42 up to 100 units, Rs 8.95 above"
+    },
+    "rural": {
+     "label": "Village (rural)",
+     "labelHi": "गाँव (ग्रामीण)",
+     "fixed": {
+      "type": "perKw",
+      "perKw": 40,
+      "verify": true
+     },
+     "slabs": [
+      {
+       "upto": 125,
+       "rate": 0,
+       "free": true
+      },
+      {
+       "upto": null,
+       "rate": 2.45
+      }
+     ],
+     "withoutSubsidy": "Rs 7.42 a unit"
+    }
+   }
+  }
+ },
+ "stateSubsidy": {
+  "perKw": 10000,
+  "cap": 20000,
+  "name": {
+   "en": "Bihar state top-up",
+   "hi": "बिहार राज्य की अतिरिक्त सब्सिडी"
+  },
+  "note": {
+   "en": "Approved in August 2026 for one year, first come first served for up to 5 lakh homes: Rs 10,000 per kW, up to Rs 20,000, on top of PM Surya Ghar.",
+   "hi": "अगस्त 2026 में एक साल के लिए मंज़ूर, पहले आओ पहले पाओ, 5 लाख घरों तक: ₹10,000 प्रति kW, अधिकतम ₹20,000, पीएम सूर्य घर के अलावा।"
+  }
+ },
+ "schemes": [
+  {
+   "en": "125 units free every month for all homes since 1 August 2025.",
+   "hi": "1 अगस्त 2025 से हर घर को हर महीने 125 यूनिट मुफ़्त।"
+  }
+ ],
+ "cities": [
+  {
+   "name": "Patna",
+   "nameHi": "पटना",
+   "yieldKwhPerKwYear": 1350,
+   "discom": "sbpdcl"
+  },
+  {
+   "name": "Gaya",
+   "nameHi": "गया",
+   "yieldKwhPerKwYear": 1380,
+   "discom": "sbpdcl"
+  },
+  {
+   "name": "Bhagalpur",
+   "nameHi": "भागलपुर",
+   "yieldKwhPerKwYear": 1330,
+   "discom": "sbpdcl"
+  },
+  {
+   "name": "Arrah",
+   "nameHi": "आरा",
+   "yieldKwhPerKwYear": 1360,
+   "discom": "sbpdcl"
+  },
+  {
+   "name": "Muzaffarpur",
+   "nameHi": "मुज़फ़्फ़रपुर",
+   "yieldKwhPerKwYear": 1330,
+   "discom": "nbpdcl"
+  },
+  {
+   "name": "Darbhanga",
+   "nameHi": "दरभंगा",
+   "yieldKwhPerKwYear": 1320,
+   "discom": "nbpdcl"
+  },
+  {
+   "name": "Purnia",
+   "nameHi": "पूर्णिया",
+   "yieldKwhPerKwYear": 1300,
+   "discom": "nbpdcl"
+  },
+  {
+   "name": "Chhapra",
+   "nameHi": "छपरा",
+   "yieldKwhPerKwYear": 1350,
+   "discom": "nbpdcl"
+  },
+  {
+   "name": "Begusarai",
+   "nameHi": "बेगूसराय",
+   "yieldKwhPerKwYear": 1330,
+   "discom": "sbpdcl"
+  },
+  {
+   "name": "Bihar Sharif",
+   "nameHi": "बिहार शरीफ़",
+   "yieldKwhPerKwYear": 1360,
+   "discom": "sbpdcl"
+  }
+ ],
+ "solarMonthlyShare": [
+  0.085,
+  0.088,
+  0.098,
+  0.099,
+  0.1,
+  0.08,
+  0.063,
+  0.062,
+  0.074,
+  0.086,
+  0.082,
+  0.083
+ ]
+}

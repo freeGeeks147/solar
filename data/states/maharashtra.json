@@ -1,0 +1,224 @@
+{
+ "state": "Maharashtra",
+ "stateHi": "महाराष्ट्र",
+ "stateMr": "महाराष्ट्र",
+ "stateSlug": "maharashtra",
+ "langs": [
+  "en",
+  "hi",
+  "mr"
+ ],
+ "tariffYear": "2026-27",
+ "effectiveFrom": "2026-04-01",
+ "lastReviewed": "2026-10-27",
+ "regulator": {
+  "name": "Maharashtra Electricity Regulatory Commission (MERC)",
+  "url": "https://merc.gov.in/"
+ },
+ "orderName": "MERC multi-year tariff order for MSEDCL (FY 2025-26 to 2029-30), FY 2026-27 rates",
+ "sourceUrl": "https://merc.gov.in/wp-content/uploads/2025/03/Press-Note_MSEDCL-MYT-Order_English.pdf",
+ "billMonths": 1,
+ "fuelLabel": {
+  "en": "Fuel adjustment (FAC)",
+  "hi": "ईंधन समायोजन (FAC)",
+  "mr": "इंधन समायोजन आकार (FAC)"
+ },
+ "fuelHint": {
+  "en": "Shown as FAC on your bill; changes month to month and can be negative",
+  "hi": "बिल पर FAC लिखा होता है; हर महीने बदलता है, कभी घटकर भी",
+  "mr": "बिलावर FAC असे लिहिलेले असते; दर महिन्याला बदलते, कधी उणेही असते"
+ },
+ "notes": [
+  {
+   "en": "Slab rates include the wheeling charge (about Rs 1.20 a unit), which MSEDCL bills on every unit.",
+   "hi": "स्लैब दरों में व्हीलिंग चार्ज (लगभग ₹1.20 प्रति यूनिट) शामिल है, जो MSEDCL हर यूनिट पर लेती है।",
+   "mr": "स्लॅब दरांमध्ये वहन आकार (व्हीलिंग, सुमारे ₹1.20 प्रति युनिट) समाविष्ट आहे, जो महावितरण प्रत्येक युनिटवर आकारते."
+  },
+  {
+   "en": "MERC reviewed its March 2025 order and revised it in June 2025; the FY 2026-27 figures here follow the published summary and may differ slightly from your bill.",
+   "hi": "MERC ने मार्च 2025 के आदेश की समीक्षा कर जून 2025 में उसे संशोधित किया; यहाँ 2026-27 के आंकड़े प्रकाशित सारांश से हैं और आपके बिल से थोड़े अलग हो सकते हैं।",
+   "mr": "MERC ने मार्च 2025 च्या आदेशाचा आढावा घेऊन जून 2025 मध्ये तो सुधारला; येथील 2026-27 चे आकडे प्रकाशित सारांशानुसार आहेत आणि तुमच्या बिलापेक्षा थोडे वेगळे असू शकतात."
+  },
+  {
+   "en": "The small per-unit 'tax on sale of electricity' is not included.",
+   "hi": "प्रति यूनिट लगने वाला छोटा 'बिजली बिक्री कर' शामिल नहीं है।",
+   "mr": "प्रति युनिट लागणारा लहान 'वीज विक्री कर' समाविष्ट नाही."
+  },
+  {
+   "en": "Mumbai city and suburbs are served by BEST, Adani Electricity and Tata Power, which have different rates; this calculator is for MSEDCL (Mahavitaran).",
+   "hi": "मुंबई शहर और उपनगरों में BEST, अदाणी इलेक्ट्रिसिटी और टाटा पावर बिजली देते हैं, जिनकी दरें अलग हैं; यह कैलकुलेटर MSEDCL (महावितरण) के लिए है।",
+   "mr": "मुंबई शहर व उपनगरांना BEST, अदानी इलेक्ट्रिसिटी व टाटा पॉवर वीज पुरवतात, त्यांचे दर वेगळे आहेत; हा कॅल्क्युलेटर महावितरणसाठी (MSEDCL) आहे."
+  }
+ ],
+ "estimate": true,
+ "common": {
+  "electricityDutyPct": {
+   "urban": 16,
+   "rural": 16
+  },
+  "prepaidRebatePctOnEnergy": 0,
+  "tou": {
+   "solarHoursDiscountPerUnit": 0
+  },
+  "netMetering": {
+   "surplusRatePerUnit": 3.0,
+   "verify": true,
+   "note": "Estimate: net-metered surplus is settled at the yearly rate MERC fixes for MSEDCL."
+  }
+ },
+ "discoms": [
+  {
+   "id": "msedcl",
+   "name": "MSEDCL (Mahavitaran)",
+   "nameHi": "एमएसईडीसीएल (महावितरण)",
+   "nameMr": "महावितरण (MSEDCL)",
+   "fullName": "Maharashtra State Electricity Distribution Co. Ltd",
+   "fullNameHi": "महाराष्ट्र राज्य विद्युत वितरण कंपनी लिमिटेड",
+   "fullNameMr": "महाराष्ट्र राज्य विद्युत वितरण कंपनी मर्यादित",
+   "region": "All Maharashtra except Mumbai city and suburbs",
+   "regionHi": "मुंबई शहर और उपनगरों को छोड़ पूरा महाराष्ट्र",
+   "regionMr": "मुंबई शहर व उपनगरे वगळता संपूर्ण महाराष्ट्र",
+   "tariffGroup": "msedcl",
+   "website": "https://www.mahadiscom.in/"
+  }
+ ],
+ "tariffGroups": {
+  "msedcl": {
+   "fppaPerUnit": 0,
+   "fppaVerify": true,
+   "categories": {
+    "urban": {
+     "label": "Home (residential)",
+     "labelHi": "घरेलू",
+     "labelMr": "घरगुती",
+     "fixed": {
+      "type": "byPhase",
+      "singlePhaseMaxKw": 7,
+      "single": 130,
+      "three": 435,
+      "verify": true
+     },
+     "slabs": [
+      {
+       "upto": 100,
+       "rate": 5.52
+      },
+      {
+       "upto": 300,
+       "rate": 10.6
+      },
+      {
+       "upto": 500,
+       "rate": 13.71
+      },
+      {
+       "upto": null,
+       "rate": 15.17
+      }
+     ],
+     "energyOnly": [
+      4.32,
+      9.4,
+      12.51,
+      13.97
+     ],
+     "wheeling": 1.2
+    }
+   }
+  }
+ },
+ "stateSubsidy": null,
+ "schemes": [
+  {
+   "en": "SMART scheme: extra state subsidy for rooftop solar for BPL and low-income homes using under 100 units a month (reported as Rs 17,500 per kW for BPL and Rs 10,000 per kW for other eligible homes, on top of PM Surya Ghar). Check current status with MSEDCL.",
+   "hi": "SMART योजना: महीने में 100 यूनिट से कम खर्च करने वाले BPL और कम आय वाले घरों के लिए रूफ़टॉप सोलर पर अतिरिक्त राज्य सब्सिडी (BPL के लिए ₹17,500 प्रति kW और अन्य पात्र घरों के लिए ₹10,000 प्रति kW बताई गई है, पीएम सूर्य घर के अलावा)। मौजूदा स्थिति MSEDCL से पता करें।",
+   "mr": "SMART योजना: महिन्याला 100 युनिटपेक्षा कमी वापर असलेल्या दारिद्र्यरेषेखालील (BPL) व अल्प उत्पन्न घरांसाठी छतावरील सौर यंत्रणेला अतिरिक्त राज्य अनुदान (BPL साठी प्रति kW ₹17,500 व इतर पात्र घरांसाठी प्रति kW ₹10,000 असे नोंदवले आहे, पीएम सूर्य घर अनुदानाशिवाय). सद्यस्थिती महावितरणकडून तपासा."
+  }
+ ],
+ "cities": [
+  {
+   "name": "Pune",
+   "nameHi": "पुणे",
+   "yieldKwhPerKwYear": 1450,
+   "discom": "msedcl",
+   "nameMr": "पुणे"
+  },
+  {
+   "name": "Nagpur",
+   "nameHi": "नागपुर",
+   "yieldKwhPerKwYear": 1480,
+   "discom": "msedcl",
+   "nameMr": "नागपूर"
+  },
+  {
+   "name": "Nashik",
+   "nameHi": "नासिक",
+   "yieldKwhPerKwYear": 1460,
+   "discom": "msedcl",
+   "nameMr": "नाशिक"
+  },
+  {
+   "name": "Chhatrapati Sambhajinagar (Aurangabad)",
+   "nameHi": "छत्रपति संभाजीनगर (औरंगाबाद)",
+   "yieldKwhPerKwYear": 1500,
+   "discom": "msedcl",
+   "nameMr": "छत्रपती संभाजीनगर (औरंगाबाद)"
+  },
+  {
+   "name": "Solapur",
+   "nameHi": "सोलापुर",
+   "yieldKwhPerKwYear": 1530,
+   "discom": "msedcl",
+   "nameMr": "सोलापूर"
+  },
+  {
+   "name": "Thane",
+   "nameHi": "ठाणे",
+   "yieldKwhPerKwYear": 1350,
+   "discom": "msedcl",
+   "nameMr": "ठाणे"
+  },
+  {
+   "name": "Navi Mumbai",
+   "nameHi": "नवी मुंबई",
+   "yieldKwhPerKwYear": 1350,
+   "discom": "msedcl",
+   "nameMr": "नवी मुंबई"
+  },
+  {
+   "name": "Kolhapur",
+   "nameHi": "कोल्हापुर",
+   "yieldKwhPerKwYear": 1420,
+   "discom": "msedcl",
+   "nameMr": "कोल्हापूर"
+  },
+  {
+   "name": "Amravati",
+   "nameHi": "अमरावती",
+   "yieldKwhPerKwYear": 1480,
+   "discom": "msedcl",
+   "nameMr": "अमरावती"
+  },
+  {
+   "name": "Jalgaon",
+   "nameHi": "जलगाँव",
+   "yieldKwhPerKwYear": 1500,
+   "discom": "msedcl",
+   "nameMr": "जळगाव"
+  }
+ ],
+ "solarMonthlyShare": [
+  0.085,
+  0.088,
+  0.098,
+  0.099,
+  0.1,
+  0.08,
+  0.063,
+  0.062,
+  0.074,
+  0.086,
+  0.082,
+  0.083
+ ]
+}

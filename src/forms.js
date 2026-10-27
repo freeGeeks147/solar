@@ -3,15 +3,20 @@ const { esc, t, icon } = require('./util');
 
 // Calculator form markup. Field names and ids must stay in sync with site/assets/app.js.
 module.exports = function makeForms({ data, common, india, sizes }) {
-  const nameOf = (x, lang) => (lang === 'hi' && x.nameHi ? x.nameHi : x.name);
+  const nameOf = (x, lang) => (lang === 'mr' && (x.nameMr || x.nameHi)) || (lang !== 'en' && x.nameHi) || x.name;
+  const regionOf = (d, lang) => (lang === 'mr' && (d.regionMr || d.regionHi)) || (lang !== 'en' && d.regionHi) || d.region;
+  // Smart-meter discounts exist only where the state has them (Gujarat).
+  const hasSmartDiscounts = !!(data.common.tou && data.common.tou.solarHoursDiscountPerUnit) || !!data.common.prepaidRebatePctOnEnergy;
+  const L = (o, lang) => (o ? t(lang)(o.en, o.hi || o.en, o.mr) : '');
 
   function discomOptions(selected, lang) {
-    return data.discoms.map((d) => `<option value="${d.id}"${d.id === selected ? ' selected' : ''}>${esc(nameOf(d, lang))} (${esc(lang === 'hi' ? d.regionHi : d.region)})</option>`).join('');
+    return data.discoms.map((d) => `<option value="${d.id}"${d.id === selected ? ' selected' : ''}>${esc(nameOf(d, lang))} (${esc(regionOf(d, lang))})</option>`).join('');
   }
 
   function meterField(lang) {
     const tr = t(lang);
-    return `<div class="field"><label for="meter">${tr('Meter type', 'मीटर का प्रकार')}</label><select id="meter" name="meter">
+    if (!hasSmartDiscounts) return '';
+    return `<div class="field"><label for="meter">${tr('Meter type', 'मीटर का प्रकार', 'मीटरचा प्रकार')}</label><select id="meter" name="meter">
 <option value="postpaid">${tr('Regular meter', 'सामान्य मीटर')}</option>
 <option value="postpaid-smart">${tr('Smart meter (pay after use)', 'स्मार्ट मीटर (बाद में भुगतान)')}</option>
 <option value="prepaid-smart">${tr('Smart meter (prepaid / recharge)', 'स्मार्ट मीटर (प्रीपेड / रिचार्ज)')}</option>
@@ -21,22 +26,22 @@ module.exports = function makeForms({ data, common, india, sizes }) {
 
   function commonBillFields(discomId, lang, loadKw = 3) {
     const tr = t(lang);
-    return `<div class="field full"><label for="discom">${tr('Your electricity company', 'आपकी बिजली कंपनी')}</label><select id="discom" name="discom">${discomOptions(discomId, lang)}</select></div>
-<div class="field"><label for="category">${tr('Area', 'क्षेत्र')}</label><select id="category" name="category"></select></div>
-<div class="field"><label for="loadKw">${tr('Sanctioned load (kW)', 'स्वीकृत लोड (kW)')}</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="${loadKw}"><span class="hint">${tr('Printed on your bill', 'आपके बिल पर छपा होता है')}</span></div>
+    return `<div class="field full"><label for="discom">${tr('Your electricity company', 'आपकी बिजली कंपनी', 'तुमची वीज कंपनी')}</label><select id="discom" name="discom">${discomOptions(discomId, lang)}</select></div>
+<div class="field"><label for="category">${tr('Area', 'क्षेत्र', 'क्षेत्र')}</label><select id="category" name="category"></select></div>
+<div class="field"><label for="loadKw">${tr('Sanctioned load (kW)', 'स्वीकृत लोड (kW)', 'मंजूर भार (kW)')}</label><input id="loadKw" name="loadKw" type="number" min="0.5" step="0.5" value="${loadKw}"><span class="hint">${tr('Printed on your bill', 'आपके बिल पर छपा होता है', 'तुमच्या बिलावर छापलेला असतो')}</span></div>
 ${meterField(lang)}`;
   }
 
   function phaseField(lang) {
     const tr = t(lang);
-    return `<div class="field"><label for="phase">${tr('Supply', 'सप्लाई')}</label><select id="phase" name="phase"><option value="single">${tr('Single phase', 'सिंगल फ़ेज़')}</option><option value="three">${tr('Three phase', 'थ्री फ़ेज़')}</option></select></div>`;
+    return `<div class="field"><label for="phase">${tr('Supply', 'सप्लाई', 'पुरवठा')}</label><select id="phase" name="phase"><option value="single">${tr('Single phase', 'सिंगल फ़ेज़', 'सिंगल फेज')}</option><option value="three">${tr('Three phase', 'थ्री फ़ेज़', 'थ्री फेज')}</option></select></div>`;
   }
 
   // The two figures we cannot pin down for every consumer. Prefilled with estimates; users overwrite them from their bill.
   function chargeFields(lang) {
     const tr = t(lang);
-    return `<div class="field"><label for="fppa">${tr('Fuel surcharge per unit (₹)', 'ईंधन सरचार्ज प्रति यूनिट (₹)')}</label><input id="fppa" name="fppa" type="number" min="0" step="0.01" inputmode="decimal"><span class="hint">${tr('Shown as FPPPA or FPPAS on your bill', 'बिल पर FPPPA या FPPAS लिखा होता है')}</span></div>
-<div class="field"><label for="dutyPct">${tr('Electricity duty (%)', 'बिजली शुल्क (%)')}</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">${tr('A state tax, shown on your bill', 'राज्य का टैक्स, बिल पर लिखा होता है')}</span></div>`;
+    return `<div class="field"><label for="fppa">${data.fuelLabel ? `${L(data.fuelLabel, lang)} ${tr('per unit (₹)', 'प्रति यूनिट (₹)', 'प्रति युनिट (₹)')}` : tr('Fuel surcharge per unit (₹)', 'ईंधन सरचार्ज प्रति यूनिट (₹)')}</label><input id="fppa" name="fppa" type="number"${data.fuelLabel ? '' : ' min="0"'} step="0.01" inputmode="decimal"><span class="hint">${data.fuelHint ? L(data.fuelHint, lang) : tr('Shown as FPPPA or FPPAS on your bill', 'बिल पर FPPPA या FPPAS लिखा होता है')}</span></div>
+<div class="field"><label for="dutyPct">${tr('Electricity duty (%)', 'बिजली शुल्क (%)', 'वीज शुल्क (%)')}</label><input id="dutyPct" name="dutyPct" type="number" min="0" max="60" step="0.5" inputmode="decimal"><span class="hint">${tr('A state tax, shown on your bill', 'राज्य का टैक्स, बिल पर लिखा होता है', 'राज्याचा कर, बिलावर लिहिलेला असतो')}</span></div>`;
   }
 
   function seg(name, options, checked) {
@@ -45,20 +50,21 @@ ${meterField(lang)}`;
 
   function billForm(discomId, lang) {
     const tr = t(lang);
-    const torrent = discomId.startsWith('torrent');
+    // Bills are monthly for Torrent Power and most states; Gujarat's state companies bill every two months.
+    const monthly = data.billMonths === 1 || discomId.startsWith('torrent');
     return `<section class="calc" id="calculator">
 <form class="card form-card" data-calc="bill" data-output="bill-out" autocomplete="off">
-<h2>${icon('bolt')} ${tr('Your details', 'आपकी जानकारी')}</h2>
+<h2>${icon('bolt')} ${tr('Your details', 'आपकी जानकारी', 'तुमची माहिती')}</h2>
 <div class="fields">
 ${commonBillFields(discomId, lang)}
-<div class="field full"><span class="label">${tr('Calculate from', 'किससे गणना करें')}</span>${seg('inputMode', [['units', tr('Units used', 'खर्च यूनिट')], ['amount', tr('Bill amount', 'बिल की रकम')]], 'units')}</div>
-<div class="field" data-show="units"><label for="units">${tr('Units used (from your bill)', 'खर्च यूनिट (बिल से)')}</label><input id="units" name="units" type="number" min="0" step="1" value="${torrent ? 200 : 400}" inputmode="numeric"></div>
-<div class="field hidden" data-show="amount"><label for="amount">${tr('Bill amount (₹)', 'बिल की रकम (₹)')}</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500" inputmode="numeric"></div>
-<div class="field"><label for="months">${tr('Billing period', 'बिल की अवधि')}</label><select id="months" name="months"><option value="1"${torrent ? ' selected' : ''}>${tr('1 month', '1 महीना')}</option><option value="2"${torrent ? '' : ' selected'}>${tr('2 months', '2 महीने')}</option></select></div>
-<fieldset class="from-bill full"><legend>${tr('From your bill (optional)', 'आपके बिल से (वैकल्पिक)')}</legend>
-<p class="hint">${tr('We have filled in typical values. For an exact answer, copy these two numbers from your bill.', 'हमने सामान्य मान भरे हैं। सटीक जवाब के लिए ये दो आंकड़े अपने बिल से भरें।')}</p>
+<div class="field full"><span class="label">${tr('Calculate from', 'किससे गणना करें', 'कशावरून गणना करायची')}</span>${seg('inputMode', [['units', tr('Units used', 'खर्च यूनिट', 'वापरलेली युनिट')], ['amount', tr('Bill amount', 'बिल की रकम', 'बिलाची रक्कम')]], 'units')}</div>
+<div class="field" data-show="units"><label for="units">${tr('Units used (from your bill)', 'खर्च यूनिट (बिल से)', 'वापरलेली युनिट (बिलावरून)')}</label><input id="units" name="units" type="number" min="0" step="1" value="${monthly ? 200 : 400}" inputmode="numeric"></div>
+<div class="field hidden" data-show="amount"><label for="amount">${tr('Bill amount (₹)', 'बिल की रकम (₹)', 'बिलाची रक्कम (₹)')}</label><input id="amount" name="amount" type="number" min="0" step="10" value="2500" inputmode="numeric"></div>
+<div class="field"><label for="months">${tr('Billing period', 'बिल की अवधि', 'बिलाचा कालावधी')}</label><select id="months" name="months"><option value="1"${monthly ? ' selected' : ''}>${tr('1 month', '1 महीना', '1 महिना')}</option><option value="2"${monthly ? '' : ' selected'}>${tr('2 months', '2 महीने', '2 महिने')}</option></select></div>
+<fieldset class="from-bill full"><legend>${tr('From your bill (optional)', 'आपके बिल से (वैकल्पिक)', 'तुमच्या बिलावरून (ऐच्छिक)')}</legend>
+<p class="hint">${tr('We have filled in typical values. For an exact answer, copy these two numbers from your bill.', 'हमने सामान्य मान भरे हैं। सटीक जवाब के लिए ये दो आंकड़े अपने बिल से भरें।', 'आम्ही सर्वसाधारण मूल्ये भरली आहेत. अचूक उत्तरासाठी हे दोन आकडे तुमच्या बिलावरून भरा.')}</p>
 <div class="fields">${chargeFields(lang)}</div></fieldset>
-<details class="adv"><summary>${tr('More options', 'और विकल्प')}</summary><div class="fields">${phaseField(lang)}</div></details>
+<details class="adv"><summary>${tr('More options', 'और विकल्प', 'आणखी पर्याय')}</summary><div class="fields">${phaseField(lang)}</div></details>
 </div>
 </form>
 <div class="card result-card" id="bill-out" aria-live="polite"></div>
@@ -71,27 +77,27 @@ ${commonBillFields(discomId, lang)}
     const d = common.solarDefaults;
     return `<section class="calc" id="calculator">
 <form class="card form-card" data-calc="solar" data-output="solar-out" autocomplete="off">
-<h2>${icon('home')} ${tr('Your home', 'आपका घर')}</h2>
+<h2>${icon('home')} ${tr('Your home', 'आपका घर', 'तुमचे घर')}</h2>
 <div class="fields">
-<div class="field"><label for="city">${tr('City', 'शहर')}</label><select id="city" name="city">${cities}</select></div>
-<div class="field"><label for="units">${tr('Units used per month', 'हर महीने की खपत (यूनिट)')}</label><input id="units" name="units" type="number" min="0" step="10" value="400" inputmode="numeric"><span class="hint">${tr('From your bill. Bill for 2 months? Enter half.', 'बिल से। 2 महीने का बिल हो तो आधा भरें।')}</span></div>
+<div class="field"><label for="city">${tr('City', 'शहर', 'शहर')}</label><select id="city" name="city">${cities}</select></div>
+<div class="field"><label for="units">${tr('Units used per month', 'हर महीने की खपत (यूनिट)', 'दरमहा वापर (युनिट)')}</label><input id="units" name="units" type="number" min="0" step="10" value="400" inputmode="numeric"><span class="hint">${tr('From your bill. Bill for 2 months? Enter half.', 'बिल से। 2 महीने का बिल हो तो आधा भरें।', 'बिलावरून. 2 महिन्यांचे बिल असल्यास निम्मे भरा.')}</span></div>
 ${commonBillFields(data.cities[0].discom, lang, 4)}
-<div class="field"><label for="roofSqft">${tr('Open roof space (sq ft)', 'खुली छत (वर्ग फ़ुट)')}</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="${tr('optional', 'वैकल्पिक')}" inputmode="numeric"></div>
-<div class="field"><label for="kw">${tr('Solar size (kW)', 'सोलर साइज़ (kW)')}</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="${tr('we suggest one', 'हम सुझाएँगे')}" inputmode="decimal"><span class="hint">${tr('Leave empty for our suggestion', 'खाली छोड़ें, हम सुझाएँगे')}</span></div>
-<div class="field"><label for="costPerKw">${tr('Price per kW (₹)', 'प्रति kW कीमत (₹)')}</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="${d.costPerKw}" inputmode="numeric"><span class="hint">${tr('Before subsidy. Typical: ₹55,000–65,000', 'सब्सिडी से पहले। आमतौर पर ₹55,000–65,000')}</span></div>
-<div class="field full"><label class="check"><input type="checkbox" name="loanEnabled"> ${tr('I will take a loan', 'मैं लोन लूँगा/लूँगी')}</label></div>
+<div class="field"><label for="roofSqft">${tr('Open roof space (sq ft)', 'खुली छत (वर्ग फ़ुट)', 'मोकळे छत (चौ. फूट)')}</label><input id="roofSqft" name="roofSqft" type="number" min="0" step="50" placeholder="${tr('optional', 'वैकल्पिक', 'ऐच्छिक')}" inputmode="numeric"></div>
+<div class="field"><label for="kw">${tr('Solar size (kW)', 'सोलर साइज़ (kW)', 'सौर क्षमता (kW)')}</label><input id="kw" name="kw" type="number" min="0" step="0.5" placeholder="${tr('we suggest one', 'हम सुझाएँगे', 'आम्ही सुचवू')}" inputmode="decimal"><span class="hint">${tr('Leave empty for our suggestion', 'खाली छोड़ें, हम सुझाएँगे', 'रिकामे ठेवा, आम्ही सुचवू')}</span></div>
+<div class="field"><label for="costPerKw">${tr('Price per kW (₹)', 'प्रति kW कीमत (₹)', 'प्रति kW किंमत (₹)')}</label><input id="costPerKw" name="costPerKw" type="number" min="0" step="1000" value="${d.costPerKw}" inputmode="numeric"><span class="hint">${tr('Before subsidy. Typical: ₹55,000–65,000', 'सब्सिडी से पहले। आमतौर पर ₹55,000–65,000', 'अनुदानापूर्वी. साधारणपणे ₹55,000–65,000')}</span></div>
+<div class="field full"><label class="check"><input type="checkbox" name="loanEnabled"> ${tr('I will take a loan', 'मैं लोन लूँगा/लूँगी', 'मी कर्ज घेणार आहे')}</label></div>
 <div class="fields full hidden" data-show="loan">
-<div class="field"><label for="loanSharePct">${tr('Loan % of cost', 'लागत का कितना % लोन')}</label><input id="loanSharePct" name="loanSharePct" type="number" min="0" max="100" step="5" value="90"></div>
-<div class="field"><label for="loanRate">${tr('Interest (% a year)', 'ब्याज (% सालाना)')}</label><input id="loanRate" name="loanRate" type="number" min="0" step="0.1" value="${d.loanRatePct}"></div>
-<div class="field"><label for="loanYears">${tr('Loan years', 'लोन अवधि (साल)')}</label><input id="loanYears" name="loanYears" type="number" min="1" max="20" step="1" value="${d.loanTenureYears}"></div>
+<div class="field"><label for="loanSharePct">${tr('Loan % of cost', 'लागत का कितना % लोन', 'खर्चाच्या किती % कर्ज')}</label><input id="loanSharePct" name="loanSharePct" type="number" min="0" max="100" step="5" value="90"></div>
+<div class="field"><label for="loanRate">${tr('Interest (% a year)', 'ब्याज (% सालाना)', 'व्याज (% वार्षिक)')}</label><input id="loanRate" name="loanRate" type="number" min="0" step="0.1" value="${d.loanRatePct}"></div>
+<div class="field"><label for="loanYears">${tr('Loan years', 'लोन अवधि (साल)', 'कर्ज कालावधी (वर्षे)')}</label><input id="loanYears" name="loanYears" type="number" min="1" max="20" step="1" value="${d.loanTenureYears}"></div>
 </div>
-<details class="adv"><summary>${tr('Change assumptions', 'अनुमान बदलें')}</summary><div class="fields">
+<details class="adv"><summary>${tr('Change assumptions', 'अनुमान बदलें', 'गृहीतके बदला')}</summary><div class="fields">
 ${phaseField(lang)}
 ${chargeFields(lang)}
-<div class="field"><label for="yield">${tr('Units per kW per year', 'प्रति kW सालाना यूनिट')}</label><input id="yield" name="yield" type="number" min="800" max="2000" step="10" placeholder="${tr('from city', 'शहर के अनुसार')}"></div>
-<div class="field"><label for="surplusRate">${tr('Rate for extra units sold (₹)', 'बेची गई अतिरिक्त यूनिट का रेट (₹)')}</label><input id="surplusRate" name="surplusRate" type="number" min="0" step="0.05" value="${data.common.netMetering.surplusRatePerUnit}"></div>
-<div class="field"><label for="escalationPct">${tr('Bill rate rise (% a year)', 'बिजली दर बढ़ोतरी (% सालाना)')}</label><input id="escalationPct" name="escalationPct" type="number" min="0" step="0.5" value="${d.tariffEscalationPctPerYear}"></div>
-<div class="field"><label for="degradationPct">${tr('Panel ageing (% a year)', 'पैनल की घटती क्षमता (% सालाना)')}</label><input id="degradationPct" name="degradationPct" type="number" min="0" step="0.1" value="${d.degradationPctPerYear}"></div>
+<div class="field"><label for="yield">${tr('Units per kW per year', 'प्रति kW सालाना यूनिट', 'प्रति kW वार्षिक युनिट')}</label><input id="yield" name="yield" type="number" min="800" max="2000" step="10" placeholder="${tr('from city', 'शहर के अनुसार', 'शहरानुसार')}"></div>
+<div class="field"><label for="surplusRate">${tr('Rate for extra units sold (₹)', 'बेची गई अतिरिक्त यूनिट का रेट (₹)', 'विकलेल्या जादा युनिटचा दर (₹)')}</label><input id="surplusRate" name="surplusRate" type="number" min="0" step="0.05" value="${data.common.netMetering.surplusRatePerUnit}"></div>
+<div class="field"><label for="escalationPct">${tr('Bill rate rise (% a year)', 'बिजली दर बढ़ोतरी (% सालाना)', 'वीज दरवाढ (% वार्षिक)')}</label><input id="escalationPct" name="escalationPct" type="number" min="0" step="0.5" value="${d.tariffEscalationPctPerYear}"></div>
+<div class="field"><label for="degradationPct">${tr('Panel ageing (% a year)', 'पैनल की घटती क्षमता (% सालाना)', 'पॅनलची घटणारी क्षमता (% वार्षिक)')}</label><input id="degradationPct" name="degradationPct" type="number" min="0" step="0.1" value="${d.degradationPctPerYear}"></div>
 </div></details>
 </div>
 </form>
@@ -153,7 +159,7 @@ ${chargeFields(lang)}
 <details class="adv"><summary>${tr('Change price or rate', 'कीमत या रेट बदलें')}</summary><div class="fields">
 <div class="field"><label for="cost">${tr('Price quoted to you (₹)', 'आपको बताई गई कीमत (₹)')}</label><input id="cost" name="cost" type="number" min="0" step="1000" inputmode="numeric"><span class="hint">${tr('Before subsidy. We fill in a typical price.', 'सब्सिडी से पहले। हमने सामान्य कीमत भरी है।')}</span></div>
 <div class="field"><label for="rate">${tr('Cost of 1 unit (₹)', '1 यूनिट की कीमत (₹)')}</label><input id="rate" name="rate" type="number" min="1" step="0.1" value="${india.defaultRate}" inputmode="decimal"><span class="hint">${tr('Bill amount ÷ units on the bill', 'बिल की रकम ÷ बिल की यूनिट')}</span></div>
-<div class="field"><label for="exportRate">${tr('Rate for extra units sold (₹)', 'बेची गई अतिरिक्त यूनिट का रेट (₹)')}</label><input id="exportRate" name="exportRate" type="number" min="0" step="0.05" value="${india.defaultExportRate}"></div>
+<div class="field"><label for="exportRate">${tr('Rate for extra units sold (₹)', 'बेची गई अतिरिक्त यूनिट का रेट (₹)', 'विकलेल्या जादा युनिटचा दर (₹)')}</label><input id="exportRate" name="exportRate" type="number" min="0" step="0.05" value="${india.defaultExportRate}"></div>
 </div></details>
 </div>
 </form>
