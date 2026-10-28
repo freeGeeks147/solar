@@ -40,7 +40,7 @@ module.exports = function solarPages(lang, ctx) {
 <div><dt>kW (${tr('kilowatt', 'किलोवाट')})</dt><dd>${tr('The size of a solar system. Bigger kW = more panels = more electricity.', 'सोलर सिस्टम का साइज़। ज़्यादा kW = ज़्यादा पैनल = ज़्यादा बिजली।')}</dd></div>
 <div><dt>${tr('Unit', 'यूनिट')}</dt><dd>${tr('One unit on your electricity bill (1 kWh). A fan running for a full day uses about 1.5 units.', 'बिजली बिल की एक यूनिट (1 kWh)। एक पंखा पूरे दिन चले तो लगभग 1.5 यूनिट खर्च होती है।')}</dd></div>
 <div><dt>${tr('Subsidy', 'सब्सिडी')}</dt><dd>${tr('Money the government pays back to you under PM Surya Ghar, after the system is installed.', 'पीएम सूर्य घर योजना में सरकार सिस्टम लगने के बाद यह पैसा आपके खाते में वापस देती है।')}</dd></div>
-<div><dt>${tr('On-grid', 'ऑन-ग्रिड')}</dt><dd>${tr('Solar connected to the electricity line, without batteries. Only on-grid systems get the subsidy.', 'बिना बैटरी, बिजली लाइन से जुड़ा सोलर। सब्सिडी केवल ऑन-ग्रिड सिस्टम पर मिलती है।')}</dd></div>
+<div><dt>${tr('On-grid', 'ऑन-ग्रिड')}</dt><dd>${tr('Solar connected to the electricity line, without batteries. The subsidy is for grid-connected systems.', 'बिना बैटरी, बिजली लाइन से जुड़ा सोलर। सब्सिडी ग्रिड से जुड़े सिस्टम पर मिलती है।')}</dd></div>
 <div><dt>${tr('Net meter', 'नेट मीटर')}</dt><dd>${tr('A two-way meter. It counts units you take from the line and units your panels send to it.', 'दो-तरफ़ा मीटर। यह लाइन से ली गई और पैनल से लाइन में भेजी गई, दोनों यूनिट गिनता है।')}</dd></div>
 <div><dt>${tr('DCR panels', 'DCR पैनल')}</dt><dd>${tr('Panels made with Indian cells. Required for the subsidy; your installer will use them.', 'भारतीय सेल से बने पैनल। सब्सिडी के लिए ज़रूरी हैं; इंस्टॉलर यही लगाते हैं।')}</dd></div>
 </dl></section>`;
@@ -67,7 +67,7 @@ module.exports = function solarPages(lang, ctx) {
 <div class="table-wrap"><table><thead><tr><th></th><th class="num">${tr('Use 700, solar makes 600', 'खपत 700, सोलर 600')}</th><th class="num">${tr('Use 600, solar makes 700', 'खपत 600, सोलर 700')}</th></tr></thead><tbody>
 <tr><td>${tr('Solar units used at home', 'घर में इस्तेमाल सोलर यूनिट')}</td><td class="num">600</td><td class="num">600</td></tr>
 <tr><td>${tr('Units bought from the company', 'कंपनी से खरीदी यूनिट')}</td><td class="num">100</td><td class="num">0</td></tr>
-<tr><td>${tr('Extra units sold to the grid', 'ग्रिड को बेची अतिरिक्त यूनिट')}</td><td class="num">0</td><td class="num">100 × ₹${x.toFixed(0)}</td></tr>
+<tr><td>${tr('Extra units sold to the grid', 'ग्रिड को बेची अतिरिक्त यूनिट')}</td><td class="num">0</td><td class="num">100 × ₹${x.toFixed(2)}</td></tr>
 <tr><td>${tr('Bill before → after', 'बिल पहले → बाद में')}</td><td class="num">${inr(700 * r)} → ${inr(100 * r)}</td><td class="num">${inr(600 * r)} → ₹0</td></tr>
 <tr class="total"><td>${tr('Saving per month', 'हर महीने बचत')}</td><td class="num">${inr(600 * r)}</td><td class="num">${inr(600 * r + 100 * x)}</td></tr>
 </tbody></table></div>
@@ -123,7 +123,7 @@ ${adSlot('after-calc')}
 <ul class="ticks">
 <li><strong>${tr('Brand:', 'ब्रांड:')}</strong> ${tr('Adani, Waaree, Tata Power Solar and others differ by about 5–15%.', 'अदाणी, वारी, टाटा पावर सोलर आदि की कीमतों में लगभग 5–15% का फ़र्क होता है।')}</li>
 <li><strong>${tr('Stand height:', 'स्टैंड की ऊँचाई:')}</strong> ${tr('a raised stand (so you can use the roof below) costs more.', 'ऊँचा स्टैंड (ताकि नीचे छत इस्तेमाल हो सके) महँगा पड़ता है।')}</li>
-<li><strong>${tr('Battery:', 'बैटरी:')}</strong> ${tr('a system with batteries costs much more, and does not get the subsidy.', 'बैटरी वाला सिस्टम काफ़ी महँगा है और उस पर सब्सिडी नहीं मिलती।')}</li>
+<li><strong>${tr('Battery:', 'बैटरी:')}</strong> ${tr('a system with batteries costs much more, and the subsidy does not cover the battery.', 'बैटरी वाला सिस्टम काफ़ी महँगा है और सब्सिडी बैटरी का खर्च नहीं देती।')}</li>
 </ul>
 </section>
 </div>
@@ -240,6 +240,7 @@ ${adSlot('after-calc')}
 <li><a href="${PAGES.solar}">${icon('sun')}<strong>${tr('Gujarat solar savings', 'गुजरात सोलर बचत')}</strong><small>${tr("Uses your electricity company's exact rates", 'आपकी बिजली कंपनी की सटीक दरों से')}</small></a></li>
 <li><a href="${PAGES.gujaratBill}">${icon('bolt')}<strong>${tr('Gujarat electricity bill', 'गुजरात बिजली बिल')}</strong><small>UGVCL, MGVCL, DGVCL, PGVCL, Torrent</small></a></li>
 <li><a href="${PAGES.ev}">${icon('car')}<strong>${tr('Electric vehicle charging', 'इलेक्ट्रिक गाड़ी चार्जिंग')}</strong><small>${tr('Cost per km at home and outside', 'घर और बाहर, प्रति किमी खर्च')}</small></a></li>
+${(ctx.states || []).map((st) => `<li><a href="${st.stateSlug}-electricity-bill-calculator.html">${icon('bolt')}<strong>${esc(tr(`${st.state} electricity bill`, `${st.stateHi} बिजली बिल`))}</strong><small>${tr('Bill and rooftop solar for your state', 'आपके राज्य का बिल और सोलर')}</small></a></li>`).join('')}
 </ul></section>
 ${glossary}
 ${faqHtml(faqs, lang)}`
