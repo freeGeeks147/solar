@@ -1,6 +1,6 @@
 {
   "_rules": "Edited by the news agent (see .github/news-agent.md). build.js checks every entry (src/news.js): each source must be an official government or regulator site or a listed news outlet; kind 'official' needs one official source, kind 'reported' needs two different outlets. Demands, estimates and expectations must say so.",
-  "last_checked": "2026-11-15",
+  "last_checked": "2026-11-17",
   "status": [
     {
       "label": {"en": "Central subsidy (PM Surya Ghar)", "hi": "केंद्र की सब्सिडी (पीएम सूर्य घर)"},
@@ -14,8 +14,8 @@
     },
     {
       "label": {"en": "Homes with rooftop solar under the scheme", "hi": "योजना में रूफ़टॉप सोलर वाले घर"},
-      "value": {"en": "Over 50 lakh (August 2026); target 1 crore", "hi": "50 लाख से ज़्यादा (अगस्त 2026); लक्ष्य 1 करोड़"},
-      "source": "https://www.outlookbusiness.com/news/pm-surya-ghar-scheme-crosses-50-lakh-rooftop-solar-installations"
+      "value": {"en": "About 66 lakh (November 2026); target 1 crore", "hi": "लगभग 66 लाख (नवंबर 2026); लक्ष्य 1 करोड़"},
+      "source": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2335824"
     },
     {
       "label": {"en": "GST on solar panels and devices", "hi": "सोलर पैनल और उपकरणों पर GST"},
@@ -29,6 +29,16 @@
     }
   ],
   "items": [
+    {
+      "date": "2026-11-13",
+      "kind": "official",
+      "title": {"en": "PM Surya Ghar reaches 66 lakh homes", "hi": "पीएम सूर्य घर 66 लाख घरों तक पहुँची"},
+      "summary": {"en": "Union Minister Pralhad Joshi said on 13 November 2026 that 66 lakh households have now benefited from rooftop solar under PM Surya Ghar: Muft Bijli Yojana. The scheme aims to reach 1 crore homes.", "hi": "केंद्रीय मंत्री प्रह्लाद जोशी ने 13 नवंबर 2026 को बताया कि पीएम सूर्य घर: मुफ़्त बिजली योजना के तहत अब तक 66 लाख घरों को रूफ़टॉप सोलर का लाभ मिल चुका है। योजना का लक्ष्य 1 करोड़ घर है।"},
+      "sources": [
+        {"name": "PIB", "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2335824"},
+        {"name": "Business Standard", "url": "https://www.business-standard.com/industry/news/renewable-energy-investments-worth-43-871-crore-pledged-in-andhra-joshi-126111301525_1.html"}
+      ]
+    },
     {
       "date": "2026-10-22",
       "kind": "reported",
