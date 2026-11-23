@@ -1,6 +1,6 @@
 {
   "_rules": "Edited by the news agent (see .github/news-agent.md). build.js checks every entry (src/news.js): each source must be an official government or regulator site or a listed news outlet; kind 'official' needs one official source, kind 'reported' needs two different outlets. Demands, estimates and expectations must say so.",
-  "last_checked": "2026-11-21",
+  "last_checked": "2026-11-23",
   "status": [
     {
       "label": {"en": "Central subsidy (PM Surya Ghar)", "hi": "केंद्र की सब्सिडी (पीएम सूर्य घर)"},
@@ -29,6 +29,16 @@
     }
   ],
   "items": [
+    {
+      "date": "2026-10-30",
+      "kind": "reported",
+      "title": {"en": "Gujarat replaces its rooftop solar net-metering rules", "hi": "गुजरात ने रूफ़टॉप सोलर नेट मीटरिंग के नियम बदले"},
+      "summary": {"en": "GERC has notified new rules for rooftop and other small solar systems (Notification No. 11 of 2026), replacing the 2016 net-metering regulations. Homes on net metering can set off all the power they export against what they use, with no banking charge; extra units are bought at ₹2.25 a unit unless GERC sets another rate.", "hi": "GERC ने रूफ़टॉप और दूसरे छोटे सोलर सिस्टम के लिए नए नियम (अधिसूचना संख्या 11, 2026) जारी किए हैं, जो 2016 के नेट मीटरिंग नियमों की जगह लेंगे। नेट मीटरिंग वाले घर ग्रिड को भेजी गई पूरी बिजली को अपनी खपत में घटा सकेंगे, इस पर कोई बैंकिंग चार्ज नहीं लगेगा; अतिरिक्त यूनिट ₹2.25 प्रति यूनिट पर खरीदी जाएंगी, जब तक GERC कोई और दर तय न करे।"},
+      "sources": [
+        {"name": "SolarQuarter", "url": "https://solarquarter.com/2026/11/02/gerc-notifies-2026-distributed-renewable-energy-regulations-introduces-five-metering-options-and-bess-requirements-in-gujarat/"},
+        {"name": "Energetica India", "url": "https://www.energetica-india.net/news/gujarat-allows-up-to-4-mw-distributed-re-systems-under-new-rules"}
+      ]
+    },
     {
       "date": "2026-11-13",
       "kind": "official",
