@@ -1,6 +1,6 @@
 {
   "_rules": "Edited by the news agent (see .github/news-agent.md). build.js checks every entry (src/news.js): each source must be an official government or regulator site or a listed news outlet; kind 'official' needs one official source, kind 'reported' needs two different outlets. Demands, estimates and expectations must say so.",
-  "last_checked": "2026-11-25",
+  "last_checked": "2026-11-27",
   "status": [
     {
       "label": {"en": "Central subsidy (PM Surya Ghar)", "hi": "केंद्र की सब्सिडी (पीएम सूर्य घर)"},
@@ -29,6 +29,16 @@
     }
   ],
   "items": [
+    {
+      "date": "2026-11-23",
+      "kind": "reported",
+      "title": {"en": "Stalled PM Surya Ghar applications will be archived from 30 November", "hi": "पीएम सूर्य घर के अटके आवेदन 30 नवंबर से आर्काइव होंगे"},
+      "summary": {"en": "MNRE will archive inactive PM Surya Ghar applications in phases, starting 30 November 2026. This hits applications where a vendor was not chosen or the installation was not finished in time. If you have applied, check your status on the national portal and pick a vendor; an archived application can be filed again, but as a new one.", "hi": "MNRE 30 नवंबर 2026 से पीएम सूर्य घर के निष्क्रिय आवेदनों को चरणों में आर्काइव करेगा। इसमें वे आवेदन आएंगे जिनमें समय पर वेंडर नहीं चुना गया या इंस्टॉलेशन पूरा नहीं हुआ। अगर आपने आवेदन किया है तो राष्ट्रीय पोर्टल पर अपनी स्थिति देखें और वेंडर चुनें; आर्काइव हुआ आवेदन दोबारा किया जा सकता है, लेकिन नए आवेदन की तरह।"},
+      "sources": [
+        {"name": "SolarQuarter", "url": "https://solarquarter.com/2026/11/26/mnre-introduces-phased-archiving-of-inactive-pm-surya-ghar-applications-from-november-30/"},
+        {"name": "Mercom India", "url": "https://www.mercomindia.com/mnre-to-archive-inactive-pm-surya-ghar-applications"}
+      ]
+    },
     {
       "date": "2026-10-30",
       "kind": "reported",
